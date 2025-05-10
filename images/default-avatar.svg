@@ -1,0 +1,6 @@
+/* This is a Data URI of a simple default user avatar */
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <circle fill="#AAB8C2" cx="100" cy="100" r="100"/>
+  <circle fill="#FFFFFF" cx="100" cy="70" r="30"/>
+  <path fill="#FFFFFF" d="M100 120c-22 0-40 18-40 40v40h80v-40c0-22-18-40-40-40z"/>
+</svg>
