@@ -8,62 +8,55 @@ function loadTimeline() {
     if (!auth.currentUser) {
         return;
     }
-    
+
+    const currentUserId = auth.currentUser.uid;
+
     // Show loading state
     yapsContainer.innerHTML = '<div class="loading">Loading Yaps...</div>';
-    
-    // Get the most recent yaps
-    database.ref('yaps')
-        .orderByChild('timestamp')
-        .limitToLast(50)  // Limit to the 50 most recent yaps
-        .once('value')
+
+    // Get followed users
+    database.ref(`following/${currentUserId}`).once('value')
         .then(snapshot => {
-            // Clear the loading message
-            yapsContainer.innerHTML = '';
-            
-            // Check if there are any yaps
-            if (!snapshot.exists()) {
-                yapsContainer.innerHTML = '<p class="no-yaps">No Yaps yet. Be the first to Yap!</p>';
+            const following = snapshot.val() || {};
+            const followedUserIds = Object.keys(following);
+
+            if (followedUserIds.length === 0) {
+                yapsContainer.innerHTML = '<p class="no-yaps">Follow users to see their Yaps!</p>';
                 return;
             }
-            
-            // Get all yaps and reverse them to show newest first
-            const yaps = [];
-            snapshot.forEach(childSnapshot => {
-                const yapData = childSnapshot.val();
-                yapData.id = childSnapshot.key;
-                yaps.push(yapData);
+
+            // Fetch yaps from followed users
+            const yapPromises = followedUserIds.map(userId => {
+                return database.ref(`userYaps/${userId}`).once('value');
             });
-            
-            // Reverse to get newest first
-            yaps.reverse();
-            
-            // Get current user's likes and reyaps
-            return Promise.all([
-                database.ref(`userLikes/${auth.currentUser.uid}`).once('value'),
-                database.ref(`userReyaps/${auth.currentUser.uid}`).once('value')
-            ]).then(([likesSnapshot, reyapsSnapshot]) => {
-                const userLikes = likesSnapshot.val() || {};
-                const userReyaps = reyapsSnapshot.val() || {};
-                
-                // Render each yap
-                yaps.forEach(yapData => {
-                    const yapElement = createYapElement(
-                        yapData, 
-                        userLikes[yapData.id] || false,
-                        userReyaps[yapData.id] || false
-                    );
-                    yapsContainer.appendChild(yapElement);
+
+            return Promise.all(yapPromises);
+        })
+        .then(results => {
+            const yaps = [];
+
+            results.forEach(snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const yapData = childSnapshot.val();
+                    yapData.id = childSnapshot.key;
+                    yaps.push(yapData);
                 });
+            });
+
+            // Sort yaps by timestamp
+            yaps.sort((a, b) => b.timestamp - a.timestamp);
+
+            // Render yaps
+            yapsContainer.innerHTML = '';
+            yaps.forEach(yapData => {
+                const yapElement = createYapElement(yapData);
+                yapsContainer.appendChild(yapElement);
             });
         })
         .catch(error => {
             console.error('Error loading timeline:', error);
             yapsContainer.innerHTML = `<p class="error">Error loading Yaps: ${error.message}</p>`;
         });
-    
-    // Set up real-time listeners for new yaps
-    setupRealTimeUpdates();
 }
 
 // Create a yap element

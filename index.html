@@ -237,6 +237,21 @@
                 openYapModal();
             });
         }
+
+        // Toggle follow button text and functionality
+        function toggleFollow(userId) {
+            const followBtn = event.currentTarget;
+            const isFollowing = followBtn.classList.toggle('following');
+            
+            // Update button text based on following status
+            followBtn.innerText = isFollowing ? 'Following' : 'Follow';
+            
+            // TODO: Implement actual follow/unfollow functionality with Firebase
+            const snackbar = document.getElementById('snackbar');
+            snackbar.innerText = isFollowing ? 'You are now following this user.' : 'You have unfollowed this user.';
+            snackbar.classList.add('show');
+            setTimeout(() => { snackbar.classList.remove('show'); }, 3000);
+        }
     </script>
 </body>
 </html>

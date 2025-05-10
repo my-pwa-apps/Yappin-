@@ -948,3 +948,39 @@ function debounce(func, wait) {
 
 // Initialize bookmark system when the DOM is ready
 document.addEventListener('DOMContentLoaded', initBookmarkSystem);
+
+// Add follow/unfollow functionality
+function toggleFollow(userId) {
+    if (!auth.currentUser) {
+        showSnackbar('You must be logged in to follow users', 'error');
+        return;
+    }
+
+    const currentUserId = auth.currentUser.uid;
+    const followingRef = database.ref(`following/${currentUserId}/${userId}`);
+    const followersRef = database.ref(`followers/${userId}/${currentUserId}`);
+
+    followingRef.once('value')
+        .then(snapshot => {
+            if (snapshot.exists()) {
+                // Unfollow user
+                const updates = {};
+                updates[`following/${currentUserId}/${userId}`] = null;
+                updates[`followers/${userId}/${currentUserId}`] = null;
+                return database.ref().update(updates);
+            } else {
+                // Follow user
+                const updates = {};
+                updates[`following/${currentUserId}/${userId}`] = true;
+                updates[`followers/${userId}/${currentUserId}`] = true;
+                return database.ref().update(updates);
+            }
+        })
+        .then(() => {
+            showSnackbar('Follow status updated', 'success');
+        })
+        .catch(error => {
+            console.error('Error toggling follow:', error);
+            showSnackbar(`Error: ${error.message}`, 'error');
+        });
+}
