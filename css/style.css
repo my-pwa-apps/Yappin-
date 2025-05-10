@@ -1,19 +1,19 @@
 /* Main Styling for Yappin' PWA */
 
 :root {
-    /* Base colors */
-    --primary-color: #1DA1F2; /* Twitter Blue */
-    --primary-hover: #1a91da;
-    --primary-light: rgba(29, 161, 242, 0.1);
-    --secondary-color: #14171A;
-    --light-gray: #AAB8C2;
-    --border-color: #E1E8ED;
-    --hover-color: #F5F8FA;
-    --text-primary: #14171A;
-    --text-secondary: #657786;
-    --danger-color: #E0245E;
-    --success-color: #17BF63;
-    --warning-color: #FFAD1F;
+    /* Base colors - Green-Gray Theme */
+    --primary-color: #4CAF50; /* Green primary */
+    --primary-hover: #43A047;
+    --primary-light: rgba(76, 175, 80, 0.1);
+    --secondary-color: #455A64; /* Blue-gray secondary */
+    --light-gray: #B0BEC5; 
+    --border-color: #CFD8DC;
+    --hover-color: #ECEFF1;
+    --text-primary: #37474F; /* Dark blue-gray */
+    --text-secondary: #607D8B; /* Blue-gray */
+    --danger-color: #F44336; /* Red */
+    --success-color: #4CAF50; /* Green */
+    --warning-color: #FFA000; /* Amber */
     
     /* Layout */
     --container-max-width: 1300px;

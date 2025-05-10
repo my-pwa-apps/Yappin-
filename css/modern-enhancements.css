@@ -1,0 +1,175 @@
+/* Additional modern enhancements for the Green-Gray theme */
+
+/* Elegant scrollbar for desktop */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--hover-color);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--text-secondary);
+    border-radius: 20px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary-color);
+  }
+}
+
+/* Enhance action buttons with subtle animations */
+.action-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn i {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.action-btn:hover i {
+  transform: scale(1.2);
+}
+
+.action-btn.liked i, .action-btn.reyapped i, .action-btn.bookmarked i {
+  animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+/* Enhanced logo animation */
+.logo h1 {
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+
+/* Modern pill badges */
+.notification-badge {
+  position: relative;
+  height: 18px;
+  min-width: 18px;
+  background: var(--primary-color);
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+}
+
+/* Elegant focus outline */
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.35);
+  border-radius: 4px;
+}
+
+/* Enhanced header glassmorphism */
+header {
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom checkboxes and radio buttons */
+input[type="checkbox"], input[type="radio"] {
+  position: relative;
+  width: 1.5em;
+  height: 1.5em;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  appearance: none;
+  outline: 0;
+  cursor: pointer;
+  transition: background 175ms cubic-bezier(0.1, 0.1, 0.25, 1);
+}
+
+input[type="radio"] {
+  border-radius: 50%;
+}
+
+input[type="checkbox"]::before, input[type="radio"]::before {
+  position: absolute;
+  content: '';
+  display: block;
+  top: 0;
+  left: 0;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: inherit;
+  background-color: transparent;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+}
+
+input[type="checkbox"]:checked, input[type="radio"]:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+input[type="checkbox"]:checked::before {
+  content: '';
+  transform: scale(1);
+  background-color: white;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+input[type="radio"]:checked::before {
+  transform: scale(0.5);
+  background-color: white;
+}
+
+/* Media upload button enhancement */
+.attach-options button {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  transition: all var(--transition-fast);
+  overflow: hidden;
+}
+
+.attach-options button:hover {
+  background-color: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+/* Enhanced mobile experience */
+@media (max-width: 768px) {
+  /* Improved top spacing */
+  main {
+    padding-top: 10px;
+    padding-bottom: 60px;
+  }
+  
+  /* Better touch targets */
+  .action-btn {
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Smoother animations */
+  .mobile-nav ul li a:active i {
+    transform: scale(0.9);
+  }
+}
