@@ -38,30 +38,31 @@
     --transition-normal: 0.3s ease;
 }
 
-/* Dark Mode Theme */
+/* Dark Mode Theme - Green-Gray Theme */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-primary: #E7E9EA;
-        --text-secondary: #71767B;
-        --border-color: #2F3336;
-        --hover-color: #16181C;
-        --primary-light: rgba(76, 175, 80, 0.15);
+        --text-primary: #ECEFF1; /* Light blue-gray */
+        --text-secondary: #B0BEC5; /* Blue-gray lighter */
+        --border-color: #263238; /* Dark blue-gray */
+        --hover-color: #1E2B32; /* Very dark blue-gray */
+        --primary-light: rgba(76, 175, 80, 0.15); /* Green with opacity */
+        --primary-color: #66BB6A; /* Slightly lighter green for better contrast */
+        --primary-hover: #81C784;
     }
     
     body {
-        background-color: #000;
+        background-color: #121a1f; /* Dark blue-gray background */
         color: var(--text-primary);
     }
     
     header, .dropdown, .modal-content {
-        background-color: #000;
+        background-color: #1a252b; /* Slightly lighter than body for contrast */
     }
-    
-    /* Fix for dark mode header */
+      /* Modern glass effect for dark mode */
     header {
-        background-color: rgba(0, 0, 0, 0.9);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        background-color: rgba(26, 37, 43, 0.8); /* Dark blue-gray with opacity */
     }
     
     .yap-item:hover, .trend-item:hover {
