@@ -227,3 +227,17 @@ function checkUserProfile(user) {
             console.error('Error checking user profile:', error);
         });
 }
+
+// Debugging: Log the current authenticated user
+console.log('[DEBUG] Current authenticated user:', auth.currentUser);
+
+// Debugging: Test write operation
+const testRef = database.ref('test/debug');
+testRef.set({
+    message: 'This is a test write',
+    timestamp: Date.now()
+}).then(() => {
+    console.log('[DEBUG] Test write succeeded');
+}).catch(error => {
+    console.error('[DEBUG] Test write failed:', error);
+});
