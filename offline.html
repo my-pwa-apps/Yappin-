@@ -15,21 +15,21 @@
             --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
-        
-        /* Dark mode support */
+          /* Dark mode support */
         @media (prefers-color-scheme: dark) {
             :root {
-                --text-primary: #E7E9EA;
-                --text-secondary: #71767B;
-                --border-color: #2F3336;
+                --text-primary: #ECEFF1; /* Light blue-gray */
+                --text-secondary: #B0BEC5; /* Blue-gray lighter */
+                --border-color: #263238; /* Dark blue-gray */
+                --primary-color: #66BB6A; /* Slightly lighter green for better contrast */
             }
             body {
-                background-color: #000;
+                background-color: #121a1f; /* Dark blue-gray background */
                 color: var(--text-primary);
             }
             .offline-container {
-                background-color: #16181C;
-                border: 1px solid #2F3336;
+                background-color: #1a252b; /* Slightly lighter than body for contrast */
+                border: 1px solid #263238;
             }
         }
         

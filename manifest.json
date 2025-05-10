@@ -1,11 +1,11 @@
 {
   "name": "Yappin'",
-  "short_name": "Yappin'",
-  "description": "Share your thoughts with the world in short Yaps!",
-  "start_url": "/",
+  "short_name": "Yappin'",  "description": "Share your thoughts with the world in short Yaps!",  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
+  "background_color_dark": "#121a1f",
   "theme_color": "#4CAF50",
+  "theme_color_dark": "#66BB6A",
   "orientation": "portrait-primary",
   "icons": [
     {

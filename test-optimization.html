@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#66BB6A">
+    <title>Yappin' Optimization Test</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/optimized.css">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/svg+xml" href="./images/icons/favicon.svg">
+    <link rel="apple-touch-icon" href="./images/icons/icon-192x192.png">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .test-section {
+            margin: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+        
+        .test-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .test-header h2 {
+            margin: 0;
+        }
+        
+        .example-yap {
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+        
+        .example-user {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .example-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: var(--hover-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .example-avatar i {
+            font-size: 24px;
+            color: var(--text-secondary);
+        }
+        
+        .debug-info {
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .debug-info {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        }
+        
+        .theme-toggle {
+            padding: 10px;
+            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <a href="#" class="logo-link">
+                    <img src="./images/icons/logo.svg" alt="Yappin' Logo" class="logo-img">
+                    <h1 data-text="Yappin'">Yappin'</h1>
+                </a>
+            </div>
+            <div>
+                <button class="theme-toggle" id="themeToggleBtn">
+                    <i class="fas fa-sun"></i>
+                    <span>Toggle Theme</span>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="test-section">
+                <div class="test-header">
+                    <h2>Dark Mode Header Test</h2>
+                </div>
+                <p>This header should be dark in dark mode (#1a252b) and have a subtle shadow.</p>
+            </div>
+
+            <div class="test-section">
+                <div class="test-header">
+                    <h2>Action Buttons Test</h2>
+                </div>
+                <div class="example-yap">
+                    <div class="example-user">
+                        <div class="example-avatar"><i class="fas fa-user"></i></div>
+                        <div>
+                            <strong>Test User</strong>
+                            <div class="text-secondary">@testuser</div>
+                        </div>
+                    </div>
+                    <p>This is a test Yap to demonstrate our action buttons.</p>
+                    <div class="action-buttons" style="display: flex; gap: 15px; margin-top: 15px;">
+                        <button class="action-btn"><i class="far fa-comment"></i> <span>Reply</span></button>
+                        <button class="action-btn"><i class="fas fa-retweet"></i> <span>ReYap</span></button>
+                        <button class="action-btn"><i class="far fa-heart"></i> <span>Like</span></button>
+                        <button class="action-btn"><i class="far fa-bookmark"></i> <span>Save</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="test-section">
+                <div class="test-header">
+                    <h2>Mobile Layout Test</h2>
+                </div>
+                <p>On mobile devices (width &lt; 768px), this page should have:</p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>The bottom navigation bar</li>
+                    <li>Proper spacing at the top and bottom</li>
+                    <li>Action buttons with proper touch target sizes</li>
+                </ul>
+            </div>
+
+            <div class="test-section">
+                <div class="test-header">
+                    <h2>Debug Information</h2>
+                </div>
+                <div class="debug-info">
+                    <div id="viewport-width">Viewport Width: <span>-</span></div>
+                    <div id="color-scheme">Preferred Color Scheme: <span>-</span></div>
+                    <div id="dark-mode-active">Dark Mode Active: <span>-</span></div>
+                    <div id="css-loaded">CSS Files Loaded: <span>-</span></div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="mobile-nav">
+            <ul>
+                <li><a href="#" class="active"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                <li><a href="#"><i class="fas fa-search"></i> <span>Explore</span></a></li>
+                <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
+                <li><a href="#"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <script>
+        // Update debug information
+        const updateDebugInfo = () => {
+            // Viewport width
+            document.querySelector('#viewport-width span').textContent = window.innerWidth + 'px';
+            
+            // Preferred color scheme
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.querySelector('#color-scheme span').textContent = prefersDark ? 'Dark' : 'Light';
+            
+            // Check if dark mode is active (by testing the computed background color of body)
+            const bodyBgColor = getComputedStyle(document.body).backgroundColor;
+            document.querySelector('#dark-mode-active span').textContent = 
+                bodyBgColor !== 'rgb(255, 255, 255)' && bodyBgColor !== 'rgba(0, 0, 0, 0)' ? 'Yes' : 'No';
+            
+            // CSS files loaded
+            const cssFiles = Array.from(document.styleSheets)
+                .filter(sheet => !sheet.href || sheet.href.includes('yappin'))
+                .map(sheet => {
+                    const parts = sheet.href ? sheet.href.split('/') : ['inline'];
+                    return parts[parts.length - 1];
+                })
+                .join(', ');
+            document.querySelector('#css-loaded span').textContent = cssFiles;
+        };
+        
+        // Update when page loads
+        window.addEventListener('load', updateDebugInfo);
+        window.addEventListener('resize', updateDebugInfo);
+        
+        // Add functionality to theme toggle button for testing
+        document.getElementById('themeToggleBtn').addEventListener('click', function() {
+            // This is just for visual testing - doesn't actually change the system preference
+            document.body.classList.toggle('force-dark');
+            
+            if (document.body.classList.contains('force-dark')) {
+                document.body.style.backgroundColor = '#121a1f';
+                document.body.style.color = '#ECEFF1';
+                document.querySelector('header').style.backgroundColor = '#1a252b';
+            } else {
+                document.body.style.backgroundColor = '';
+                document.body.style.color = '';
+                document.querySelector('header').style.backgroundColor = '';
+            }
+            
+            updateDebugInfo();
+        });
+        
+        // Make action buttons interactable for testing
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                
+                if (icon.classList.contains('fas') && !icon.classList.contains('fa-retweet')) {
+                    icon.classList.replace('fas', 'far');
+                    this.classList.remove('liked', 'bookmarked');
+                } else {
+                    icon.classList.replace('far', 'fas');
+                    
+                    if (icon.classList.contains('fa-heart')) {
+                        this.classList.add('liked');
+                    } else if (icon.classList.contains('fa-bookmark')) {
+                        this.classList.add('bookmarked');
+                    }
+                }
+                
+                // For retweet button
+                if (icon.classList.contains('fa-retweet')) {
+                    this.classList.toggle('reyapped');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
