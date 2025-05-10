@@ -51,13 +51,12 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 1.3em; /* Increased size of the logo text */
-  /* animation: shine 3s linear infinite; */ /* Animation removed */
 }
 
 /* Logo image size increase */
 .logo img {
   width: auto;
-  height: 2.5rem; /* Increase the logo image size */
+  height: 3rem; /* Increased from 2.5rem for more noticeable size */
   margin-right: 0.5rem;
 }
 
