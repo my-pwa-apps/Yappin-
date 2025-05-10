@@ -176,3 +176,37 @@ input[type="radio"]:checked::before {
     transform: scale(0.9);
   }
 }
+
+/* Additional Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+  /* Enhanced scrollbar for dark mode */
+  @media (min-width: 769px) {
+    ::-webkit-scrollbar-track {
+      background: var(--hover-color);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--text-secondary);
+    }
+  }
+  
+  /* Dark mode specific styles for action buttons */
+  .action-btn:hover {
+    background-color: var(--hover-color);
+  }
+  
+  /* Dark mode specific enhancements */
+  .notification-badge {
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.5);
+  }
+  
+  /* Enhanced focus effects for dark mode */
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+    box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.45);
+  }
+  
+  /* Dark mode custom form elements */
+  input[type="checkbox"]:checked, input[type="radio"]:checked {
+    border-color: var(--primary-color);
+  }
+}

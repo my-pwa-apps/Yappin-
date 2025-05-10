@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#66BB6A">
+    <title>Yappin' Style Test</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/modern.css">
+    <link rel="stylesheet" href="css/modern-enhancements.css">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/svg+xml" href="./images/icons/favicon.svg">
+    <link rel="apple-touch-icon" href="./images/icons/icon-192x192.png">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        .test-container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+        }
+        
+        h2 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <a href="#" class="logo-link">
+                    <img src="./images/icons/logo.svg" alt="Yappin' Logo" class="logo-img">
+                    <h1 data-text="Yappin'">Yappin'</h1>
+                </a>
+            </div>
+            <div class="user-menu">
+                <button id="userBtn"><i class="fas fa-user"></i></button>
+            </div>
+        </header>
+
+        <main>
+            <div class="test-container">
+                <div class="test-section">
+                    <h2>Dark Mode Test</h2>
+                    <p>This text should change color in dark mode.</p>
+                    <button class="btn primary-btn">Primary Button</button>
+                    <button class="btn secondary-btn">Secondary Button</button>
+                </div>
+                
+                <div class="test-section">
+                    <h2>Action Buttons Test</h2>
+                    <div class="action-buttons">
+                        <button class="action-btn"><i class="fas fa-heart"></i> <span>Like</span></button>
+                        <button class="action-btn liked"><i class="fas fa-heart"></i> <span>Liked</span></button>
+                        <button class="action-btn"><i class="fas fa-retweet"></i> <span>ReYap</span></button>
+                        <button class="action-btn reyapped"><i class="fas fa-retweet"></i> <span>ReYapped</span></button>
+                    </div>
+                </div>
+                
+                <div class="test-section">
+                    <h2>Form Elements Test</h2>
+                    <div class="form-group">
+                        <label for="testInput">Input Field</label>
+                        <input type="text" id="testInput" placeholder="Type something...">
+                    </div>
+                    <div class="form-group">
+                        <label for="testCheckbox">Checkbox</label>
+                        <input type="checkbox" id="testCheckbox">
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <nav class="mobile-nav">
+            <ul>
+                <li><a href="#" class="active"><i class="fas fa-home"></i> <span>Home</span></a></li>
+                <li><a href="#"><i class="fas fa-search"></i> <span>Explore</span></a></li>
+                <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
+                <li><a href="#"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <script>
+        // Simple script to test action button animations
+        document.querySelectorAll('.action-btn:not(.liked):not(.reyapped)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('liked') || this.classList.contains('reyapped')) {
+                    this.classList.remove('liked', 'reyapped');
+                } else {
+                    if (this.querySelector('.fa-heart')) {
+                        this.classList.add('liked');
+                    } else if (this.querySelector('.fa-retweet')) {
+                        this.classList.add('reyapped');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
