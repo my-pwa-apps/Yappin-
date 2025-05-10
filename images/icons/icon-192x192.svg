@@ -1,0 +1,25 @@
+<!-- This is a base64 encoded PNG image for icon-192x192.png -->
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <circle cx="96" cy="96" r="93" fill="url(#green_gradient)" />
+  <circle cx="96" cy="96" r="93" stroke="#4CAF50" stroke-width="3" stroke-opacity="0.3" />
+  
+  <!-- Chat bubble shapes - stylized Y for Yappin -->
+  <path d="M103 63C125 63 144 82 144 104C144 126 125 145 103 145H75L56 164V145C48.5 140 43 134 43 104C43 82 62 63 84 63H103Z" fill="white" />
+  <!-- Y shape inside the bubble -->
+  <path d="M77 86L90 104L103 86" stroke="#4CAF50" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M90 104L90 122" stroke="#4CAF50" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Small speech bubbles -->
+  <circle cx="120" cy="78" r="7" fill="#4CAF50" opacity="0.8" />
+  <circle cx="131" cy="93" r="5" fill="#4CAF50" opacity="0.6" />
+  <circle cx="138" cy="108" r="4" fill="#4CAF50" opacity="0.4" />
+  
+  <!-- Define the gradient -->
+  <defs>
+    <linearGradient id="green_gradient" x1="0" y1="0" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66BB6A" />
+      <stop offset="1" stop-color="#388E3C" />
+    </linearGradient>
+  </defs>
+</svg>

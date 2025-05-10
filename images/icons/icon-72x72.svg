@@ -1,6 +1,20 @@
-<!-- 72x72 Yappin' App Icon -->
-<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#1DA1F2" rx="100" ry="100"/>
-  <circle cx="256" cy="256" r="170" fill="white"/>
-  <path fill="#1DA1F2" d="M336 216c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20zm-160 0c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20zm80 120c-53 0-96-43-96-96h192c0 53-43 96-96 96z"/>
+<!-- 72x72 Yappin' App Icon - Green-Gray Theme -->
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="green_gradient" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66BB6A" />
+      <stop offset="1" stop-color="#388E3C" />
+    </linearGradient>
+  </defs>
+  
+  <circle cx="36" cy="36" r="35" fill="url(#green_gradient)" />
+  <circle cx="36" cy="36" r="35" stroke="#4CAF50" stroke-width="1" stroke-opacity="0.3" />
+  
+  <!-- Chat bubble shapes - stylized Y for Yappin -->
+  <path d="M39 24C47 24 54 31 54 39C54 47 47 54 39 54H28L21 61V54C18 52 16 50 16 39C16 31 23 24 31 24H39Z" fill="white" />
+  
+  <!-- Y shape inside the bubble -->
+  <path d="M29 32L35 40L41 32" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M35 40L35 48" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
 </svg>

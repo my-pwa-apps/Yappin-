@@ -147,20 +147,52 @@ header {
     background-color: rgba(255, 255, 255, 0.95);
 }
 
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    transition: transform var(--transition-fast);
+}
+
+.logo-link:hover {
+    text-decoration: none;
+    transform: scale(1.03);
+}
+
+.logo-img {
+    width: 36px;
+    height: 36px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: transform var(--transition-fast);
+}
+
 .logo h1 {
     color: var(--primary-color);
     font-size: 24px;
     font-weight: 700;
+    margin: 0;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
 }
 
-.logo h1:hover {
-    animation: pulse 1s infinite;
+@keyframes shine {
+    to { background-position: 200% center; }
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+@media (max-width: 480px) {
+    .logo h1 {
+        font-size: 20px;
+    }
+    
+    .logo-img {
+        width: 30px;
+        height: 30px;
+    }
 }
 
 /* User Menu */

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <circle cx="32" cy="32" r="31" fill="url(#green_gradient)" />
+  
+  <!-- Chat bubble shape - simplified for small sizes -->
+  <path d="M34 21C42 21 48 27 48 35C48 43 42 49 34 49H26L20 55V49C17.5 47.4 16 45.5 16 35C16 27 22 21 30 21H34Z" fill="white" />
+  
+  <!-- Y shape inside the bubble -->
+  <path d="M27 29L32 35L37 29" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M32 35L32 41" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Define the gradient -->
+  <defs>
+    <linearGradient id="green_gradient" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66BB6A" />
+      <stop offset="1" stop-color="#388E3C" />
+    </linearGradient>
+  </defs>
+</svg>
