@@ -176,7 +176,11 @@ function checkUsernameAvailability(username) {
 function createUserProfile(user, username) {
     const lowercaseUsername = username.toLowerCase();
     
-    // Create user profile data
+    // Log detailed information just before the database operation
+    console.log('[DEBUG] Attempting createUserProfile for username:', username, '(lowercase:', lowercaseUsername, ')');
+    console.log('[DEBUG] User object passed to createUserProfile:', JSON.stringify(user, null, 2));
+    console.log('[DEBUG] auth.currentUser state:', JSON.stringify(auth.currentUser, null, 2));
+
     const userData = {
         uid: user.uid,
         username: username,
@@ -189,15 +193,19 @@ function createUserProfile(user, username) {
         following: 0
     };
     
-    // Temporarily try a direct set for debugging
+    // Current debugging approach: direct .set() operations, separated
+    console.log('[DEBUG] Attempting to write to: usernames/' + lowercaseUsername + ' with value:', user.uid);
     return database.ref('usernames/' + lowercaseUsername).set(user.uid)
         .then(() => {
-            // If the above succeeds, then try to set the user profile data
-            // This separates the operations.
+            console.log('[DEBUG] SUCCESS writing to usernames/' + lowercaseUsername);
+            console.log('[DEBUG] Attempting to write to: users/' + user.uid);
             return database.ref('users/' + user.uid).set(userData);
+        })
+        .then(() => {
+            console.log('[DEBUG] SUCCESS writing to users/' + user.uid);
         });
 
-    // Original batched update (currently bypassed for debugging):
+    // Original batched update (commented out for debugging)
     // const updates = {};
     // updates[`users/${user.uid}`] = userData;
     // updates[`usernames/${lowercaseUsername}`] = user.uid;
