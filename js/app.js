@@ -23,32 +23,35 @@ window.addEventListener('click', (e) => {
     }
 });
 
-// Show snackbar notification
-function showSnackbar(message) {
+// Utility function to show snackbar notifications
+function showSnackbar(message, duration = 3000) {
     snackbar.textContent = message;
     snackbar.classList.add('show');
-    
-    // After 3 seconds, remove the show class
     setTimeout(() => {
         snackbar.classList.remove('show');
-    }, 3000);
+    }, duration);
+}
+
+// Utility function to toggle modal visibility
+function toggleModal(modal, isVisible) {
+    if (isVisible) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    } else {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
 }
 
 // Open create yap modal
 function openYapModal() {
-    createYapModal.classList.remove('hidden');
+    toggleModal(createYapModal, true);
     modalYapText.focus();
-    
-    // Prevent scrolling on body
-    document.body.style.overflow = 'hidden';
 }
 
 // Close modal
 function closeModal() {
-    createYapModal.classList.add('hidden');
-    
-    // Restore scrolling
-    document.body.style.overflow = '';
+    toggleModal(createYapModal, false);
     
     // Clear the textarea
     modalYapText.value = '';

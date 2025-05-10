@@ -1,6 +1,9 @@
 // Service Worker for Yappin' PWA
 
-const CACHE_NAME = 'yappin-cache-v1';
+const CACHE_VERSION = 'v2';
+const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
+const OFFLINE_URL = '/offline.html';
+
 const urlsToCache = [
   '/',
   '/index.html',
@@ -9,17 +12,17 @@ const urlsToCache = [
   '/js/auth.js',
   '/js/firebase-config.js',
   '/js/timeline.js',
-  '/manifest.json'
+  '/manifest.json',
+  OFFLINE_URL
 ];
 
 // Install service worker and cache static assets
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('Opened cache');
+      return cache.addAll(urlsToCache);
+    })
   );
   // Force service worker to activate immediately
   self.skipWaiting();
@@ -74,9 +77,9 @@ self.addEventListener('fetch', event => {
             return cachedResponse;
           }
           
-          // For navigation requests, return the index page from cache
+          // For navigation requests, return the offline page from cache
           if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
+            return caches.match(OFFLINE_URL);
           }
           
           return new Response('Network error occurred', {
