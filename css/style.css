@@ -492,6 +492,18 @@ main {
     padding: var(--space-md);
 }
 
+/* Hide sidebar create button on wider screens since we have the compose area */
+@media (min-width: 769px) {
+    .create-yap-btn {
+        display: none;
+    }
+    
+    /* Ensure the timeline compose area is visible */
+    .compose-yap {
+        display: block;
+    }
+}
+
 /* Timeline */
 .timeline {
     border-left: 1px solid var(--border-color);

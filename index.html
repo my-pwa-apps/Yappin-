@@ -232,13 +232,12 @@
             });
         }
 
+        // Mobile compose button functionality
         const mobileComposeBtn = document.getElementById('mobileComposeBtn');
         if (mobileComposeBtn) {
             mobileComposeBtn.addEventListener('click', function() {
-                // Use window.openYapModal if it exists, otherwise do nothing
-                if (typeof openYapModal === 'function') {
-                    openYapModal();
-                }
+                // Call the openYapModal function directly from app.js
+                openYapModal();
             });
         }
     </script>

@@ -143,6 +143,9 @@ function openYapModal() {
     updateCharacterCount(modalYapText, modalCharacterCount);
 }
 
+// Make this function available globally
+window.openYapModal = openYapModal;
+
 // Close modal
 function closeModal() {
     // Ask for confirmation if there's unsaved content

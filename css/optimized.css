@@ -62,6 +62,24 @@ body.dark-mode .mobile-nav {
   border-top: 1px solid #263238;
 }
 
+/* Enhanced dark mode styles for mobile */
+body.dark-mode .compose-yap,
+body.dark-mode .compose-yap textarea,
+body.dark-mode .modal-body textarea {
+  background-color: #1E2B32;
+  color: var(--text-primary);
+}
+
+body.dark-mode .yap-content,
+body.dark-mode .yaps-container {
+  color: var(--text-primary);
+}
+
+body.dark-mode .mobile-compose-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
 /* Elegant scrollbar for desktop */
 @media (min-width: 769px) {
   ::-webkit-scrollbar {
