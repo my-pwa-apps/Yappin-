@@ -2,6 +2,18 @@
 
 /* Base Optimizations */
 :root {
+  /* Enhanced color variables for better readability */
+  --primary-color: #4CAF50;
+  --primary-hover: #43A047;
+  --primary-light: rgba(76, 175, 80, 0.1);
+  --secondary-color: #455A64;
+  --light-gray: #B0BEC5;
+  --border-color: #CFD8DC;
+  --hover-color: #ECEFF1;
+  --text-primary: #263238; /* Darker text for better readability */
+  --text-secondary: #455A64; /* Darker secondary text */
+  --background-color: #FFFFFF;
+  
   /* Enhanced shadows for depth */
   --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.08);
@@ -10,6 +22,44 @@
   /* Modern transitions */
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark mode variables - these apply when .dark-mode class is applied to body */
+body.dark-mode {
+  --text-primary: #ECEFF1; 
+  --text-secondary: #B0BEC5;
+  --border-color: #263238;
+  --hover-color: #1E2B32;
+  --primary-light: rgba(76, 175, 80, 0.15);
+  --primary-color: #66BB6A;
+  --primary-hover: #81C784;
+  --background-color: #121a1f;
+}
+
+/* Core dark mode styles */
+body.dark-mode {
+  background-color: #121a1f;
+  color: var(--text-primary);
+}
+
+body.dark-mode header,
+body.dark-mode .dropdown,
+body.dark-mode .modal-content {
+  background-color: #1a252b;
+}
+
+body.dark-mode header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(26, 37, 43, 0.8);
+  border-bottom: 1px solid #263238;
+}
+
+body.dark-mode .mobile-nav {
+  background-color: rgba(26, 37, 43, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid #263238;
 }
 
 /* Elegant scrollbar for desktop */
@@ -180,49 +230,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   }
 }
 
-/* Dark Mode */
-@media (prefers-color-scheme: dark) {
-  /* Enhanced scrollbar for dark mode */
-  @media (min-width: 769px) {
-    ::-webkit-scrollbar-track {
-      background: var(--hover-color);
-    }
-    
-    ::-webkit-scrollbar-thumb {
-      background-color: var(--text-secondary);
-    }
-  }
-  
-  /* Dark mode header */
-  header {
-    background-color: #1a252b;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid #263238;
-    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Dark mode mobile navigation */
-  .mobile-nav {
-    background-color: rgba(26, 37, 43, 0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-top: 1px solid #263238;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Dark mode specific styles for action buttons */
-  .action-btn:hover {
-    background-color: var(--hover-color);
-  }
-  
-  /* Dark mode specific enhancements */
-  .notification-badge {
-    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.5);
-  }
-  
-  /* Enhanced focus effects for dark mode */
-  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
-    box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.45);
+/* Accessibility - for devices with reduced motion preference */
+@media (prefers-reduced-motion) {
+  * {
+    transition: none !important;
+    animation: none !important;
   }
 }

@@ -204,10 +204,18 @@
         
         // Add functionality to theme toggle button for testing
         document.getElementById('themeToggleBtn').addEventListener('click', function() {
-            // This is just for visual testing - doesn't actually change the system preference
-            document.body.classList.toggle('force-dark');
+            const isDarkMode = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
             
-            if (document.body.classList.contains('force-dark')) {
+            // Update button icon if it has one
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            
+            // Apply specific styles for testing
+            if (isDarkMode) {
                 document.body.style.backgroundColor = '#121a1f';
                 document.body.style.color = '#ECEFF1';
                 document.querySelector('header').style.backgroundColor = '#1a252b';

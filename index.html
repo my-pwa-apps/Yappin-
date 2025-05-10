@@ -194,25 +194,53 @@
             });
         }
 
-        // Dark mode toggle functionality
+        // Standard dark mode toggle functionality
         const darkModeToggle = document.getElementById('darkModeToggle');
         const body = document.body;
-
-        // Load saved preference
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            body.classList.toggle('dark-mode', savedTheme === 'dark');
-            darkModeToggle.querySelector('i').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        
+        // Apply system preference or saved setting on load
+        function applyInitialTheme() {
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const savedTheme = localStorage.getItem('theme');
+            const isDarkMode = savedTheme ? savedTheme === 'dark' : systemPrefersDark;
+            
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            
+            if (darkModeToggle) {
+                const icon = darkModeToggle.querySelector('i');
+                if (icon) {
+                    icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            }
+        }
+        
+        // Apply theme on page load
+        applyInitialTheme();
+        
+        // Toggle theme when button is clicked
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDarkMode = body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+                
+                const icon = darkModeToggle.querySelector('i');
+                if (icon) {
+                    icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                }
+            });
         }
 
-        darkModeToggle.addEventListener('click', () => {
-            const isDarkMode = body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            darkModeToggle.querySelector('i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-        });
-
         const mobileComposeBtn = document.getElementById('mobileComposeBtn');
-        mobileComposeBtn.addEventListener('click', openYapModal);
+        if (mobileComposeBtn) {
+            mobileComposeBtn.addEventListener('click', function() {
+                // Use window.openYapModal if it exists, otherwise do nothing
+                if (typeof openYapModal === 'function') {
+                    openYapModal();
+                }
+            });
+        }
     </script>
 </body>
 </html>
