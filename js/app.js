@@ -877,33 +877,29 @@ function hideTooltip(e) {
     }
 }
 
-// Set initial theme
+// Apply the selected theme
+function applyTheme(theme) {
+    const isDarkMode = theme === 'dark';
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    updateThemeIcon(theme);
+}
+
+// Set initial theme based on system preference or saved setting
 function setInitialTheme() {
-    const savedTheme = localStorage.getItem('yappin_theme');
-    
-    if (savedTheme) {
-        document.documentElement.setAttribute('data-theme', savedTheme);
-        updateThemeIcon(savedTheme);
-    } else {
-        // Check system preference
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const theme = prefersDark ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', theme);
-        updateThemeIcon(theme);
-    }
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme');
+    const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    applyTheme(theme);
 }
 
 // Toggle theme
-function toggleTheme() {
+themeToggle.addEventListener('click', () => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('yappin_theme', newTheme);
-    
-    updateThemeIcon(newTheme);
-    showSnackbar(`${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)} mode activated`, 'success', 1500);
-}
+    applyTheme(newTheme);
+});
 
 // Update theme icon
 function updateThemeIcon(theme) {

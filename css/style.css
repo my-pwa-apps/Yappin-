@@ -1130,6 +1130,30 @@ main {
     .create-yap-btn span, .mobile-compose-btn span {
         display: none;
     }
+
+    body.dark-mode {
+        background-color: #121a1f;
+        color: #ECEFF1;
+    }
+
+    .mobile-nav {
+        background-color: #1a252b;
+        border-top: 1px solid #263238;
+    }
+
+    .mobile-nav ul li a {
+        color: #B0BEC5;
+    }
+
+    .mobile-nav ul li a.active {
+        background-color: #263238;
+        color: #66BB6A;
+    }
+
+    .mobile-compose-btn {
+        background-color: #66BB6A;
+        box-shadow: 0 3px 12px rgba(102, 187, 106, 0.3);
+    }
 }
 
 /* Import modern enhancements directly into the main stylesheet */

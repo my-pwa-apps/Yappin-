@@ -181,15 +181,16 @@
         const darkModeToggle = document.getElementById('darkModeToggle');
         const body = document.body;
 
-        // Load saved preference
+        // Apply system dark mode preference on load
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            body.classList.toggle('dark-mode', savedTheme === 'dark');
-            darkModeToggle.querySelector('i').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-        }
+        const isDarkMode = savedTheme ? savedTheme === 'dark' : systemPrefersDark;
+
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        darkModeToggle.querySelector('i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
 
         darkModeToggle.addEventListener('click', () => {
-            const isDarkMode = body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.toggle('dark-mode');
             localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
             darkModeToggle.querySelector('i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
         });

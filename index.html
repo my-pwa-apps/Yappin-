@@ -210,6 +210,9 @@
             localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
             darkModeToggle.querySelector('i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
+
+        const mobileComposeBtn = document.getElementById('mobileComposeBtn');
+        mobileComposeBtn.addEventListener('click', openYapModal);
     </script>
 </body>
 </html>
