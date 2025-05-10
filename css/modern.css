@@ -1,0 +1,293 @@
+/* Modern styling enhancements for Yappin' */
+
+:root {
+  /* Modern color palette */
+  --primary-color: #1DA1F2;
+  --primary-hover: #1a91da;
+  --primary-light: rgba(29, 161, 242, 0.1);
+  --secondary-color: #14171A;
+  --light-gray: #AAB8C2;
+  --border-color: #E1E8ED;
+  --hover-color: #F5F8FA;
+  --text-primary: #14171A;
+  --text-secondary: #657786;
+  --danger-color: #E0245E;
+  --success-color: #17BF63;
+  --warning-color: #FFAD1F;
+  
+  /* Enhanced shadows for depth */
+  --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+  
+  /* Modern transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #E7E9EA;
+    --text-secondary: #71767B;
+    --border-color: #2F3336;
+    --hover-color: #16181C;
+    --primary-light: rgba(29, 161, 242, 0.15);
+  }
+  
+  body {
+    background-color: #000;
+    color: var(--text-primary);
+  }
+  
+  header, .dropdown, .modal-content {
+    background-color: #000;
+  }
+  
+  /* Modern glass effect for dark mode */
+  header {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Improved contrast for dark mode */
+  .auth-container, .modal-content {
+    background-color: #16181C;
+    border: 1px solid #2F3336;
+  }
+}
+
+/* Modern Card Styling */
+.auth-container, .yap-item, .trends-container, .who-to-follow, .modal-content {
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+/* Hover effects */
+.yap-item:hover, .trend-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Modern Button Styling */
+.btn {
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+
+.primary-btn {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 2px 5px rgba(29, 161, 242, 0.2);
+}
+
+.primary-btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(29, 161, 242, 0.3);
+}
+
+/* Modern Header */
+header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Modern compose box */
+.compose-yap {
+  transition: all var(--transition-normal);
+  border-radius: 16px;
+  margin: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.compose-yap:focus-within {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+/* Modern input fields */
+input, textarea {
+  border-radius: 8px;
+  padding: 12px;
+  transition: all var(--transition-normal);
+}
+
+input:focus, textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+  outline: none;
+}
+
+/* Bottom navigation for mobile */
+.mobile-nav {
+  display: none;
+}
+
+/* Modern responsive improvements */
+@media (max-width: 768px) {
+  .content-container {
+    grid-template-columns: 1fr;
+    padding: 0;
+  }
+  
+  /* Better mobile sidebar */
+  .sidebar {
+    display: none;
+  }
+  
+  /* Mobile bottom navigation */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+    padding: 8px 0;
+  }
+  
+  .mobile-nav ul {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+  }
+  
+  .mobile-nav ul li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .mobile-nav ul li a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-decoration: none;
+  }
+  
+  .mobile-nav ul li a i {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  
+  .mobile-nav ul li a.active {
+    color: var(--primary-color);
+  }
+  
+  /* Mobile compose button */
+  .mobile-compose-btn {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    z-index: 99;
+  }
+  
+  /* Dark mode for mobile navigation */
+  @media (prefers-color-scheme: dark) {
+    .mobile-nav {
+      background-color: #000;
+      border-top: 1px solid #2F3336;
+    }
+  }
+  
+  /* Adjusted spacing for mobile */
+  .yap-item {
+    padding: 16px;
+  }
+  
+  /* Improved mobile modal */
+  .modal-content {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    margin: 10% auto;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+/* Animations and transitions */
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.yap-item {
+  animation: slideIn 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+/* Stagger animation for yap items */
+.yap-item:nth-child(1) { animation-delay: 0.05s; }
+.yap-item:nth-child(2) { animation-delay: 0.1s; }
+.yap-item:nth-child(3) { animation-delay: 0.15s; }
+.yap-item:nth-child(4) { animation-delay: 0.2s; }
+.yap-item:nth-child(5) { animation-delay: 0.25s; }
+
+/* Modern skeleton loader */
+.skeleton {
+  background: linear-gradient(90deg, 
+    var(--hover-color) 25%, 
+    rgba(255, 255, 255, 0.5) 50%, 
+    var(--hover-color) 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: 8px;
+}
+
+/* Improved accessibility */
+@media (prefers-reduced-motion) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Modern snackbar */
+#snackbar {
+  border-radius: 50px;
+  box-shadow: var(--shadow-lg);
+  padding: 12px 24px;
+  font-weight: 500;
+}
+
+/* Center content on smaller screens */
+@media (max-width: 480px) {
+  .auth-container {
+    margin: 10% auto;
+    width: 90%;
+  }
+}

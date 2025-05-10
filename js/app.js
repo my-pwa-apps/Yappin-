@@ -2,6 +2,7 @@
 
 // DOM Elements
 const createYapBtn = document.getElementById('createYapBtn');
+const mobileComposeBtn = document.getElementById('mobileComposeBtn');
 const createYapModal = document.getElementById('createYapModal');
 const closeYapModal = document.getElementById('closeYapModal');
 const postYapBtn = document.getElementById('postYapBtn');
@@ -20,6 +21,7 @@ const DRAFTS_STORAGE_KEY = 'yappin_drafts';
 
 // Event Listeners
 createYapBtn.addEventListener('click', openYapModal);
+if (mobileComposeBtn) mobileComposeBtn.addEventListener('click', openYapModal);
 closeYapModal.addEventListener('click', closeModal);
 postYapBtn.addEventListener('click', () => createYap(yapText));
 modalPostYapBtn.addEventListener('click', () => createYap(modalYapText));

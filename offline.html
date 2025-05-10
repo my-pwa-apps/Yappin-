@@ -4,15 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Offline - Yappin'</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">    <style>
         :root {
             --primary-color: #1DA1F2;
             --primary-light: rgba(29, 161, 242, 0.1);
             --text-primary: #14171A;
             --text-secondary: #657786;
             --border-color: #E1E8ED;
+            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
         }
         
         /* Dark mode support */
@@ -26,10 +28,14 @@
                 background-color: #000;
                 color: var(--text-primary);
             }
+            .offline-container {
+                background-color: #16181C;
+                border: 1px solid #2F3336;
+            }
         }
         
         body {
-            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Roboto', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             text-align: center;
             padding: 20px;
             background-color: #fff;
@@ -44,50 +50,88 @@
         
         .offline-container {
             max-width: 500px;
-            padding: 30px;
+            padding: 40px 30px;
             border: 1px solid var(--border-color);
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         h1 {
             color: var(--primary-color);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            font-size: 28px;
+            font-weight: 600;
         }
         
         p {
             margin: 20px 0;
-            line-height: 1.5;
+            line-height: 1.6;
             color: var(--text-secondary);
+            font-size: 16px;
         }
         
         .icon {
-            font-size: 60px;
+            font-size: 70px;
             color: var(--primary-color);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
         
         a {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             color: #fff;
             background-color: var(--primary-color);
-            padding: 10px 20px;
+            padding: 12px 28px;
             border-radius: 50px;
             text-decoration: none;
-            font-weight: 700;
-            transition: background-color 0.2s;
-            margin-top: 20px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 28px;
+            box-shadow: 0 2px 5px rgba(29, 161, 242, 0.2);
         }
         
         a:hover {
             background-color: #1a91da;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(29, 161, 242, 0.3);
         }
         
         .info {
-            margin-top: 30px;
-            padding-top: 20px;
+            margin-top: 36px;
+            padding-top: 24px;
             border-top: 1px solid var(--border-color);
             font-size: 14px;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .offline-container {
+                width: 90%;
+                padding: 30px 20px;
+            }
+        }
+        
+        /* Accessibility */
+        @media (prefers-reduced-motion) {
+            .icon, .offline-container, a {
+                animation: none;
+                transition: none;
+            }
         }
     </style>
 </head>
