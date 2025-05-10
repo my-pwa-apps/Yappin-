@@ -20,6 +20,7 @@
                 </a>
             </div>
             <div class="user-menu">
+                <button id="darkModeToggle" class="icon-btn"><i class="fas fa-moon"></i></button>
                 <button id="userBtn" class="hidden"><i class="fas fa-user"></i></button>
                 <div id="userDropdown" class="dropdown hidden">
                     <a href="#" id="profileLink">Profile</a>
@@ -192,6 +193,23 @@
                     .catch(err => console.log('Service Worker registration failed: ', err));
             });
         }
+
+        // Dark mode toggle functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        // Load saved preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.classList.toggle('dark-mode', savedTheme === 'dark');
+            darkModeToggle.querySelector('i').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            const isDarkMode = body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            darkModeToggle.querySelector('i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        });
     </script>
 </body>
 </html>
