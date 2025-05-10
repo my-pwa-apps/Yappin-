@@ -191,8 +191,8 @@ function createUserProfile(user, username) {
     
     // Create a batch update
     const updates = {};
-    updates[`users/${user.uid}`] = userData;
-    updates[`usernames/${lowercaseUsername}`] = user.uid;
+    // updates[`users/${user.uid}`] = userData; // Temporarily comment this out
+    updates[`usernames/\${lowercaseUsername}`] = user.uid;
     
     // Commit the updates
     return database.ref().update(updates);
