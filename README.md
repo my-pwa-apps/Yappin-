@@ -5,8 +5,8 @@ A lightweight, fast and modern Progressive Web Application (PWA) for sharing sho
 ## Features
 
 - **Optimized Design**: Clean, modern UI with green-gray theme
+- **Dark Mode Support**: Toggle between light and dark themes using the button in the header.
 - **Responsive Layout**: Works on all devices with optimized mobile experience
-- **Dark Mode Support**: Automatic theme switching based on system preferences
 - **Progressive Web App**: Installable on devices with offline support
 
 ## Development Notes
@@ -36,3 +36,8 @@ The CSS was optimized by:
 - Service worker caches essential assets
 - Offline page available when network is unavailable
 - Installable on desktop and mobile devices
+
+### Dark Mode
+
+- The dark mode can be toggled using the moon/sun icon in the header.
+- User preference is saved in `localStorage` and applied on subsequent visits.

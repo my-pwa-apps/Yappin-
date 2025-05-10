@@ -34,6 +34,73 @@
         h2 {
             margin-bottom: 10px;
         }
+
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .test-section {
+            background-color: #1e1e1e;
+            border-color: #333;
+        }
+
+        body.dark-mode .btn {
+            background-color: #00796b;
+            color: white;
+        }
+
+        body.dark-mode .btn.secondary-btn {
+            background-color: #004d40;
+        }
+
+        body.dark-mode .action-btn {
+            background-color: #00796b;
+            color: white;
+        }
+
+        body.dark-mode .action-btn.liked {
+            background-color: #e57373;
+        }
+
+        body.dark-mode .action-btn.reyapped {
+            background-color: #64b5f6;
+        }
+
+        body.dark-mode input {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+        }
+
+        body.dark-mode label {
+            color: #e0e0e0;
+        }
+
+        /* Header and footer styles for dark mode */
+        body.dark-mode header {
+            background-color: #1e1e1e;
+            border-bottom: 1px solid #333;
+        }
+
+        body.dark-mode .logo-img {
+            filter: brightness(0) invert(1);
+        }
+
+        body.dark-mode nav.mobile-nav {
+            background-color: #1e1e1e;
+            border-top: 1px solid #333;
+        }
+
+        body.dark-mode nav.mobile-nav a {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode nav.mobile-nav a.active {
+            background-color: #00796b;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -46,6 +113,7 @@
                 </a>
             </div>
             <div class="user-menu">
+                <button id="darkModeToggle" class="icon-btn"><i class="fas fa-moon"></i></button>
                 <button id="userBtn"><i class="fas fa-user"></i></button>
             </div>
         </header>
@@ -107,6 +175,23 @@
                     }
                 }
             });
+        });
+
+        // Dark mode toggle functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        // Load saved preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            body.classList.toggle('dark-mode', savedTheme === 'dark');
+            darkModeToggle.querySelector('i').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            const isDarkMode = body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            darkModeToggle.querySelector('i').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
         });
     </script>
 </body>

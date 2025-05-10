@@ -1309,3 +1309,35 @@ input[type="radio"]:checked::before {
         animation: none !important;
     }
 }
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121a1f;
+    color: #ECEFF1;
+}
+
+body.dark-mode header {
+    background-color: #1a252b;
+    color: #ECEFF1;
+}
+
+body.dark-mode .test-section {
+    background-color: #1a252b;
+    border-color: #263238;
+}
+
+body.dark-mode .btn {
+    background-color: #66BB6A;
+    color: #fff;
+}
+
+body.dark-mode .btn:hover {
+    background-color: #81C784;
+}
+
+/* Ensure dark mode applies to other elements */
+body.dark-mode input, body.dark-mode textarea {
+    background-color: #263238;
+    color: #ECEFF1;
+    border-color: #37474F;
+}
