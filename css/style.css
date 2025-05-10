@@ -1168,6 +1168,44 @@ main {
     }
 }
 
+/* Improved mobile layout for better usability */
+@media (max-width: 480px) {
+    .compose-yap textarea {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .compose-actions button {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .timeline {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none; /* Hide sidebar on smaller screens */
+    }
+
+    .mobile-nav {
+        display: flex;
+        justify-content: space-around;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: var(--primary-color);
+        padding: 10px 0;
+    }
+
+    .mobile-nav a {
+        color: white;
+        font-size: 14px;
+    }
+}
+
 /* Import modern enhancements directly into the main stylesheet */
 /* Modern enhancements - previously in separate file */
 
