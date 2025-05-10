@@ -9,6 +9,8 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/css/style.css',
+  '/css/modern.css',
+  '/css/modern-enhancements.css',
   '/js/app.js',
   '/js/auth.js',
   '/js/firebase-config.js',
@@ -16,6 +18,8 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/offline.html',
   '/images/icons/icon-192x192.png',
+  '/images/icons/logo.svg',
+  '/images/icons/favicon.svg',
   '/images/default-avatar.png'
 ];
 

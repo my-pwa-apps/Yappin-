@@ -169,29 +169,54 @@ header {
 
 .logo h1 {
     color: var(--primary-color);
-    font-size: 24px;
+    font-family: 'Comfortaa', cursive;
+    font-size: 28px;
     font-weight: 700;
     margin: 0;
+    letter-spacing: -0.5px;
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
     background-size: 200% auto;
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: shine 3s linear infinite;
+    position: relative;
 }
 
 @keyframes shine {
     to { background-position: 200% center; }
 }
 
+/* Enhanced logo text effect */
+.logo h1::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: blur(8px);
+    opacity: 0.3;
+}
+
 @media (max-width: 480px) {
     .logo h1 {
         font-size: 20px;
+        letter-spacing: -0.3px;
     }
     
     .logo-img {
         width: 30px;
         height: 30px;
+    }
+    
+    /* Make logo more compact on very small screens */
+    .logo-link {
+        gap: 6px;
     }
 }
 

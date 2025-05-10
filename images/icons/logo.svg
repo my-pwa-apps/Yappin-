@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background circle with gradient -->
+  <!-- Background circle with gradient - matching the 192x192 design -->
   <circle cx="256" cy="256" r="248" fill="url(#green_gradient)" />
   <!-- Border for the icon -->
   <circle cx="256" cy="256" r="248" stroke="#4CAF50" stroke-width="8" stroke-opacity="0.3" />
   
-  <!-- Chat bubble shapes - stylized Y for Yappin -->
-  <path d="M275 170C335 170 385 220 385 280C385 340 335 390 275 390H200L150 440V390C129.67 377 115 360 115 280C115 220 165 170 225 170H275Z" fill="white" />
+  <!-- Chat bubble shapes - stylized Y for Yappin - matching the 192x192 design -->
+  <path d="M274.67 168C334.67 168 384 217.33 384 277.33C384 337.33 334.67 386.67 274.67 386.67H200L150.67 437.33V386.67C129.33 373.33 114.67 357.33 114.67 277.33C114.67 217.33 165.33 168 224 168H274.67Z" fill="white" />
+  
   <!-- Y shape inside the bubble -->
-  <path d="M205 230L240 280L275 230" stroke="#4CAF50" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M240 280L240 330" stroke="#4CAF50" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M205.33 229.33L240 277.33L274.67 229.33" stroke="#4CAF50" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M240 277.33L240 325.33" stroke="#4CAF50" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
   
   <!-- Small speech bubbles -->
-  <circle cx="320" cy="210" r="20" fill="#4CAF50" opacity="0.8" />
-  <circle cx="350" cy="250" r="15" fill="#4CAF50" opacity="0.6" />
-  <circle cx="370" cy="290" r="10" fill="#4CAF50" opacity="0.4" />
+  <circle cx="320" cy="208" r="18.67" fill="#4CAF50" opacity="0.8" />
+  <circle cx="349.33" cy="248" r="13.33" fill="#4CAF50" opacity="0.6" />
+  <circle cx="368" cy="288" r="10.67" fill="#4CAF50" opacity="0.4" />
   
   <!-- Define the gradient -->
   <defs>

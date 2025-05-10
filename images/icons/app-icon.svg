@@ -1,6 +1,26 @@
-<!-- Basic Yappin' App Icon -->
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#1DA1F2" rx="100" ry="100"/>
-  <circle cx="256" cy="256" r="170" fill="white"/>
-  <path fill="#1DA1F2" d="M336 216c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20zm-160 0c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20zm80 120c-53 0-96-43-96-96h192c0 53-43 96-96 96z"/>
+<!-- Yappin' App Icon - Green-Gray Theme -->
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <!-- Background square with rounded corners and gradient -->
+  <rect width="512" height="512" fill="url(#green_gradient)" rx="100" ry="100"/>
+  <rect width="512" height="512" stroke="#4CAF50" stroke-width="8" stroke-opacity="0.3" rx="100" ry="100"/>
+  
+  <!-- Chat bubble shapes - stylized Y for Yappin -->
+  <path d="M275 170C335 170 385 220 385 280C385 340 335 390 275 390H200L150 440V390C129.67 377 115 360 115 280C115 220 165 170 225 170H275Z" fill="white" />
+  
+  <!-- Y shape inside the bubble -->
+  <path d="M205 230L240 280L275 230" stroke="#4CAF50" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M240 280L240 330" stroke="#4CAF50" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Small speech bubbles -->
+  <circle cx="320" cy="210" r="20" fill="#4CAF50" opacity="0.8" />
+  <circle cx="350" cy="250" r="15" fill="#4CAF50" opacity="0.6" />
+  <circle cx="370" cy="290" r="10" fill="#4CAF50" opacity="0.4" />
+  
+  <!-- Define the gradient -->
+  <defs>
+    <linearGradient id="green_gradient" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66BB6A" />
+      <stop offset="1" stop-color="#388E3C" />
+    </linearGradient>
+  </defs>
 </svg>

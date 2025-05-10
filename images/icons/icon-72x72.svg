@@ -1,20 +1,26 @@
 <!-- 72x72 Yappin' App Icon - Green-Gray Theme -->
-<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72">
+<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 72 72" fill="none">
   <!-- Background circle with gradient -->
+  <circle cx="36" cy="36" r="35" fill="url(#green_gradient)" />
+  <circle cx="36" cy="36" r="35" stroke="#4CAF50" stroke-width="1" stroke-opacity="0.3" />
+  
+  <!-- Chat bubble shapes - stylized Y for Yappin -->
+  <path d="M38.6 24C46.9 24 53.6 30.8 54.0 39.0C54.0 47.2 46.9 54.0 38.6 54.0H28.1L21.0 61.0V54.0C18.2 52.5 16.1 50.2 16.1 39.0C16.1 30.8 23.2 24 31.5 24H38.6Z" fill="white" />
+  
+  <!-- Y shape inside the bubble -->
+  <path d="M28.9 32.3L33.8 39.0L38.7 32.3" stroke="#4CAF50" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M33.8 39.0L33.8 45.8" stroke="#4CAF50" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Small speech bubbles -->
+  <circle cx="45" cy="29.3" r="2.6" fill="#4CAF50" opacity="0.8" />
+  <circle cx="49.1" cy="34.9" r="1.9" fill="#4CAF50" opacity="0.6" />
+  <circle cx="51.8" cy="40.5" r="1.5" fill="#4CAF50" opacity="0.4" />
+  
+  <!-- Define the gradient -->
   <defs>
     <linearGradient id="green_gradient" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#66BB6A" />
       <stop offset="1" stop-color="#388E3C" />
     </linearGradient>
   </defs>
-  
-  <circle cx="36" cy="36" r="35" fill="url(#green_gradient)" />
-  <circle cx="36" cy="36" r="35" stroke="#4CAF50" stroke-width="1" stroke-opacity="0.3" />
-  
-  <!-- Chat bubble shapes - stylized Y for Yappin -->
-  <path d="M39 24C47 24 54 31 54 39C54 47 47 54 39 54H28L21 61V54C18 52 16 50 16 39C16 31 23 24 31 24H39Z" fill="white" />
-  
-  <!-- Y shape inside the bubble -->
-  <path d="M29 32L35 40L41 32" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M35 40L35 48" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
 </svg>
