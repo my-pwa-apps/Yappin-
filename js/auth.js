@@ -189,13 +189,19 @@ function createUserProfile(user, username) {
         following: 0
     };
     
-    // Create a batch update
-    const updates = {};
-    // updates[`users/${user.uid}`] = userData; // Temporarily comment this out
-    updates[`usernames/\${lowercaseUsername}`] = user.uid;
-    
-    // Commit the updates
-    return database.ref().update(updates);
+    // Temporarily try a direct set for debugging
+    return database.ref('usernames/' + lowercaseUsername).set(user.uid)
+        .then(() => {
+            // If the above succeeds, then try to set the user profile data
+            // This separates the operations.
+            return database.ref('users/' + user.uid).set(userData);
+        });
+
+    // Original batched update (currently bypassed for debugging):
+    // const updates = {};
+    // updates[`users/${user.uid}`] = userData;
+    // updates[`usernames/${lowercaseUsername}`] = user.uid;
+    // return database.ref().update(updates);
 }
 
 // Check if user profile exists, if not create one
