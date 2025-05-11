@@ -304,7 +304,8 @@ function createYap(textarea) {
             // Create update object
             const updates = {};
             updates[`yaps/${newYapKey}`] = yapData;
-            updates[`userYaps/${auth.currentUser.uid}/${newYapKey}`] = true;
+            // Store the full yap object in userYaps for timeline consistency
+            updates[`userYaps/${auth.currentUser.uid}/${newYapKey}`] = yapData;
             // If this is a reply, add to the replies list
             if (replyToId) {
                 updates[`yapReplies/${replyToId}/${newYapKey}`] = true;
