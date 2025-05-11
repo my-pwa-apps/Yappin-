@@ -214,17 +214,24 @@
         
         // Apply theme on page load
         applyInitialTheme();
-        
-        // Toggle theme when button is clicked
+          // Toggle theme when button is clicked
         if (darkModeToggle) {
-            darkModeToggle.addEventListener('click', () => {
+            darkModeToggle.addEventListener('click', function() {
                 const isDarkMode = body.classList.toggle('dark-mode');
                 localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
                 document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
                 
-                const icon = darkModeToggle.querySelector('i');
+                const icon = this.querySelector('i');
                 if (icon) {
                     icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                }
+                
+                // Show feedback to user
+                const snackbar = document.getElementById('snackbar');
+                if (snackbar) {
+                    snackbar.textContent = isDarkMode ? 'Dark mode activated' : 'Light mode activated';
+                    snackbar.className = 'show';
+                    setTimeout(() => { snackbar.classList.remove('show'); }, 3000);
                 }
             });
         }
@@ -236,22 +243,109 @@
                 // Call the openYapModal function directly from app.js
                 openYapModal();
             });
-        }
-
-        // Toggle follow button text and functionality
+        }        // Toggle follow button text and functionality
         function toggleFollow(userId) {
+            if (!auth.currentUser) {
+                showSnackbar('You must be logged in to follow users', 'error');
+                return;
+            }
+            
             const followBtn = event.currentTarget;
-            const isFollowing = followBtn.classList.toggle('following');
+            const currentUserId = auth.currentUser.uid;
             
-            // Update button text based on following status
-            followBtn.innerText = isFollowing ? 'Following' : 'Follow';
+            // References to follow/follower db paths
+            const followingRef = database.ref(`following/${currentUserId}/${userId}`);
+            const followersRef = database.ref(`followers/${userId}/${currentUserId}`);
             
-            // TODO: Implement actual follow/unfollow functionality with Firebase
-            const snackbar = document.getElementById('snackbar');
-            snackbar.innerText = isFollowing ? 'You are now following this user.' : 'You have unfollowed this user.';
-            snackbar.classList.add('show');
-            setTimeout(() => { snackbar.classList.remove('show'); }, 3000);
+            followingRef.once('value')
+                .then(snapshot => {
+                    const updates = {};
+                    if (snapshot.exists()) {
+                        // Unfollow user
+                        followBtn.classList.remove('following');
+                        followBtn.textContent = 'Follow';
+                        updates[`following/${currentUserId}/${userId}`] = null;
+                        updates[`followers/${userId}/${currentUserId}`] = null;
+                    } else {
+                        // Follow user
+                        followBtn.classList.add('following');
+                        followBtn.textContent = 'Following';
+                        updates[`following/${currentUserId}/${userId}`] = true;
+                        updates[`followers/${userId}/${currentUserId}`] = true;
+                    }
+                    
+                    // Update database
+                    return database.ref().update(updates);
+                })
+                .then(() => {
+                    showSnackbar('Follow status updated', 'success');
+                    // Refresh timeline to show new followed users' posts
+                    loadYaps();
+                })
+                .catch(error => {
+                    console.error('Error toggling follow:', error);
+                    showSnackbar('Error updating follow status', 'error');
+                });
         }
+        
+        // Function to load suggested users
+        function loadSuggestedUsers() {
+            if (!auth.currentUser) return;
+            
+            const whoToFollowContainer = document.querySelector('.who-to-follow');
+            if (!whoToFollowContainer) return;
+            
+            const currentUserId = auth.currentUser.uid;
+            
+            // First get list of users current user is already following
+            database.ref(`following/${currentUserId}`).once('value')
+                .then(snapshot => {
+                    const following = snapshot.val() || {};
+                    const followingIds = Object.keys(following);
+                    
+                    // Get a list of users to suggest (excluding those already followed)
+                    return database.ref('users').limitToFirst(5).once('value')
+                        .then(usersSnapshot => {
+                            let html = '<h2>Who to follow</h2>';
+                            const users = usersSnapshot.val() || {};
+                            
+                            Object.entries(users).forEach(([userId, userData]) => {
+                                // Skip if this is the current user or already following
+                                if (userId === currentUserId || followingIds.includes(userId)) {
+                                    return;
+                                }
+                                
+                                const isFollowing = followingIds.includes(userId);
+                                html += `
+                                <div class="suggested-user">
+                                    <div class="user-info">
+                                        <img src="${userData.photoURL || './images/default-avatar.svg'}" alt="${userData.displayName || 'User'}" class="user-avatar">
+                                        <div>
+                                            <p class="user-name">${userData.displayName || 'Anonymous User'}</p>
+                                            <p class="user-handle">@${userData.username || userId.substring(0, 8)}</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="toggleFollow('${userId}')" class="follow-btn ${isFollowing ? 'following' : ''}">
+                                        ${isFollowing ? 'Following' : 'Follow'}
+                                    </button>
+                                </div>
+                                `;
+                            });
+                            
+                            whoToFollowContainer.innerHTML = html;
+                        });
+                })
+                .catch(error => {
+                    console.error('Error loading suggested users:', error);
+                });
+        }
+        
+        // Load suggested users when user is authenticated
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loadSuggestedUsers();
+            }
+        });
     </script>
 </body>
 </html>

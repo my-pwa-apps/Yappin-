@@ -562,7 +562,7 @@ main {
     width: 100%;
     min-height: 100px;
     padding: var(--space-sm);
-    border: none;
+    border:
     resize: none;
     margin-bottom: var(--space-sm);
     background: transparent;
@@ -1060,7 +1060,8 @@ main {
 .loading-container {
     display: flex;
     justify-content: center;
-    padding: var(--space-lg);
+    align-items: center;
+    padding: 30px 0;
 }
 
 /* Skeleton loader */
@@ -1120,8 +1121,7 @@ main {
     .sidebar nav ul li a span {
         font-size: 12px;
     }
-    
-    /* Ensure the floating action button displays properly */
+      /* Ensure the floating action button displays properly */
     .create-yap-btn, .mobile-compose-btn {
         position: fixed;
         bottom: 70px;
@@ -1140,6 +1140,11 @@ main {
     }
     
     .create-yap-btn span, .mobile-compose-btn span {
+        display: none;
+    }
+    
+    /* Hide mobile compose button on desktop */
+    .mobile-compose-btn {
         display: none;
     }
 
@@ -1185,6 +1190,11 @@ main {
     }
 }
 
+/* Base styles for mobile nav - hidden by default */
+.mobile-nav {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .sidebar {
         display: none; /* Hide sidebar on smaller screens */
@@ -1198,11 +1208,17 @@ main {
         width: 100%;
         background-color: var(--primary-color);
         padding: 10px 0;
+        z-index: 100;
     }
 
     .mobile-nav a {
         color: white;
         font-size: 14px;
+    }
+    
+    /* Show mobile compose button on mobile only */
+    .mobile-compose-btn {
+        display: flex;
     }
 }
 
@@ -1414,4 +1430,174 @@ body.dark-mode input, body.dark-mode textarea {
     background-color: #263238;
     color: #ECEFF1;
     border-color: #37474F;
+}
+
+/* Mobile navigation dark mode */
+body.dark-mode .mobile-nav {
+    background-color: #1a252b;
+    border-top-color: #263238;
+}
+
+body.dark-mode .mobile-nav ul li a {
+    color: #B0BEC5;
+}
+
+body.dark-mode .mobile-nav ul li a.active {
+    color: #66BB6A;
+}
+
+body.dark-mode .mobile-compose-btn {
+    background-color: #66BB6A;
+}
+
+/* Styling for suggested users */
+.suggested-user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.suggested-user:last-child {
+    border-bottom: none;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.user-handle {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.follow-btn {
+    padding: 6px 15px;
+    border-radius: var(--border-radius-full);
+    font-weight: 700;
+    font-size: 14px;
+    background-color: var(--text-primary);
+    color: white;
+    transition: background-color var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.follow-btn:hover {
+    filter: brightness(90%);
+}
+
+.follow-btn.following {
+    background-color: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.follow-btn.following:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+    border-color: var(--danger-color);
+}
+
+.follow-btn.following:hover::before {
+    content: "Unfollow";
+}
+
+.follow-btn.following:hover span {
+    display: none;
+}
+
+/* Dark mode styles for follow button */
+body.dark-mode .follow-btn {
+    background-color: #66BB6A;
+}
+
+body.dark-mode .follow-btn.following {
+    background-color: transparent;
+    color: #ECEFF1;
+    border: 1px solid #263238;
+}
+
+body.dark-mode .follow-btn.following:hover {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #FF8A80;
+    border-color: #FF8A80;
+}
+
+/* Follow suggestion banner */
+.follow-suggestion-banner {
+    background-color: var(--primary-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.follow-suggestion-banner p {
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+/* Follow suggestions in modal */
+.follow-suggestions-container {
+    padding: 10px 0;
+}
+
+.no-suggestions, .error {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+}
+
+.error {
+    color: var(--danger-color);
+}
+
+/* Loading indicator for follow suggestions */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 0;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(76, 175, 80, 0.2);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Dark mode styles for follow suggestions */
+body.dark-mode .follow-suggestion-banner {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: #263238;
+}
+
+body.dark-mode .loading-spinner {
+    border: 3px solid rgba(102, 187, 106, 0.2);
+    border-top-color: #66BB6A;
 }
