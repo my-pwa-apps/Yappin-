@@ -476,12 +476,12 @@ function formatRelativeTime(timestamp) {
     if (days < 7) {
         return `${days}d`;
     }
-    
-    // Format to date
+      // Format to date
     const date = new Date(timestamp);
     const options = { month: 'short', day: 'numeric' };
+    const nowDate = new Date(now);
     
-    if (now.getFullYear() === date.getFullYear()) {
+    if (nowDate.getFullYear() === date.getFullYear()) {
         return date.toLocaleDateString(undefined, options);
     }
     

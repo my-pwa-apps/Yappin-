@@ -1448,6 +1448,13 @@ body.dark-mode .mobile-nav ul li a.active {
 
 body.dark-mode .mobile-compose-btn {
     background-color: #66BB6A;
+    box-shadow: 0 3px 12px rgba(102, 187, 106, 0.3);
+}
+
+/* Properly handle dark mode for the sidebar on mobile */
+body.dark-mode .sidebar {
+    background-color: #1a252b;
+    border-color: #263238;
 }
 
 /* Styling for suggested users */
