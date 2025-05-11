@@ -20,11 +20,13 @@ const MAX_YAP_LENGTH = 280;
 const DRAFTS_STORAGE_KEY = 'yappin_drafts';
 
 // Event Listeners
-createYapBtn.addEventListener('click', openYapModal);
+
+// Only add event listeners if the elements exist
+if (createYapBtn) createYapBtn.addEventListener('click', openYapModal);
 if (mobileComposeBtn) mobileComposeBtn.addEventListener('click', openYapModal);
-closeYapModal.addEventListener('click', closeModal);
-postYapBtn.addEventListener('click', () => createYap(yapText));
-modalPostYapBtn.addEventListener('click', () => createYap(modalYapText));
+if (closeYapModal) closeYapModal.addEventListener('click', closeModal);
+if (postYapBtn) postYapBtn.addEventListener('click', () => createYap(yapText));
+if (modalPostYapBtn) modalPostYapBtn.addEventListener('click', () => createYap(modalYapText));
 
 // Add character counters
 yapText.addEventListener('input', () => updateCharacterCount(yapText, characterCount));
