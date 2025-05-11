@@ -45,10 +45,32 @@ if (searchInput) {
 }
 
 // Theme toggle if it exists
-if (themeToggle) {
-    themeToggle.addEventListener('click', toggleTheme);
-    // Set initial state based on system preference or user preference
-    setInitialTheme();
+// Dark mode toggle logic
+const darkModeToggle = document.getElementById('darkModeToggle') || document.getElementById('themeToggleBtn');
+function applyInitialTheme() {
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const savedTheme = localStorage.getItem('theme');
+    const isDarkMode = savedTheme ? savedTheme === 'dark' : systemPrefersDark;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+    if (darkModeToggle) {
+        const icon = darkModeToggle.querySelector('i');
+        if (icon) {
+            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    }
+}
+applyInitialTheme();
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', function() {
+        const isDarkMode = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+        const icon = this.querySelector('i');
+        if (icon) {
+            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    });
 }
 
 // Close modal when clicking outside of it
@@ -215,33 +237,26 @@ function clearDraft() {
 function createYap(textarea) {
     // Get the text content
     const content = textarea.value.trim();
-    
     // Validate content
     if (!content) {
         showSnackbar('Yap cannot be empty', 'error');
         return;
     }
-    
     if (content.length > MAX_YAP_LENGTH) {
         showSnackbar(`Yap must be ${MAX_YAP_LENGTH} characters or less`, 'error');
         return;
     }
-    
-    // Check if user is authenticated
     if (!auth.currentUser) {
         showSnackbar('You must be logged in to post a Yap', 'error');
         return;
     }
-    
     // Show loading state
     const postButton = textarea === yapText ? postYapBtn : modalPostYapBtn;
     const originalText = postButton.innerHTML;
     postButton.disabled = true;
     postButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
-    
     // Check for media attachments
     const mediaFiles = getMediaAttachments();
-    
     // Get user data
     database.ref(`users/${auth.currentUser.uid}`).once('value')
         .then(snapshot => {
@@ -249,99 +264,75 @@ function createYap(textarea) {
             if (!userData) {
                 throw new Error('User profile not found');
             }
-            
             // Handle media uploads first if any
             if (mediaFiles && mediaFiles.length > 0) {
                 return uploadMediaFiles(mediaFiles).then(mediaUrls => {
                     return { userData, mediaUrls };
                 });
             }
-            
             return { userData, mediaUrls: [] };
         })
         .then(({ userData, mediaUrls }) => {
             // Create yap object
             const yapData = {
                 uid: auth.currentUser.uid,
-                username: userData.username,
+                username: userData.username || userData.displayName || 'anonymous',
                 content: content,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                timestamp: Date.now(),
                 likes: 0,
                 reyaps: 0,
                 replies: 0,
                 userPhotoURL: userData.photoURL || null
             };
-            
             // Add media if any
             if (mediaUrls && mediaUrls.length > 0) {
                 yapData.media = mediaUrls;
             }
-            
             // Check if this is a reply to another yap
             const replyToId = textarea.dataset.replyTo;
             if (replyToId) {
                 yapData.replyTo = replyToId;
-                
                 // Increment reply count of the parent yap
                 database.ref(`yaps/${replyToId}/replies`).transaction(current => {
                     return (current || 0) + 1;
                 });
             }
-            
             // Generate a new key for the yap
             const newYapKey = database.ref('yaps').push().key;
-            
             // Create update object
             const updates = {};
             updates[`yaps/${newYapKey}`] = yapData;
             updates[`userYaps/${auth.currentUser.uid}/${newYapKey}`] = true;
-            
             // If this is a reply, add to the replies list
             if (replyToId) {
                 updates[`yapReplies/${replyToId}/${newYapKey}`] = true;
             }
-            
             // Extract mentions to notify users
             const mentions = extractMentions(content);
             if (mentions.length > 0) {
-                processMentions(mentions, newYapKey, userData.username);
+                processMentions(mentions, newYapKey, yapData.username);
             }
-            
             // Extract hashtags for trending
             const hashtags = extractHashtags(content);
             if (hashtags.length > 0) {
                 processHashtags(hashtags, newYapKey);
             }
-            
             // Commit updates
             return database.ref().update(updates);
         })
         .then(() => {
-            // Clear the textarea
             textarea.value = '';
-            
-            // Clear the draft
             clearDraft();
-            
-            // Reset reply data if any
             if (textarea.dataset.replyTo) {
                 delete textarea.dataset.replyTo;
                 const replyInfo = textarea.parentElement.querySelector('.reply-info');
                 if (replyInfo) replyInfo.remove();
             }
-            
-            // Close modal if it's open
             if (textarea === modalYapText) {
                 closeModal();
             }
-            
-            // Reset character count
             updateCharacterCount(textarea, textarea === yapText ? characterCount : modalCharacterCount);
-            
-            // Show success message
             showSnackbar('Yap posted successfully!', 'success');
-            
-            // Refresh timeline
             loadTimeline();
         })
         .catch(error => {
@@ -349,7 +340,6 @@ function createYap(textarea) {
             showSnackbar(`Error: ${error.message}`, 'error');
         })
         .finally(() => {
-            // Reset button state
             postButton.disabled = false;
             postButton.innerHTML = originalText;
         });

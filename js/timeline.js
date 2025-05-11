@@ -73,21 +73,19 @@ function createYapElement(yapData, isLiked, isReyapped) {
     yapElement.className = 'yap-item';
     yapElement.dataset.yapId = yapData.id;
     
-    // Format timestamp
-    const formattedTime = formatRelativeTime(yapData.timestamp);
-    
-    // Default avatar if none exists
+    // Defensive: fallback for missing data
+    const username = yapData.username || yapData.displayName || 'anonymous';
+    const content = yapData.content || '';
+    const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
     const avatar = yapData.userPhotoURL || './images/default-avatar.png';
-    
-    // Create the HTML structure
     yapElement.innerHTML = `
         <div class="yap-header">
             <div class="yap-user">
                 <div class="yap-avatar">
-                    <img src="${avatar}" alt="${yapData.username}" onerror="this.src='./images/default-avatar.png'">
+                    <img src="${avatar}" alt="${username}" onerror="this.src='./images/default-avatar.png'">
                 </div>
                 <div class="yap-user-info">
-                    <span class="username">@${yapData.username}</span>
+                    <span class="username">@${username}</span>
                     <span class="time">· ${formattedTime}</span>
                 </div>
             </div>
@@ -96,7 +94,7 @@ function createYapElement(yapData, isLiked, isReyapped) {
             </div>
         </div>
         <div class="yap-content">
-            ${formatYapContent(yapData.content)}
+            ${formatYapContent(content)}
         </div>
         <div class="yap-actions">
             <button class="action-btn reply">
