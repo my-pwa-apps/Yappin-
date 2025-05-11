@@ -191,6 +191,11 @@ function createYapElement(yapData, isLiked, isReyapped) {
 
 // Format yap content (add links, hashtags, mentions)
 function formatYapContent(content) {
+    // Check if content is undefined or null
+    if (!content) {
+        return '';
+    }
+    
     // Convert URLs to links
     let formattedContent = content.replace(
         /(https?:\/\/[^\s]+)/g,

@@ -78,6 +78,20 @@ body.dark-mode .yaps-container {
 body.dark-mode .mobile-compose-btn {
   background-color: var(--primary-color);
   color: white;
+  box-shadow: 0 3px 12px rgba(102, 187, 106, 0.3);
+}
+
+/* Additional dark mode fixes */
+body.dark-mode .yap-item {
+  border-color: #263238;
+}
+
+body.dark-mode .action-btn {
+  color: #B0BEC5;
+}
+
+body.dark-mode .yap-item:hover {
+  background-color: rgba(26, 37, 43, 0.6);
 }
 
 /* Elegant scrollbar for desktop */
