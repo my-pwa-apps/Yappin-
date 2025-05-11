@@ -190,15 +190,47 @@
                     .catch(err => console.log('Service Worker registration failed: ', err));
             });
         }
-                .then(() => {
-                    showSnackbar('Follow status updated', 'success');
-                    // Refresh timeline to show new followed users' posts
-                    loadYaps();
-                })
-                .catch(error => {
-                    console.error('Error toggling follow:', error);
-                    showSnackbar('Error updating follow status', 'error');
-                });
+        
+        // Function to toggle follow/unfollow
+        function toggleFollow(userId) {
+            if (!auth.currentUser) {
+                showSnackbar('You need to be logged in to follow users', 'error');
+                return;
+            }
+            
+            const currentUserId = auth.currentUser.uid;
+            const isFollowing = document.querySelector(`.follow-btn.following[data-user-id="${userId}"]`);
+            
+            if (isFollowing) {
+                // Unfollow
+                database.ref(`following/${currentUserId}/${userId}`).remove()
+                    .then(() => {
+                        showSnackbar('Unfollowed successfully', 'success');
+                        // Update follow button UI
+                        isFollowing.classList.remove('following');
+                        isFollowing.innerText = 'Follow';
+                    })
+                    .catch(error => {
+                        console.error('Error unfollowing user:', error);
+                        showSnackbar('Error unfollowing user', 'error');
+                    });
+            } else {
+                // Follow
+                database.ref(`following/${currentUserId}/${userId}`).set(true)
+                    .then(() => {
+                        showSnackbar('Followed successfully', 'success');
+                        // Update follow button UI
+                        const followBtn = document.querySelector(`.follow-btn[data-user-id="${userId}"]`);
+                        if (followBtn) {
+                            followBtn.classList.add('following');
+                            followBtn.innerText = 'Following';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error following user:', error);
+                        showSnackbar('Error following user', 'error');
+                    });
+            }
         }
         
         // Function to load suggested users
