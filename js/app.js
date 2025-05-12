@@ -70,8 +70,14 @@ if (darkModeToggle) {
         document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
         const icon = this.querySelector('i');
         if (icon) {
-            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            // Make sure to update the icon correctly
+            if (isDarkMode) {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
         }
+        console.log('Dark mode toggled:', isDarkMode);
     });
 }
 
