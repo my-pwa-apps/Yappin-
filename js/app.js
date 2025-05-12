@@ -77,6 +77,7 @@ if (darkModeToggle) {
                 icon.className = 'fas fa-moon';
             }
         }
+        showSnackbar(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
         console.log('Dark mode toggled:', isDarkMode);
     });
 }
@@ -138,6 +139,28 @@ function showSnackbar(message, type = 'default', duration = 3000) {
         snackbar.classList.remove('show');
     }, duration);
 }
+
+// Show snackbar notification
+function showSnackbar(message, type = '') {
+    const snackbar = document.getElementById('snackbar');
+    if (!snackbar) return;
+    
+    // Clear any existing classes and add new ones
+    snackbar.className = '';
+    snackbar.classList.add('show');
+    if (type) snackbar.classList.add(type);
+    
+    // Set the message
+    snackbar.textContent = message;
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        snackbar.className = '';
+    }, 3000);
+}
+
+// Make the function globally available
+window.showSnackbar = showSnackbar;
 
 // Utility function to toggle modal visibility
 function toggleModal(modal, isVisible) {
