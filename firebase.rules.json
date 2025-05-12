@@ -1,0 +1,28 @@
+{
+  "rules": {
+    // Allow anyone to create a user (signup)
+    "users": {
+      "$uid": {
+        ".write": "auth != null || (!data.exists() && newData.exists())",
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    // Yaps: only the owner or their friends can read, only the owner can write
+    "yaps": {
+      "$yapUid": {
+        ".write": "auth != null && auth.uid === $yapUid",
+        ".read": "auth != null && (auth.uid === $yapUid || root.child('friends').child($yapUid).child(auth.uid).exists())"
+      }
+    },
+    // Friends: only the owner can read/write their friends list
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    // All other data: only authenticated users can read/write
+    ".read": "auth != null",
+    ".write": "auth != null"
+  }
+}
