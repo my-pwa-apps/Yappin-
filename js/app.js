@@ -46,39 +46,46 @@ if (searchInput) {
     });
 }
 
-// Theme toggle if it exists
-// Dark mode toggle logic
+// Dark mode toggle logic - unified implementation
 const darkModeToggle = document.getElementById('darkModeToggle') || document.getElementById('themeToggleBtn');
+
+// Function to apply theme
+function applyTheme(isDark) {
+    document.body.classList.toggle('dark-mode', isDark);
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    
+    // Update icon if toggle exists
+    if (darkModeToggle) {
+        const icon = darkModeToggle.querySelector('i');
+        if (icon) {
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    }
+    
+    // Save theme preference
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+// Apply initial theme based on saved preference or system preference
 function applyInitialTheme() {
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const savedTheme = localStorage.getItem('theme');
     const isDarkMode = savedTheme ? savedTheme === 'dark' : systemPrefersDark;
-    document.body.classList.toggle('dark-mode', isDarkMode);
-    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-    if (darkModeToggle) {
-        const icon = darkModeToggle.querySelector('i');
-        if (icon) {
-            icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-        }
-    }
+    applyTheme(isDarkMode);
 }
+
+// Apply theme on page load
 applyInitialTheme();
+
+// Add event listener for toggle button
 if (darkModeToggle) {
     darkModeToggle.addEventListener('click', function() {
-        const isDarkMode = document.body.classList.toggle('dark-mode');
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-        const icon = this.querySelector('i');
-        if (icon) {
-            // Make sure to update the icon correctly
-            if (isDarkMode) {
-                icon.className = 'fas fa-sun';
-            } else {
-                icon.className = 'fas fa-moon';
-            }
-        }
-        showSnackbar(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
-        console.log('Dark mode toggled:', isDarkMode);
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const newIsDarkMode = currentTheme === 'light';
+        
+        applyTheme(newIsDarkMode);
+        showSnackbar(newIsDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+        console.log('Dark mode toggled:', newIsDarkMode);
     });
 }
 
@@ -902,48 +909,9 @@ function hideTooltip(e) {
     }
 }
 
-// Apply the selected theme
-function applyTheme(theme) {
-    const isDarkMode = theme === 'dark';
-    document.body.classList.toggle('dark-mode', isDarkMode);
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    updateThemeIcon(isDarkMode);
-}
-
-// Set initial theme based on system preference or saved setting
-function setInitialTheme() {
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const savedTheme = localStorage.getItem('theme');
-    const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    applyTheme(theme);
-}
-
-// Update theme icon
-function updateThemeIcon(isDarkMode) {
-    const themeToggle = document.getElementById('darkModeToggle') || document.getElementById('themeToggle');
-    if (!themeToggle) return;
-    
-    const icon = themeToggle.querySelector('i');
-    if (icon) {
-        icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-    }
-}
-
-// For any available theme toggle button
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('darkModeToggle') || document.getElementById('themeToggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            applyTheme(newTheme);
-        });
-    }
-    
-    // Set initial theme
-    setInitialTheme();
-});
+// Theme functions are now consolidated above in the unified dark mode implementation
+// This section has been removed to prevent duplication and conflicts
+// The functionality is now handled by the applyTheme and applyInitialTheme functions
 
 // Show new features notification
 function showNewFeaturesNotification() {

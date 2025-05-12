@@ -1146,13 +1146,12 @@ main {
     /* Hide mobile compose button on desktop */
     .mobile-compose-btn {
         display: none;
-    }    /* Mobile compose button styling for mobile devices */
-    @media (max-width: 768px) {
+    }    /* Mobile compose button styling for mobile devices */    @media (max-width: 768px) {
         .mobile-compose-btn {
             display: flex;
             position: fixed;
             bottom: 70px; /* Position above the mobile navigation bar */
-            right: 20px; /* Position in the bottom right corner */
+            right: 20px; /* Ensure it's on the right corner, not left */
             left: auto;
             width: 56px;
             height: 56px;
