@@ -1,29 +1,31 @@
 // Service Worker for Yappin' PWA
 
-const CACHE_VERSION = 'v5';
+// Detect base path from service worker location
+const BASE_PATH = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
+const CACHE_VERSION = 'v6';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
-const OFFLINE_URL = '/offline.html';
+const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
 // Assets to cache initially (static assets)
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/css/optimized.css',
-  '/js/app.js',
-  '/js/auth.js',
-  '/js/firebase-config.js',
-  '/js/timeline.js',
-  '/js/social.js',
-  '/js/pwa-init.js',
-  '/js/utils.js',
-  '/manifest.json',
-  '/offline.html',
-  '/images/icons/icon-192x192.png',
-  '/images/icons/logo.svg',
-  '/images/icons/favicon.svg',
-  '/images/default-avatar.png'
-];
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/css/style.css`,
+  `${BASE_PATH}/css/optimized.css`,
+  `${BASE_PATH}/js/app.js`,
+  `${BASE_PATH}/js/auth.js`,
+  `${BASE_PATH}/js/firebase-config.js`,
+  `${BASE_PATH}/js/timeline.js`,
+  `${BASE_PATH}/js/social.js`,
+  `${BASE_PATH}/js/pwa-init.js`,
+  `${BASE_PATH}/js/utils.js`,
+  `${BASE_PATH}/manifest.json`,
+  `${BASE_PATH}/offline.html`,
+  `${BASE_PATH}/images/icons/icon-192x192.png`,
+  `${BASE_PATH}/images/icons/logo.svg`,
+  `${BASE_PATH}/images/icons/favicon.svg`,
+  `${BASE_PATH}/images/default-avatar.png`
+].map(path => path.replace('//', '/'));
 
 // Assets to cache when visited (dynamic assets)
 const DYNAMIC_CACHE_URLS = [

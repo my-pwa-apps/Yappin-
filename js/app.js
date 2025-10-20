@@ -1,7 +1,6 @@
 // Main App Script
 
 // DOM Elements
-const createYapBtn = document.getElementById('createYapBtn');
 const mobileComposeBtn = document.getElementById('mobileComposeBtn');
 const createYapModal = document.getElementById('createYapModal');
 const closeYapModal = document.getElementById('closeYapModal');
@@ -22,7 +21,6 @@ const DRAFTS_STORAGE_KEY = 'yappin_drafts';
 // Event Listeners
 
 // Only add event listeners if the elements exist
-if (createYapBtn) createYapBtn.addEventListener('click', openYapModal);
 if (mobileComposeBtn) mobileComposeBtn.addEventListener('click', openYapModal);
 if (closeYapModal) closeYapModal.addEventListener('click', closeModal);
 if (postYapBtn) postYapBtn.addEventListener('click', () => createYap(yapText));
