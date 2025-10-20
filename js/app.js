@@ -194,13 +194,25 @@ function toggleModal(modal, isVisible) {
 
 // Open create yap modal
 function openYapModal() {
+    if (!createYapModal) return;
+    
     toggleModal(createYapModal, true);
     
     // Load any saved draft
     loadDraft();
     
     // Update character count
-    updateCharacterCount(modalYapText, modalCharacterCount);
+    if (modalYapText && modalCharacterCount) {
+        updateCharacterCount(modalYapText, modalCharacterCount);
+    }
+    
+    // Focus and select the textarea for better UX
+    setTimeout(() => {
+        if (modalYapText) {
+            modalYapText.focus();
+            modalYapText.setSelectionRange(modalYapText.value.length, modalYapText.value.length);
+        }
+    }, 100);
 }
 
 // Make this function available globally
@@ -243,7 +255,9 @@ function updateCharacterCount(textarea, countDisplay) {
     
     // Disable/enable post button based on length
     const postButton = textarea === yapText ? postYapBtn : modalPostYapBtn;
-    postButton.disabled = count === 0 || count > MAX_YAP_LENGTH;
+    if (postButton) {
+        postButton.disabled = count === 0 || count > MAX_YAP_LENGTH;
+    }
 }
 
 // Save draft to localStorage

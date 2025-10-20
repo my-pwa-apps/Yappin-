@@ -954,13 +954,15 @@ main {
 
 .modal-content {
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
+    max-height: 90vh;
     background-color: #fff;
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     transform: translateY(20px);
     opacity: 0;
     transition: transform var(--transition-normal), opacity var(--transition-normal);
+    margin: 20px;
 }
 
 .modal.show .modal-content {
@@ -972,22 +974,24 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-md);
+    padding: var(--space-lg);
     border-bottom: 1px solid var(--border-color);
 }
 
 .modal-header h2 {
-    font-size: 20px;
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .close-btn {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--border-radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color var(--transition-fast);
+    font-size: 18px;
 }
 
 .close-btn:hover {
@@ -995,7 +999,38 @@ main {
 }
 
 .modal-body {
+    padding: var(--space-lg);
+}
+
+.modal-body textarea {
+    width: 100%;
+    min-height: 200px;
     padding: var(--space-md);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    font-size: 18px;
+    line-height: 1.6;
+    resize: vertical;
+    background: transparent;
+    color: var(--text-primary);
+    transition: border-color var(--transition-fast);
+}
+
+.modal-body textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.modal-body .compose-actions {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.modal-body .character-count {
+    font-size: 16px;
+    font-weight: 500;
 }
 
 /* Snackbar notification */
@@ -1644,30 +1679,32 @@ body.dark-mode .loading-spinner {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    width: 140px;
-    height: 60px;
-    border-radius: 30px;
+    width: 180px;
+    height: 70px;
+    border-radius: 35px;
     background-color: var(--primary-color);
     color: white;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
     justify-content: center;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 99;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 12px;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    z-index: 999;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    border: none;
+    cursor: pointer;
 }
 
 .desktop-compose-btn:hover, 
 .desktop-compose-btn:focus {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
     background-color: var(--primary-hover);
 }
 
 .desktop-compose-btn i {
-    font-size: 18px;
+    font-size: 20px;
     color: white;
 }
 
@@ -1681,13 +1718,11 @@ body.dark-mode .loading-spinner {
 /* Dark mode styling for desktop compose button */
 body.dark-mode .desktop-compose-btn {
     background-color: #66BB6A;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    box-shadow: 0 6px 20px rgba(102, 187, 106, 0.4);
 }
 
 body.dark-mode .desktop-compose-btn:hover, 
 body.dark-mode .desktop-compose-btn:focus {
     background-color: #81C784;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    box-shadow: 0 8px 25px rgba(102, 187, 106, 0.6);
 }
-
-/* Hide mobile compose button on desktop */
