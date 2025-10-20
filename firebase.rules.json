@@ -1,17 +1,17 @@
 {
   "rules": {
-    // Users: can read own profile, can write own profile if authenticated
+    // Users: all authenticated users can read all profiles, can only write own profile
     "users": {
+      ".read": "auth != null",
       "$uid": {
-        ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid"
       }
     },
     
-    // Usernames: readable by all authenticated users, writable only when creating new username
+    // Usernames: readable by EVERYONE (needed for signup availability check), writable only when creating new username
     "usernames": {
       "$username": {
-        ".read": "auth != null",
+        ".read": true,
         ".write": "auth != null && (!data.exists() || data.val() === auth.uid)"
       }
     },
@@ -24,11 +24,11 @@
       }
     },
     
-    // User Yaps: readable by all, writable by owner
+    // User Yaps: readable by all authenticated users, writable by owner
     "userYaps": {
+      ".read": "auth != null",
       "$uid": {
         "$yapId": {
-          ".read": "auth != null",
           ".write": "auth != null && auth.uid === $uid"
         }
       }
@@ -74,10 +74,10 @@
       }
     },
     
-    // Following: readable by all, writable by owner
+    // Following: readable by all authenticated users, writable by owner
     "following": {
+      ".read": "auth != null",
       "$uid": {
-        ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid"
       }
     },

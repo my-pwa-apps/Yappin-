@@ -207,9 +207,11 @@ window.openYapModal = openYapModal;
 
 // Close modal
 function closeModal() {
+    let saveDraftConfirm = false;
+    
     // Ask for confirmation if there's unsaved content
     if (modalYapText.value.trim() !== '') {
-        const saveDraftConfirm = confirm("Do you want to save this Yap as a draft?");
+        saveDraftConfirm = confirm("Do you want to save this Yap as a draft?");
         if (saveDraftConfirm) {
             saveDraft(modalYapText.value);
             showSnackbar('Draft saved!', 'success');
