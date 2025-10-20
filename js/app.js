@@ -365,9 +365,12 @@ function createYap(textarea) {
                 processHashtags(hashtags, newYapKey);
             }
             // Commit updates
-            return database.ref().update(updates);
+            return database.ref().update(updates).then(() => {
+                // Return the yap data with ID for immediate display
+                return { yapId: newYapKey, yapData };
+            });
         })
-        .then(() => {
+        .then(({ yapId, yapData }) => {
             textarea.value = '';
             clearDraft();
             if (textarea.dataset.replyTo) {
@@ -380,7 +383,23 @@ function createYap(textarea) {
             }
             updateCharacterCount(textarea, textarea === yapText ? characterCount : modalCharacterCount);
             showSnackbar('Yap posted successfully!', 'success');
-            loadTimeline();
+            
+            // Add the yap immediately to the timeline without reloading
+            if (typeof createYapElement === 'function' && yapsContainer) {
+                yapData.id = yapId;
+                const yapElement = createYapElement(yapData, false, false);
+                
+                // Insert at the top of the timeline
+                const firstYap = yapsContainer.querySelector('.yap-item');
+                if (firstYap) {
+                    yapsContainer.insertBefore(yapElement, firstYap);
+                } else {
+                    // Remove any empty state messages
+                    const emptyState = yapsContainer.querySelector('.empty-state');
+                    if (emptyState) emptyState.remove();
+                    yapsContainer.appendChild(yapElement);
+                }
+            }
         })
         .catch(error => {
             console.error('Error posting yap:', error);
