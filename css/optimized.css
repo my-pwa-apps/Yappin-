@@ -264,6 +264,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 /* Desktop compose button - Enhanced */
 @media (min-width: 769px) {
+  /* Hide mobile compose button on desktop */
+  .mobile-compose-btn {
+    display: none !important;
+  }
+  
   .desktop-compose-btn {
     display: flex;
     position: fixed;
