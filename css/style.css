@@ -1,19 +1,20 @@
 /* Main Styling for Yappin' PWA */
 
 :root {
-    /* Base colors - Green-Gray Theme */
-    --primary-color: #4CAF50; /* Green primary */
-    --primary-hover: #43A047;
-    --primary-light: rgba(76, 175, 80, 0.1);
-    --secondary-color: #455A64; /* Blue-gray secondary */
-    --light-gray: #B0BEC5; 
-    --border-color: #CFD8DC;
-    --hover-color: #ECEFF1;
-    --text-primary: #37474F; /* Dark blue-gray */
-    --text-secondary: #607D8B; /* Blue-gray */
-    --danger-color: #F44336; /* Red */
-    --success-color: #4CAF50; /* Green */
-    --warning-color: #FFA000; /* Amber */
+    /* Base colors - Modern Green Theme */
+    --primary-color: #10b981; /* Emerald green */
+    --primary-hover: #059669;
+    --primary-light: rgba(16, 185, 129, 0.1);
+    --accent-color: #3b82f6; /* Blue accent */
+    --secondary-color: #64748b; /* Slate gray */
+    --light-gray: #cbd5e1; 
+    --border-color: #e2e8f0;
+    --hover-color: #f8fafc;
+    --text-primary: #0f172a; /* Slate */
+    --text-secondary: #475569; /* Slate */
+    --danger-color: #ef4444; /* Red */
+    --success-color: #10b981; /* Emerald */
+    --warning-color: #f59e0b; /* Amber */
     
     /* Layout */
     --container-max-width: 1300px;
@@ -38,31 +39,32 @@
     --transition-normal: 0.3s ease;
 }
 
-/* Dark Mode Theme - Green-Gray Theme */
+/* Dark Mode Theme - Modern Dark Theme */
 @media (prefers-color-scheme: dark) {
     :root {
-        --text-primary: #ECEFF1; /* Light blue-gray */
-        --text-secondary: #B0BEC5; /* Blue-gray lighter */
-        --border-color: #263238; /* Dark blue-gray */
-        --hover-color: #1E2B32; /* Very dark blue-gray */
-        --primary-light: rgba(76, 175, 80, 0.15); /* Green with opacity */
-        --primary-color: #66BB6A; /* Slightly lighter green for better contrast */
-        --primary-hover: #81C784;
+        --text-primary: #f1f5f9; /* Slate light */
+        --text-secondary: #94a3b8; /* Slate lighter */
+        --border-color: #334155; /* Slate dark */
+        --hover-color: #1e293b; /* Slate darker */
+        --primary-light: rgba(16, 185, 129, 0.15);
+        --primary-color: #34d399; /* Lighter emerald for dark mode */
+        --primary-hover: #10b981;
+        --accent-color: #60a5fa;
     }
     
     body {
-        background-color: #121a1f; /* Dark blue-gray background */
+        background-color: #0f172a; /* Slate darkest */
         color: var(--text-primary);
     }
     
     header, .dropdown, .modal-content {
-        background-color: #1a252b; /* Slightly lighter than body for contrast */
+        background-color: #1e293b; /* Slate dark card */
     }
       /* Modern glass effect for dark mode */
     header {
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-        background-color: rgba(26, 37, 43, 0.8); /* Dark blue-gray with opacity */
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+        background-color: rgba(30, 41, 59, 0.8);
     }
     
     .yap-item:hover, .trend-item:hover {
