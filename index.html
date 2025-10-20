@@ -5,6 +5,7 @@
     <title>Yappin' - Share Your Thoughts</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/optimized.css">
+    <link rel="stylesheet" href="css/enhancements.css">
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" type="image/svg+xml" href="./images/icons/favicon.svg">
     <link rel="apple-touch-icon" href="./images/icons/icon-192x192.png"><!-- Google Fonts -->
@@ -13,6 +14,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Connection Status Indicator -->
+    <div id="connection-status" class="online" aria-label="Connection status"></div>
+    
     <div class="app-container">        <header>
             <div class="logo">                <a href="#" class="logo-link">
                     <img src="./images/icons/logo.svg" alt="Yappin' Logo" class="logo-img">
@@ -20,8 +24,8 @@
                 </a>
             </div>
             <div class="user-menu">
-                <button id="darkModeToggle" class="icon-btn"><i class="fas fa-moon"></i></button>
-                <button id="userBtn" class="hidden"><i class="fas fa-user"></i></button>
+                <button id="darkModeToggle" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode"><i class="fas fa-moon"></i></button>
+                <button id="userBtn" class="hidden" aria-label="User menu" title="User menu"><i class="fas fa-user"></i></button>
                 <div id="userDropdown" class="dropdown hidden">
                     <a href="#" id="profileLink">Profile</a>
                     <a href="#" id="logoutBtn">Logout</a>
@@ -88,9 +92,9 @@
                         <textarea id="yapText" placeholder="What's happening?"></textarea>
                         <div class="compose-actions">
                             <div class="attach-options">
-                                <button class="icon-btn"><i class="far fa-image"></i></button>
-                                <button class="icon-btn"><i class="fas fa-poll"></i></button>
-                                <button class="icon-btn"><i class="far fa-smile"></i></button>
+                                <button class="icon-btn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
+                                <button class="icon-btn" aria-label="Create poll" title="Create poll"><i class="fas fa-poll"></i></button>
+                                <button class="icon-btn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
                             </div>
                             <button id="postYapBtn" class="btn primary-btn">Yap</button>
                         </div>
@@ -136,15 +140,15 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>Compose new Yap</h2>
-                        <button id="closeYapModal" class="close-btn"><i class="fas fa-times"></i></button>
+                        <button id="closeYapModal" class="close-btn" aria-label="Close modal" title="Close"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="modal-body">
                         <textarea id="modalYapText" placeholder="What's happening?"></textarea>
                         <div class="compose-actions">
                             <div class="attach-options">
-                                <button class="icon-btn"><i class="far fa-image"></i></button>
-                                <button class="icon-btn"><i class="fas fa-poll"></i></button>
-                                <button class="icon-btn"><i class="far fa-smile"></i></button>
+                                <button class="icon-btn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
+                                <button class="icon-btn" aria-label="Create poll" title="Create poll"><i class="fas fa-poll"></i></button>
+                                <button class="icon-btn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
                             </div>
                             <button id="modalPostYapBtn" class="btn primary-btn">Yap</button>
                         </div>
@@ -184,116 +188,7 @@
     <script src="./js/auth.js"></script>
     <script src="./js/app.js"></script>
     <script src="./js/timeline.js"></script>
-    <script>
-        // Register service worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./service-worker.js')
-                    .then(reg => console.log('Service Worker registered'))
-                    .catch(err => console.log('Service Worker registration failed: ', err));
-            });
-        }
-        
-        // Function to toggle follow/unfollow
-        function toggleFollow(userId) {
-            if (!auth.currentUser) {
-                showSnackbar('You need to be logged in to follow users', 'error');
-                return;
-            }
-            
-            const currentUserId = auth.currentUser.uid;
-            const isFollowing = document.querySelector(`.follow-btn.following[data-user-id="${userId}"]`);
-            
-            if (isFollowing) {
-                // Unfollow
-                database.ref(`following/${currentUserId}/${userId}`).remove()
-                    .then(() => {
-                        showSnackbar('Unfollowed successfully', 'success');
-                        // Update follow button UI
-                        isFollowing.classList.remove('following');
-                        isFollowing.innerText = 'Follow';
-                    })
-                    .catch(error => {
-                        console.error('Error unfollowing user:', error);
-                        showSnackbar('Error unfollowing user', 'error');
-                    });
-            } else {
-                // Follow
-                database.ref(`following/${currentUserId}/${userId}`).set(true)
-                    .then(() => {
-                        showSnackbar('Followed successfully', 'success');
-                        // Update follow button UI
-                        const followBtn = document.querySelector(`.follow-btn[data-user-id="${userId}"]`);
-                        if (followBtn) {
-                            followBtn.classList.add('following');
-                            followBtn.innerText = 'Following';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error following user:', error);
-                        showSnackbar('Error following user', 'error');
-                    });
-            }
-        }
-        
-        // Function to load suggested users
-        function loadSuggestedUsers() {
-            if (!auth.currentUser) return;
-            
-            const whoToFollowContainer = document.querySelector('.who-to-follow');
-            if (!whoToFollowContainer) return;
-            
-            const currentUserId = auth.currentUser.uid;
-            
-            // First get list of users current user is already following
-            database.ref(`following/${currentUserId}`).once('value')
-                .then(snapshot => {
-                    const following = snapshot.val() || {};
-                    const followingIds = Object.keys(following);
-                    
-                    // Get a list of users to suggest (excluding those already followed)
-                    return database.ref('users').limitToFirst(5).once('value')
-                        .then(usersSnapshot => {
-                            let html = '<h2>Who to follow</h2>';
-                            const users = usersSnapshot.val() || {};
-                            
-                            Object.entries(users).forEach(([userId, userData]) => {
-                                // Skip if this is the current user or already following
-                                if (userId === currentUserId || followingIds.includes(userId)) {
-                                    return;
-                                }
-                                
-                                const isFollowing = followingIds.includes(userId);
-                                html += `
-                                <div class="suggested-user">
-                                    <div class="user-info">
-                                        <img src="${userData.photoURL || './images/default-avatar.svg'}" alt="${userData.displayName || 'User'}" class="user-avatar">
-                                        <div>
-                                            <p class="user-name">${userData.displayName || 'Anonymous User'}</p>
-                                            <p class="user-handle">@${userData.username || userId.substring(0, 8)}</p>
-                                        </div>
-                                    </div>
-                                    <button onclick="toggleFollow('${userId}')" class="follow-btn ${isFollowing ? 'following' : ''}">
-                                        ${isFollowing ? 'Following' : 'Follow'}
-                                    </button>
-                                </div>
-                                `;
-                            });
-                            
-                            whoToFollowContainer.innerHTML = html;
-                        });
-                })
-                .catch(error => {
-                    console.error('Error loading suggested users:', error);
-                });
-        }
-        
-        // Load suggested users when user is authenticated
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                loadSuggestedUsers();
-            }
-        });
-    </script>
+    <script src="./js/social.js"></script>
+    <script src="./js/pwa-init.js"></script>
 </body>
 </html>

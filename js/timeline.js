@@ -6,6 +6,12 @@ const yapsContainer = document.getElementById('yapsContainer');
 // Load timeline
 function loadTimeline() {
     if (!auth.currentUser) {
+        console.warn('Cannot load timeline: User not authenticated');
+        return;
+    }
+    
+    if (!yapsContainer) {
+        console.error('Yaps container element not found');
         return;
     }
 
@@ -68,7 +74,13 @@ function loadTimeline() {
 }
 
 // Create a yap element
-function createYapElement(yapData, isLiked, isReyapped) {
+function createYapElement(yapData, isLiked = false, isReyapped = false) {
+    // Validate yapData
+    if (!yapData || !yapData.id) {
+        console.error('Invalid yap data provided to createYapElement:', yapData);
+        return document.createElement('div'); // Return empty div
+    }
+    
     const yapElement = document.createElement('div');
     yapElement.className = 'yap-item';
     yapElement.dataset.yapId = yapData.id;
@@ -167,14 +179,29 @@ function createYapElement(yapData, isLiked, isReyapped) {
         e.stopPropagation();
         // Simple share functionality
         if (navigator.share) {
-            navigator.share({
+            const shareData = {
                 title: 'Check out this Yap!',
-                text: `@${yapData.username}: ${yapData.content}`,
+                text: `@${username}: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}`,
                 url: window.location.href
-            })
-            .catch(error => console.log('Error sharing:', error));
+            };
+            
+            navigator.share(shareData)
+                .then(() => showSnackbar('Shared successfully', 'success'))
+                .catch(error => {
+                    if (error.name !== 'AbortError') { // User cancelled
+                        console.error('Error sharing:', error);
+                        showSnackbar('Error sharing', 'error');
+                    }
+                });
         } else {
-            showSnackbar('Share feature not supported by your browser');
+            // Fallback: copy link to clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => showSnackbar('Link copied to clipboard', 'success'))
+                    .catch(() => showSnackbar('Could not copy link', 'error'));
+            } else {
+                showSnackbar('Share feature not supported by your browser', 'error');
+            }
         }
     });
     

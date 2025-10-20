@@ -1,12 +1,85 @@
 {
-  "name": "Yappin'",
-  "short_name": "Yappin'",  "description": "Share your thoughts with the world in short Yaps!",  "start_url": "/",
+  "name": "Yappin' - Share Your Thoughts",
+  "short_name": "Yappin'",
+  "description": "Share your thoughts with the world in short Yaps! A modern social media PWA.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
-  "background_color_dark": "#121a1f",
   "theme_color": "#4CAF50",
-  "theme_color_dark": "#66BB6A",
   "orientation": "portrait-primary",
+  "categories": ["social", "lifestyle", "entertainment"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "New Yap",
+      "short_name": "New Yap",
+      "description": "Create a new yap",
+      "url": "/?action=new-yap",
+      "icons": [
+        {
+          "src": "./images/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "short_name": "Notifications",
+      "description": "View your notifications",
+      "url": "/?view=notifications",
+      "icons": [
+        {
+          "src": "./images/icons/icon-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./images/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "./images/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "media",
+          "accept": ["image/*", "video/*"]
+        }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/share",
+      "accept": {
+        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
+        "video/*": [".mp4", ".webm"]
+      }
+    }
+  ],
   "icons": [
     {
       "src": "./images/icons/icon-72x72.png",

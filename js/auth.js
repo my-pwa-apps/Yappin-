@@ -176,11 +176,6 @@ function checkUsernameAvailability(username) {
 function createUserProfile(user, username) {
     const lowercaseUsername = username.toLowerCase();
     
-    // Log detailed information just before the database operation
-    console.log('[DEBUG] Attempting createUserProfile for username:', username, '(lowercase:', lowercaseUsername, ')');
-    console.log('[DEBUG] User object passed to createUserProfile:', JSON.stringify(user, null, 2));
-    console.log('[DEBUG] auth.currentUser state:', JSON.stringify(auth.currentUser, null, 2));
-
     const userData = {
         uid: user.uid,
         username: username,
@@ -193,23 +188,19 @@ function createUserProfile(user, username) {
         following: 0
     };
     
-    // Current debugging approach: direct .set() operations, separated
-    console.log('[DEBUG] Attempting to write to: usernames/' + lowercaseUsername + ' with value:', user.uid);
-    return database.ref('usernames/' + lowercaseUsername).set(user.uid)
+    // Use batched update for atomic write operation
+    const updates = {};
+    updates[`users/${user.uid}`] = userData;
+    updates[`usernames/${lowercaseUsername}`] = user.uid;
+    
+    return database.ref().update(updates)
         .then(() => {
-            console.log('[DEBUG] SUCCESS writing to usernames/' + lowercaseUsername);
-            console.log('[DEBUG] Attempting to write to: users/' + user.uid);
-            return database.ref('users/' + user.uid).set(userData);
+            console.log('User profile created successfully for:', username);
         })
-        .then(() => {
-            console.log('[DEBUG] SUCCESS writing to users/' + user.uid);
+        .catch(error => {
+            console.error('Error creating user profile:', error);
+            throw error;
         });
-
-    // Original batched update (commented out for debugging)
-    // const updates = {};
-    // updates[`users/${user.uid}`] = userData;
-    // updates[`usernames/${lowercaseUsername}`] = user.uid;
-    // return database.ref().update(updates);
 }
 
 // Check if user profile exists, if not create one
@@ -227,17 +218,3 @@ function checkUserProfile(user) {
             console.error('Error checking user profile:', error);
         });
 }
-
-// Debugging: Log the current authenticated user
-console.log('[DEBUG] Current authenticated user:', auth.currentUser);
-
-// Debugging: Test write operation
-const testRef = database.ref('test/debug');
-testRef.set({
-    message: 'This is a test write',
-    timestamp: Date.now()
-}).then(() => {
-    console.log('[DEBUG] Test write succeeded');
-}).catch(error => {
-    console.error('[DEBUG] Test write failed:', error);
-});

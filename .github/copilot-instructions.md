@@ -156,6 +156,39 @@ Current Firebase rules (`firebase.rules.json`) are restrictive:
 - All operations require authentication
 - **Consider relaxing for public timeline features**
 
+## PWA Architecture
+
+### Complete PWA Implementation
+This is a **fully-fledged Progressive Web App** with:
+- ✅ Complete manifest.json with shortcuts and share targets
+- ✅ Service worker with caching strategies
+- ✅ Offline support with custom offline page
+- ✅ Install prompts and app shortcuts
+- ✅ Connection status monitoring
+- ✅ Share Target API for receiving shared content
+- ✅ File handlers for media files
+- ✅ Window controls overlay support
+- ✅ Safe area insets for notched devices
+
+### PWA Script Loading Order
+After Firebase scripts, load PWA modules:
+1. `auth.js` - Authentication
+2. `app.js` - Core functionality
+3. `timeline.js` - Feed and yaps
+4. `social.js` - Follow/unfollow features
+5. `pwa-init.js` - **PWA features, service worker registration**
+
+### PWA Features Location
+- Service Worker: `service-worker.js` (root)
+- PWA Init: `js/pwa-init.js` (install prompts, offline handling)
+- Manifest: `manifest.json` (app configuration)
+- Offline Page: `offline.html` (fallback page)
+
+### No Inline Scripts/Styles
+- **All JavaScript extracted to modules** - No `<script>` tags in index.html (except external imports)
+- **All CSS in separate files** - No `<style>` tags in HTML
+- Better maintainability, caching, and CSP compliance
+
 ## External Dependencies
 - Firebase SDK v9.19.1 (compat mode) - loaded from CDN
 - Font Awesome 6.0.0-beta3 - icons
@@ -163,8 +196,14 @@ Current Firebase rules (`firebase.rules.json`) are restrictive:
 - Node.js + Sharp - for icon generation only (dev dependency)
 
 ## File Naming Conventions
-- JavaScript: kebab-case filenames (`firebase-config.js`)
-- CSS: kebab-case filenames (`modern-enhancements.css`)
+- JavaScript: kebab-case filenames (`firebase-config.js`, `pwa-init.js`)
+- CSS: kebab-case filenames (`modern-enhancements.css`, `enhancements.css`)
 - Images: kebab-case with dimensions (`icon-192x192.png`)
 - Functions: camelCase (`createYapElement`, `toggleLike`)
 - Database paths: camelCase (`userYaps`, `userLikes`)
+
+## Production Deployment
+- **Requires HTTPS** - PWAs must be served over secure connection
+- Test with Lighthouse (target 90+ PWA score)
+- Configure Firebase production credentials
+- Set proper CSP headers for security

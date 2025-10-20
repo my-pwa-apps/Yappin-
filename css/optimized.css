@@ -49,16 +49,16 @@ body.dark-mode .modal-content {
 }
 
 body.dark-mode header {
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   background-color: rgba(26, 37, 43, 0.8);
   border-bottom: 1px solid #263238;
 }
 
 body.dark-mode .mobile-nav {
   background-color: rgba(26, 37, 43, 0.9);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border-top: 1px solid #263238;
 }
 
@@ -117,8 +117,8 @@ body.dark-mode .yap-item:hover {
 /* Modern Header */
 header {
   background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid var(--border-color);
 }
@@ -150,8 +150,8 @@ header {
 .logo h1 {
   background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
   background-size: 200% auto;
-  background-clip: text;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 1.3em;
 }
@@ -214,8 +214,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     left: 0;
     width: 100%;
     background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border-top: 1px solid var(--border-color);
     z-index: 100;
     padding: 8px 0;

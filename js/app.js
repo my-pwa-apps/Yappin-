@@ -85,7 +85,6 @@ if (darkModeToggle) {
         
         applyTheme(newIsDarkMode);
         showSnackbar(newIsDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
-        console.log('Dark mode toggled:', newIsDarkMode);
     });
 }
 
@@ -132,25 +131,13 @@ document.addEventListener('DOMContentLoaded', () => {
     showNewFeaturesNotification();
 });
 
-// Utility function to show snackbar notifications
+// Utility function to show snackbar notifications (consolidated from duplicate)
 function showSnackbar(message, type = 'default', duration = 3000) {
-    snackbar.textContent = message;
-    snackbar.className = ''; // Reset classes
-    snackbar.classList.add('show');
-    
-    if (type) {
-        snackbar.classList.add(type);
-    }
-    
-    setTimeout(() => {
-        snackbar.classList.remove('show');
-    }, duration);
-}
-
-// Show snackbar notification
-function showSnackbar(message, type = '') {
     const snackbar = document.getElementById('snackbar');
-    if (!snackbar) return;
+    if (!snackbar) {
+        console.warn('Snackbar element not found');
+        return;
+    }
     
     // Clear any existing classes and add new ones
     snackbar.className = '';
@@ -160,10 +147,10 @@ function showSnackbar(message, type = '') {
     // Set the message
     snackbar.textContent = message;
     
-    // Hide after 3 seconds
+    // Hide after specified duration
     setTimeout(() => {
-        snackbar.className = '';
-    }, 3000);
+        snackbar.classList.remove('show');
+    }, duration);
 }
 
 // Make the function globally available
@@ -287,8 +274,15 @@ function clearDraft() {
 
 // Create a new yap
 function createYap(textarea) {
+    // Validate textarea element
+    if (!textarea) {
+        console.error('Invalid textarea element provided to createYap');
+        return;
+    }
+    
     // Get the text content
     const content = textarea.value.trim();
+    
     // Validate content
     if (!content) {
         showSnackbar('Yap cannot be empty', 'error');
@@ -868,9 +862,6 @@ function searchUser(username) {
 
 // Display search results
 function displaySearchResults(results) {
-    // This function would update the UI with search results
-    console.log('Search results:', results);
-    
     if (results.length === 0) {
         showSnackbar('No results found', 'default', 2000);
     } else {
@@ -878,6 +869,10 @@ function displaySearchResults(results) {
         
         // TODO: Update UI with results
         // This would be implemented based on the app's UI design
+        // For now, log to console for debugging
+        if (typeof console !== 'undefined' && console.table) {
+            console.table(results.slice(0, 10)); // Show first 10 results
+        }
     }
 }
 

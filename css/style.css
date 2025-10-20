@@ -60,8 +60,8 @@
     }
       /* Modern glass effect for dark mode */
     header {
-        backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
         background-color: rgba(26, 37, 43, 0.8); /* Dark blue-gray with opacity */
     }
     
@@ -164,8 +164,8 @@ header {
     top: 0;
     background-color: #fff;
     z-index: 100;
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.95);
 }
 
@@ -199,8 +199,8 @@ header {
     letter-spacing: -0.5px;
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
     background-size: 200% auto;
-    background-clip: text;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     /* animation: shine 3s linear infinite; */ /* Remove animation */
     position: relative;
@@ -215,8 +215,8 @@ header {
     z-index: -1;
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
     background-size: 200% auto;
-    background-clip: text;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: blur(8px);
     opacity: 0.3;
@@ -562,7 +562,7 @@ main {
     width: 100%;
     min-height: 100px;
     padding: var(--space-sm);
-    border:
+    border: none;
     resize: none;
     margin-bottom: var(--space-sm);
     background: transparent;
@@ -1282,7 +1282,6 @@ main {
     }
     
     /* Mobile specific adjustments */
-    }
 }
 
 /* Import modern enhancements directly into the main stylesheet */

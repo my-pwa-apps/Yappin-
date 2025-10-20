@@ -37,10 +37,14 @@ const API_URLS = [
 // Install service worker and cache static assets
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('Caching app shell and static assets');
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('[Service Worker] Caching app shell and static assets');
+        return cache.addAll(STATIC_ASSETS);
+      })
+      .catch(error => {
+        console.error('[Service Worker] Failed to cache assets during install:', error);
+      })
   );
   // Force service worker to activate immediately
   self.skipWaiting();
@@ -49,20 +53,25 @@ self.addEventListener('install', event => {
 // Activate service worker and clean up old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      console.log('Service Worker activated and controlling the page');
-      // Claim clients so updated service worker takes effect immediately
-      return self.clients.claim();
-    })
+    caches.keys()
+      .then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('[Service Worker] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+      .then(() => {
+        console.log('[Service Worker] Activated and controlling the page');
+        // Claim clients so updated service worker takes effect immediately
+        return self.clients.claim();
+      })
+      .catch(error => {
+        console.error('[Service Worker] Activation failed:', error);
+      })
   );
 });
 
@@ -148,7 +157,7 @@ self.addEventListener('fetch', event => {
               return response;
             })
             .catch(error => {
-              console.error('Fetch failed:', error);
+              console.error('[Service Worker] Fetch failed:', error);
               // If offline and no cached response, return a generic error
               return new Response('Network error occurred', {
                 status: 408,
@@ -229,18 +238,18 @@ self.addEventListener('sync', event => {
 // Sync pending yaps from IndexedDB to server
 function syncYaps() {
   // This would be implemented with IndexedDB operations
-  console.log('Syncing pending yaps');
+  console.log('[Service Worker] Syncing pending yaps');
   return Promise.resolve();
 }
 
 // Sync pending likes from IndexedDB to server
 function syncLikes() {
-  console.log('Syncing pending likes');
+  console.log('[Service Worker] Syncing pending likes');
   return Promise.resolve();
 }
 
 // Sync pending reyaps from IndexedDB to server
 function syncReyaps() {
-  console.log('Syncing pending reyaps');
+  console.log('[Service Worker] Syncing pending reyaps');
   return Promise.resolve();
 }
