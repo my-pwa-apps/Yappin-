@@ -1,28 +1,123 @@
 {
   "rules": {
-    // Allow anyone to create a user (signup)
+    // Users: can read own profile, can write own profile if authenticated
     "users": {
       "$uid": {
-        ".write": "auth != null || (!data.exists() && newData.exists())",
-        ".read": "auth != null && auth.uid === $uid"
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
       }
     },
-    // Yaps: only the owner or their friends can read, only the owner can write
+    
+    // Usernames: readable by all authenticated users, writable only when creating new username
+    "usernames": {
+      "$username": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.val() === auth.uid)"
+      }
+    },
+    
+    // Yaps: readable by all authenticated users, writable by owner
     "yaps": {
-      "$yapUid": {
-        ".write": "auth != null && auth.uid === $yapUid",
-        ".read": "auth != null && (auth.uid === $yapUid || root.child('friends').child($yapUid).child(auth.uid).exists())"
+      "$yapId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (data.child('uid').val() === auth.uid || !data.exists())"
       }
     },
-    // Friends: only the owner can read/write their friends list
-    "friends": {
+    
+    // User Yaps: readable by all, writable by owner
+    "userYaps": {
+      "$uid": {
+        "$yapId": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    // Likes: readable by all, writable by authenticated users
+    "likes": {
+      "$yapId": {
+        "$uid": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    // User Likes: readable by all, writable by owner
+    "userLikes": {
+      "$uid": {
+        "$yapId": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    // Reyaps: readable by all, writable by authenticated users
+    "reyaps": {
+      "$yapId": {
+        "$uid": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    // User Reyaps: readable by all, writable by owner
+    "userReyaps": {
+      "$uid": {
+        "$yapId": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    // Following: readable by all, writable by owner
+    "following": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    
+    // Followers: readable by all, writable by the follower
+    "followers": {
+      "$uid": {
+        "$followerUid": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $followerUid"
+        }
+      }
+    },
+    
+    // Notifications: readable by owner, writable by anyone authenticated
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    
+    // Hashtags: readable by all, writable by authenticated users
+    "hashtags": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    
+    // Trending: readable by all, writable by authenticated users
+    "trending": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    
+    // User Bookmarks: readable/writable by owner only
+    "userBookmarks": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
       }
-    },
-    // All other data: only authenticated users can read/write
-    ".read": "auth != null",
-    ".write": "auth != null"
+    }
   }
 }

@@ -90,10 +90,37 @@ loginForm.addEventListener('submit', (e) => {
         .then(() => {
             // Clear form
             loginForm.reset();
+            showSnackbar('Logged in successfully!', 'success');
         })
         .catch(error => {
-            // Handle errors
-            showSnackbar(`Error: ${error.message}`);
+            // Handle errors with user-friendly messages
+            let errorMessage = 'Login failed. Please try again.';
+            
+            switch (error.code) {
+                case 'auth/invalid-email':
+                    errorMessage = 'Invalid email address.';
+                    break;
+                case 'auth/user-disabled':
+                    errorMessage = 'This account has been disabled.';
+                    break;
+                case 'auth/user-not-found':
+                    errorMessage = 'No account found with this email.';
+                    break;
+                case 'auth/wrong-password':
+                case 'auth/invalid-login-credentials':
+                    errorMessage = 'Incorrect email or password.';
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = 'Too many failed attempts. Please try again later.';
+                    break;
+                case 'auth/network-request-failed':
+                    errorMessage = 'Network error. Please check your connection.';
+                    break;
+                default:
+                    errorMessage = error.message;
+            }
+            
+            showSnackbar(errorMessage, 'error');
             console.error('Login error:', error);
         })
         .finally(() => {
@@ -107,14 +134,31 @@ loginForm.addEventListener('submit', (e) => {
 signupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    const username = document.getElementById('signupUsername').value;
-    const email = document.getElementById('signupEmail').value;
+    const username = document.getElementById('signupUsername').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('signupConfirmPassword').value;
     
+    // Validate username
+    if (username.length < 3) {
+        showSnackbar('Username must be at least 3 characters', 'error');
+        return;
+    }
+    
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        showSnackbar('Username can only contain letters, numbers, and underscores', 'error');
+        return;
+    }
+    
     // Validate password match
     if (password !== confirmPassword) {
-        showSnackbar('Passwords do not match');
+        showSnackbar('Passwords do not match', 'error');
+        return;
+    }
+    
+    // Validate password strength
+    if (password.length < 6) {
+        showSnackbar('Password must be at least 6 characters', 'error');
         return;
     }
     
@@ -141,11 +185,39 @@ signupForm.addEventListener('submit', (e) => {
         .then(() => {
             // Clear form
             signupForm.reset();
-            showSnackbar('Account created successfully!');
+            showSnackbar('Account created successfully!', 'success');
         })
         .catch(error => {
-            // Handle errors
-            showSnackbar(`Error: ${error.message}`);
+            // Handle errors with user-friendly messages
+            let errorMessage = 'Signup failed. Please try again.';
+            
+            if (error.message && error.message.includes('permission_denied')) {
+                errorMessage = 'Unable to create account. Please check Firebase rules are deployed.';
+            } else {
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = 'This email is already registered. Please login instead.';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage = 'Email/password accounts are not enabled.';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = 'Password should be at least 6 characters.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your connection.';
+                        break;
+                    default:
+                        if (error.message) {
+                            errorMessage = error.message;
+                        }
+                }
+            }
+            
+            showSnackbar(errorMessage, 'error', 5000);
             console.error('Signup error:', error);
         })
         .finally(() => {
