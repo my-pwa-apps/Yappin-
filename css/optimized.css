@@ -471,3 +471,40 @@ body.dark-mode .yap-content a.mention {
     max-width: calc(100% - 40px);
   }
 }
+
+/* New Yap Highlight Animation */
+.yap-item.new-yap {
+  animation: highlightYap 2s ease-in-out;
+}
+
+@keyframes highlightYap {
+  0% {
+    background-color: var(--primary-light);
+    transform: scale(1.02);
+  }
+  50% {
+    background-color: var(--primary-light);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+body.dark-mode .yap-item.new-yap {
+  animation: highlightYapDark 2s ease-in-out;
+}
+
+@keyframes highlightYapDark {
+  0% {
+    background-color: rgba(76, 175, 80, 0.2);
+    transform: scale(1.02);
+  }
+  50% {
+    background-color: rgba(76, 175, 80, 0.2);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}

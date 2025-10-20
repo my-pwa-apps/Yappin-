@@ -34,6 +34,12 @@ auth.onAuthStateChanged(user => {
         // User is signed out
         currentUser = null;
         
+        // Cleanup real-time listeners
+        if (typeof realtimeListeners !== 'undefined') {
+            realtimeListeners.forEach(listener => listener.off());
+            realtimeListeners = [];
+        }
+        
         // Update UI
         authContainer.classList.remove('hidden');
         contentContainer.classList.add('hidden');

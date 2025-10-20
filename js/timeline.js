@@ -119,6 +119,11 @@ function loadTimeline(loadMore = false) {
             }
             
             isLoadingMore = false;
+            
+            // Setup real-time updates after initial load
+            if (!loadMore) {
+                setupRealTimeUpdates();
+            }
         })
         .catch(error => {
             console.error('Error loading timeline:', error);
@@ -308,68 +313,81 @@ function formatYapContent(content) {
 }
 
 // Set up real-time updates for new yaps
-function setupRealTimeUpdates() {
-    // Get the timestamp of the newest yap we've seen
-    const mostRecentTimestamp = getMostRecentYapTimestamp();
-    
-    // Listen for new yaps added after this timestamp
-    const realtimeRef = database.ref('yaps')
-        .orderByChild('timestamp')
-        .startAfter(mostRecentTimestamp);
-    
-    // Remove any existing listeners
-    realtimeRef.off();
-    
-    // Add the new listener
-    realtimeRef.on('child_added', snapshot => {
-        const yapData = snapshot.val();
-        yapData.id = snapshot.key;
-        
-        // Only show new yaps if not from the initial load
-        if (yapData.timestamp > mostRecentTimestamp && mostRecentTimestamp > 0) {
-            // Check if user has liked or reyapped this yap
-            Promise.all([
-                database.ref(`userLikes/${auth.currentUser.uid}/${yapData.id}`).once('value'),
-                database.ref(`userReyaps/${auth.currentUser.uid}/${yapData.id}`).once('value')
-            ]).then(([likeSnapshot, reyapSnapshot]) => {
-                const isLiked = likeSnapshot.exists();
-                const isReyapped = reyapSnapshot.exists();
-                
-                // Create and prepend the new yap element
-                const yapElement = createYapElement(yapData, isLiked, isReyapped);
-                yapsContainer.insertBefore(yapElement, yapsContainer.firstChild);
-                
-                // Add a temporary highlight effect
-                setTimeout(() => {
-                    yapElement.classList.add('new-yap');
-                    setTimeout(() => {
-                        yapElement.classList.remove('new-yap');
-                    }, 2000);
-                }, 0);
-            });
-        }
-    });
-}
+// Set up real-time updates for new yaps
+let realtimeListeners = [];
 
-// Get the timestamp of the most recent yap in the timeline
-function getMostRecentYapTimestamp() {
-    const yaps = yapsContainer.querySelectorAll('.yap-item');
-    if (yaps.length === 0) return 0;
+function setupRealTimeUpdates() {
+    if (!auth.currentUser) return;
     
-    let mostRecent = 0;
+    const currentUserId = auth.currentUser.uid;
     
-    yaps.forEach(yap => {
-        const yapId = yap.dataset.yapId;
-        database.ref(`yaps/${yapId}/timestamp`).once('value')
-            .then(snapshot => {
-                const timestamp = snapshot.val() || 0;
-                if (timestamp > mostRecent) {
-                    mostRecent = timestamp;
-                }
+    // Clear any existing listeners
+    realtimeListeners.forEach(listener => listener.off());
+    realtimeListeners = [];
+    
+    // Get followed users
+    database.ref(`following/${currentUserId}`).once('value')
+        .then(snapshot => {
+            const following = snapshot.val() || {};
+            const followedUserIds = Object.keys(following);
+            followedUserIds.push(currentUserId); // Include own yaps
+            
+            // Get current timestamp to only listen for new yaps
+            const currentTime = Date.now();
+            
+            // Set up listener for each followed user
+            followedUserIds.forEach(userId => {
+                const userYapsRef = database.ref(`userYaps/${userId}`)
+                    .orderByChild('timestamp')
+                    .startAt(currentTime);
+                
+                realtimeListeners.push(userYapsRef);
+                
+                userYapsRef.on('child_added', snapshot => {
+                    const yapData = snapshot.val();
+                    if (!yapData) return;
+                    
+                    yapData.id = snapshot.key;
+                    
+                    // Only add if timestamp is after we started listening
+                    // and it's not already in the DOM
+                    if (yapData.timestamp >= currentTime && 
+                        !document.querySelector(`[data-yap-id="${yapData.id}"]`)) {
+                        
+                        // Check if user has liked or reyapped this yap
+                        Promise.all([
+                            database.ref(`userLikes/${currentUserId}/${yapData.id}`).once('value'),
+                            database.ref(`userReyaps/${currentUserId}/${yapData.id}`).once('value')
+                        ]).then(([likeSnapshot, reyapSnapshot]) => {
+                            const isLiked = likeSnapshot.exists();
+                            const isReyapped = reyapSnapshot.exists();
+                            
+                            // Create and prepend the new yap element
+                            const yapElement = createYapElement(yapData, isLiked, isReyapped);
+                            
+                            // Find the first yap in the container (after any banners)
+                            const firstYap = yapsContainer.querySelector('.yap-item');
+                            if (firstYap) {
+                                yapsContainer.insertBefore(yapElement, firstYap);
+                            } else {
+                                yapsContainer.appendChild(yapElement);
+                            }
+                            
+                            // Add a temporary highlight effect
+                            yapElement.classList.add('new-yap');
+                            setTimeout(() => {
+                                yapElement.classList.remove('new-yap');
+                            }, 2000);
+                            
+                            // Show notification
+                            if (typeof showSnackbar === 'function' && yapData.uid !== currentUserId) {
+                                showSnackbar(`New yap from @${yapData.username}`, 'success', 3000);
+                            }
+                        });
+                    }
+                });
             });
-    });
-    
-    return mostRecent;
+        });
 }
 
 // Function to show follow suggestions in a modal
