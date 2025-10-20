@@ -858,3 +858,45 @@ html {
   background-color: var(--primary-color);
   color: white;
 }
+
+/* Cursor pointer for all interactive elements */
+button,
+a,
+.action-btn,
+.icon-btn,
+.yap-item,
+.trend-item,
+.user-suggestion,
+.nav-item,
+.sidebar nav ul li a,
+.mobile-nav button,
+.dropdown-item,
+input[type="submit"],
+input[type="button"],
+.clickable,
+.yap-avatar,
+.username {
+  cursor: pointer;
+}
+
+/* Delete button styling */
+.delete-yap {
+  color: #ef4444;
+  transition: all var(--transition-fast);
+  opacity: 0.7;
+  margin-right: 5px;
+}
+
+.delete-yap:hover {
+  opacity: 1;
+  color: #dc2626;
+  transform: scale(1.1);
+}
+
+body.dark-mode .delete-yap {
+  color: #f87171;
+}
+
+body.dark-mode .delete-yap:hover {
+  color: #ef4444;
+}

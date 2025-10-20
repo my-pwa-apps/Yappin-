@@ -151,6 +151,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     const content = yapData.content || '';
     const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
     const avatar = (yapData.userPhotoURL || './images/default-avatar.png').replace(/["'<>]/g, '');
+    const isOwnYap = auth.currentUser && yapData.uid === auth.currentUser.uid;
     
     yapElement.innerHTML = `
         <div class="yap-header">
@@ -164,6 +165,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 </div>
             </div>
             <div class="yap-options">
+                ${isOwnYap ? '<button class="icon-btn delete-yap" aria-label="Delete yap" title="Delete"><i class="fas fa-trash"></i></button>' : ''}
                 <button class="icon-btn" aria-label="More options"><i class="fas fa-ellipsis-h"></i></button>
             </div>
         </div>
@@ -228,6 +230,9 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 icon.classList.replace('fas', 'far');
                 reyapsCount.textContent = (parseInt(reyapsCount.textContent) - 1).toString();
             }
+        }).catch(error => {
+            console.error('Reyap error:', error);
+            // Don't update UI if there was an error
         });
     });
     
@@ -266,6 +271,17 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
             }
         }
     });
+    
+    // Add delete button listener if it's the user's own yap
+    const deleteBtn = yapElement.querySelector('.delete-yap');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (confirm('Are you sure you want to delete this yap?')) {
+                deleteYap(yapData.id, yapData.uid);
+            }
+        });
+    }
     
     // Open yap details on click
     yapElement.addEventListener('click', () => {
@@ -310,6 +326,66 @@ function formatYapContent(content) {
     formatted = formatted.replace(/\n/g, '<br>');
     
     return formatted;
+}
+
+// Delete a yap
+function deleteYap(yapId, yapUid) {
+    if (!auth.currentUser) {
+        showSnackbar('You must be logged in to delete yaps', 'error');
+        return;
+    }
+    
+    // Verify the user owns this yap
+    if (auth.currentUser.uid !== yapUid) {
+        showSnackbar('You can only delete your own yaps', 'error');
+        return;
+    }
+    
+    const updates = {};
+    
+    // Remove from main yaps collection
+    updates[`yaps/${yapId}`] = null;
+    
+    // Remove from user's yaps
+    updates[`userYaps/${yapUid}/${yapId}`] = null;
+    
+    // Remove all likes for this yap
+    database.ref(`likes/${yapId}`).once('value').then(snapshot => {
+        if (snapshot.exists()) {
+            const likes = snapshot.val();
+            Object.keys(likes).forEach(userId => {
+                updates[`likes/${yapId}/${userId}`] = null;
+                updates[`userLikes/${userId}/${yapId}`] = null;
+            });
+        }
+        
+        // Remove all reyaps for this yap
+        return database.ref(`reyaps/${yapId}`).once('value');
+    }).then(snapshot => {
+        if (snapshot.exists()) {
+            const reyaps = snapshot.val();
+            Object.keys(reyaps).forEach(userId => {
+                updates[`reyaps/${yapId}/${userId}`] = null;
+                updates[`userReyaps/${userId}/${yapId}`] = null;
+            });
+        }
+        
+        // Apply all updates
+        return database.ref().update(updates);
+    }).then(() => {
+        // Remove the yap element from DOM
+        const yapElement = document.querySelector(`[data-yap-id="${yapId}"]`);
+        if (yapElement) {
+            yapElement.style.transition = 'all 0.3s ease';
+            yapElement.style.opacity = '0';
+            yapElement.style.transform = 'translateX(-100%)';
+            setTimeout(() => yapElement.remove(), 300);
+        }
+        showSnackbar('Yap deleted successfully', 'success');
+    }).catch(error => {
+        console.error('Error deleting yap:', error);
+        showSnackbar('Error deleting yap: ' + error.message, 'error');
+    });
 }
 
 // Set up real-time updates for new yaps
