@@ -139,14 +139,23 @@ signupForm.addEventListener('submit', (e) => {
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('signupConfirmPassword').value;
     
-    // Validate username
-    if (username.length < 3) {
-        showSnackbar('Username must be at least 3 characters', 'error');
+    // Validate username using utils
+    const usernameValidation = window.utils ? 
+        window.utils.validateUsername(username) : 
+        { valid: username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username), message: 'Invalid username' };
+    
+    if (!usernameValidation.valid) {
+        showSnackbar(usernameValidation.message, 'error');
         return;
     }
     
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        showSnackbar('Username can only contain letters, numbers, and underscores', 'error');
+    // Validate email
+    const emailValid = window.utils ? 
+        window.utils.isValidEmail(email) : 
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    
+    if (!emailValid) {
+        showSnackbar('Please enter a valid email address', 'error');
         return;
     }
     
@@ -266,9 +275,6 @@ function createUserProfile(user, username) {
     updates[`usernames/${lowercaseUsername}`] = user.uid;
     
     return database.ref().update(updates)
-        .then(() => {
-            console.log('User profile created successfully for:', username);
-        })
         .catch(error => {
             console.error('Error creating user profile:', error);
             throw error;

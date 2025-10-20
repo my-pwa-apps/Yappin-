@@ -2,11 +2,13 @@
 
 // DOM Elements
 const yapsContainer = document.getElementById('yapsContainer');
+const TIMELINE_PAGE_SIZE = 20; // Load 20 yaps at a time
+let lastYapTimestamp = null;
+let isLoadingMore = false;
 
-// Load timeline
-function loadTimeline() {
+// Load timeline with pagination
+function loadTimeline(loadMore = false) {
     if (!auth.currentUser) {
-        console.warn('Cannot load timeline: User not authenticated');
         return;
     }
     
@@ -15,10 +17,20 @@ function loadTimeline() {
         return;
     }
 
+    if (isLoadingMore) return; // Prevent duplicate requests
+    isLoadingMore = true;
+
     const currentUserId = auth.currentUser.uid;
 
     // Show loading state
-    yapsContainer.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div></div>';
+    if (!loadMore) {
+        yapsContainer.innerHTML = '<div class="loading-container"><div class="loading-spinner"></div></div>';
+    } else {
+        const loadingSpinner = document.createElement('div');
+        loadingSpinner.className = 'loading-more';
+        loadingSpinner.innerHTML = '<div class="loading-spinner"></div>';
+        yapsContainer.appendChild(loadingSpinner);
+    }
 
     // Get followed users
     database.ref(`following/${currentUserId}`).once('value')
@@ -30,8 +42,7 @@ function loadTimeline() {
             followedUserIds.push(currentUserId);
             
             // If not following anyone, show a message and suggestions
-            if (followedUserIds.length === 1) { // Only the current user
-                // Still show user's own yaps but also add a message about following others
+            if (followedUserIds.length === 1 && !loadMore) {
                 const messageHtml = '<div class="follow-suggestion-banner">' +
                     '<p>Follow other users to see their posts in your feed!</p>' +
                     '<button onclick="showFollowSuggestions()" class="btn primary-btn">Find people to follow</button>' +
@@ -39,9 +50,17 @@ function loadTimeline() {
                 yapsContainer.insertAdjacentHTML('afterbegin', messageHtml);
             }
 
-            // Fetch yaps from followed users including own yaps
+            // Fetch yaps with query limit for better performance
             const yapPromises = followedUserIds.map(userId => {
-                return database.ref(`userYaps/${userId}`).once('value');
+                let query = database.ref(`userYaps/${userId}`)
+                    .orderByChild('timestamp')
+                    .limitToLast(TIMELINE_PAGE_SIZE);
+                
+                if (loadMore && lastYapTimestamp) {
+                    query = query.endBefore(lastYapTimestamp);
+                }
+                
+                return query.once('value');
             });
 
             return Promise.all(yapPromises);
@@ -52,24 +71,61 @@ function loadTimeline() {
             results.forEach(snapshot => {
                 snapshot.forEach(childSnapshot => {
                     const yapData = childSnapshot.val();
-                    yapData.id = childSnapshot.key;
-                    yaps.push(yapData);
+                    if (yapData) {
+                        yapData.id = childSnapshot.key;
+                        yaps.push(yapData);
+                    }
                 });
             });
 
-            // Sort yaps by timestamp
+            // Sort yaps by timestamp (newest first)
             yaps.sort((a, b) => b.timestamp - a.timestamp);
 
+            // Track last timestamp for pagination
+            if (yaps.length > 0) {
+                lastYapTimestamp = yaps[yaps.length - 1].timestamp;
+            }
+
+            // Remove loading spinner
+            if (loadMore) {
+                const loadingSpinner = yapsContainer.querySelector('.loading-more');
+                if (loadingSpinner) loadingSpinner.remove();
+            } else {
+                yapsContainer.innerHTML = '';
+            }
+
             // Render yaps
-            yapsContainer.innerHTML = '';
-            yaps.forEach(yapData => {
-                const yapElement = createYapElement(yapData);
-                yapsContainer.appendChild(yapElement);
-            });
+            if (yaps.length === 0 && !loadMore) {
+                yapsContainer.innerHTML += '<p class="empty-state">No yaps to show yet. Start following people or create your first yap!</p>';
+            } else {
+                const fragment = document.createDocumentFragment();
+                yaps.forEach(yapData => {
+                    const yapElement = createYapElement(yapData);
+                    fragment.appendChild(yapElement);
+                });
+                yapsContainer.appendChild(fragment);
+                
+                // Add "Load More" button if we got a full page
+                if (yaps.length >= TIMELINE_PAGE_SIZE) {
+                    const loadMoreBtn = document.createElement('button');
+                    loadMoreBtn.className = 'load-more-btn';
+                    loadMoreBtn.textContent = 'Load More';
+                    loadMoreBtn.onclick = () => {
+                        loadMoreBtn.remove();
+                        loadTimeline(true);
+                    };
+                    yapsContainer.appendChild(loadMoreBtn);
+                }
+            }
+            
+            isLoadingMore = false;
         })
         .catch(error => {
             console.error('Error loading timeline:', error);
-            yapsContainer.innerHTML = `<p class="error">Error loading Yaps: ${error.message}</p>`;
+            if (!loadMore) {
+                yapsContainer.innerHTML = `<p class="error">Error loading Yaps: ${error.message}</p>`;
+            }
+            isLoadingMore = false;
         });
 }
 
@@ -85,16 +141,17 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     yapElement.className = 'yap-item';
     yapElement.dataset.yapId = yapData.id;
     
-    // Defensive: fallback for missing data
-    const username = yapData.username || yapData.displayName || 'anonymous';
+    // Defensive: fallback for missing data and escape HTML
+    const username = (yapData.username || yapData.displayName || 'anonymous').replace(/[<>"']/g, '');
     const content = yapData.content || '';
     const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
-    const avatar = yapData.userPhotoURL || './images/default-avatar.png';
+    const avatar = (yapData.userPhotoURL || './images/default-avatar.png').replace(/["'<>]/g, '');
+    
     yapElement.innerHTML = `
         <div class="yap-header">
             <div class="yap-user">
                 <div class="yap-avatar">
-                    <img src="${avatar}" alt="${username}" onerror="this.src='./images/default-avatar.png'">
+                    <img src="${avatar}" alt="${username}" onerror="this.src='./images/default-avatar.png'" loading="lazy">
                 </div>
                 <div class="yap-user-info">
                     <span class="username">@${username}</span>
@@ -102,26 +159,26 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 </div>
             </div>
             <div class="yap-options">
-                <button class="icon-btn"><i class="fas fa-ellipsis-h"></i></button>
+                <button class="icon-btn" aria-label="More options"><i class="fas fa-ellipsis-h"></i></button>
             </div>
         </div>
         <div class="yap-content">
             ${formatYapContent(content)}
         </div>
         <div class="yap-actions">
-            <button class="action-btn reply">
+            <button class="action-btn reply" aria-label="Reply">
                 <i class="far fa-comment"></i>
                 <span>${yapData.replies || 0}</span>
             </button>
-            <button class="action-btn reyap ${isReyapped ? 'reyapped' : ''}">
+            <button class="action-btn reyap ${isReyapped ? 'reyapped' : ''}" aria-label="Reyap">
                 <i class="${isReyapped ? 'fas' : 'far'} fa-retweet"></i>
                 <span>${yapData.reyaps || 0}</span>
             </button>
-            <button class="action-btn like ${isLiked ? 'liked' : ''}">
+            <button class="action-btn like ${isLiked ? 'liked' : ''}" aria-label="Like">
                 <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
                 <span>${yapData.likes || 0}</span>
             </button>
-            <button class="action-btn share">
+            <button class="action-btn share" aria-label="Share">
                 <i class="far fa-share-square"></i>
             </button>
         </div>
@@ -216,30 +273,38 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
 
 // Format yap content (add links, hashtags, mentions)
 function formatYapContent(content) {
-    // Check if content is undefined or null
-    if (!content) {
-        return '';
-    }
+    if (!content) return '';
+    
+    // First escape HTML to prevent XSS
+    const escaped = content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     
     // Convert URLs to links
-    let formattedContent = content.replace(
+    let formatted = escaped.replace(
         /(https?:\/\/[^\s]+)/g,
-        '<a href="$1" target="_blank">$1</a>'
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
     );
     
     // Convert hashtags
-    formattedContent = formattedContent.replace(
+    formatted = formatted.replace(
         /#(\w+)/g,
-        '<a href="#" class="hashtag">#$1</a>'
+        '<a href="#hashtag/$1" class="hashtag" data-hashtag="$1">#$1</a>'
     );
     
     // Convert mentions
-    formattedContent = formattedContent.replace(
+    formatted = formatted.replace(
         /@(\w+)/g,
-        '<a href="#" class="mention">@$1</a>'
+        '<a href="#user/$1" class="mention" data-username="$1">@$1</a>'
     );
     
-    return formattedContent;
+    // Convert newlines to <br>
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    return formatted;
 }
 
 // Set up real-time updates for new yaps

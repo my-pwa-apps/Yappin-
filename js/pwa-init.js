@@ -5,8 +5,6 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./service-worker.js')
             .then(registration => {
-                console.log('[PWA] Service Worker registered successfully:', registration.scope);
-                
                 // Check for updates periodically
                 setInterval(() => {
                     registration.update();
@@ -127,8 +125,7 @@ function showInstallPromotion() {
     document.getElementById('install-btn').addEventListener('click', async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log('[PWA] User response to install prompt:', outcome);
+            await deferredPrompt.userChoice;
             deferredPrompt = null;
         }
         banner.remove();
@@ -167,7 +164,6 @@ window.addEventListener('load', () => {
 
 // Handle app installed event
 window.addEventListener('appinstalled', () => {
-    console.log('[PWA] App was installed successfully');
     deferredPrompt = null;
     
     if (typeof showSnackbar === 'function') {
@@ -201,12 +197,10 @@ function isRunningAsPWA() {
 // Add PWA-specific styling if running as PWA
 if (isRunningAsPWA()) {
     document.body.classList.add('pwa-mode');
-    console.log('[PWA] Running as installed PWA');
 }
 
 // Handle online/offline status
 window.addEventListener('online', () => {
-    console.log('[PWA] Back online');
     if (typeof showSnackbar === 'function') {
         showSnackbar('Connection restored', 'success', 2000);
     }
@@ -219,7 +213,6 @@ window.addEventListener('online', () => {
 });
 
 window.addEventListener('offline', () => {
-    console.log('[PWA] Gone offline');
     if (typeof showSnackbar === 'function') {
         showSnackbar('You are offline. Some features may be limited.', 'error', 5000);
     }

@@ -1,6 +1,6 @@
 // Service Worker for Yappin' PWA
 
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -14,6 +14,9 @@ const STATIC_ASSETS = [
   '/js/auth.js',
   '/js/firebase-config.js',
   '/js/timeline.js',
+  '/js/social.js',
+  '/js/pwa-init.js',
+  '/js/utils.js',
   '/manifest.json',
   '/offline.html',
   '/images/icons/icon-192x192.png',

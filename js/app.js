@@ -985,3 +985,63 @@ function toggleFollow(userId) {
             showSnackbar(`Error: ${error.message}`, 'error');
         });
 }
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl/Cmd + K: Focus search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+        }
+    }
+    
+    // N key: New yap (when not in input field)
+    if (e.key === 'n' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        openYapModal();
+    }
+    
+    // Escape: Close modal
+    if (e.key === 'Escape') {
+        if (createYapModal && !createYapModal.classList.contains('hidden')) {
+            closeModal();
+        }
+    }
+    
+    // Ctrl/Cmd + Enter: Post yap (when in textarea)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        if (document.activeElement === yapText) {
+            createYap(yapText);
+        } else if (document.activeElement === modalYapText) {
+            createYap(modalYapText);
+        }
+    }
+});
+
+// Improve focus management for modals
+function trapFocus(element) {
+    const focusableElements = element.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+
+    element.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            if (e.shiftKey && document.activeElement === firstFocusable) {
+                e.preventDefault();
+                lastFocusable.focus();
+            } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+                e.preventDefault();
+                firstFocusable.focus();
+            }
+        }
+    });
+}
+
+// Apply focus trap to modal when opened
+if (createYapModal) {
+    trapFocus(createYapModal);
+}
