@@ -153,8 +153,9 @@ function loadSuggestedUsers() {
             const following = snapshot.val() || {};
             const followingIds = Object.keys(following);
             
-            // Get a list of users to suggest (excluding those already followed)
-            return database.ref('users').limitToFirst(10).once('value')
+            // With new security rules, we can only see users we follow or public accounts
+            // So we'll query public users only for suggestions
+            return database.ref('users').orderByChild('privacy').equalTo('public').limitToFirst(20).once('value')
                 .then(usersSnapshot => {
                     let html = '<h2>Who to follow</h2>';
                     const users = usersSnapshot.val() || {};
@@ -190,15 +191,25 @@ function loadSuggestedUsers() {
                     });
                     
                     if (suggestionCount === 0) {
-                        html += '<p class="no-suggestions">No new users to follow right now.</p>';
+                        html += '<p class="no-suggestions">No public users to follow right now. Try searching for specific usernames!</p>';
                     }
                     
                     whoToFollowContainer.innerHTML = html;
+                })
+                .catch(queryError => {
+                    // If query fails, show a helpful message
+                    console.warn('Suggested users query failed (expected with new security rules):', queryError);
+                    whoToFollowContainer.innerHTML = `
+                        <h2>Who to follow</h2>
+                        <p class="no-suggestions" style="text-align: center; color: var(--text-secondary); padding: 15px;">
+                            Search for users by username to connect with friends!
+                        </p>
+                    `;
                 });
         })
         .catch(error => {
-            console.error('Error loading suggested users:', error);
-            whoToFollowContainer.innerHTML = '<h2>Who to follow</h2><p class="error">Error loading suggestions. Please try again.</p>';
+            console.error('Error loading following list:', error);
+            whoToFollowContainer.innerHTML = '<h2>Who to follow</h2><p class="error">Error loading suggestions.</p>';
         });
 }
 

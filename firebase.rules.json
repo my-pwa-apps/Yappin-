@@ -5,6 +5,7 @@
     
     // Users: Privacy-respecting profile access
     "users": {
+      ".indexOn": ["privacy"],
       "$uid": {
         // Can read if: you're the owner, you follow them, OR they have a public account
         ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
