@@ -634,9 +634,12 @@ function createYap(textarea) {
             return { yapId: newYapKey, yapData };
         })
         .then(({ yapId, yapData }) => {
+            // Clear text area
             textarea.value = '';
+            
+            // Clear draft and images
             clearDraft();
-            clearImages(); // Clear attached images
+            clearImages();
             
             // Clear reply context
             if (window.replyContext) {
@@ -652,10 +655,17 @@ function createYap(textarea) {
                 const replyInfo = textarea.parentElement.querySelector('.reply-info');
                 if (replyInfo) replyInfo.remove();
             }
+            
+            // Update character count to show 0/280
+            const charCount = textarea === yapText ? characterCount : modalCharacterCount;
+            if (charCount) {
+                charCount.textContent = '0';
+                charCount.parentElement.classList.remove('warning', 'error');
+            }
+            
             if (textarea === modalYapText) {
                 closeModal();
             }
-            updateCharacterCount(textarea, textarea === yapText ? characterCount : modalCharacterCount);
             showSnackbar('Yap posted successfully!', 'success');
             
             // Add the yap immediately to the timeline without reloading

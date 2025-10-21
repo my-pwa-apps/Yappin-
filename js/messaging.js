@@ -66,11 +66,15 @@ function displayConversations(conversations) {
         const conversation = conversations[conversationId];
         const otherUserId = conversation.otherUserId;
 
-        // Load other user's data
-        database.ref(`users/${otherUserId}`).once('value').then(userSnapshot => {
-            if (!userSnapshot.exists()) return;
-
-            const userData = userSnapshot.val();
+        // Load other user's data - only read accessible fields
+        Promise.all([
+            database.ref(`users/${otherUserId}/username`).once('value'),
+            database.ref(`users/${otherUserId}/photoURL`).once('value')
+        ]).then(([usernameSnap, photoSnap]) => {
+            const userData = {
+                username: usernameSnap.val(),
+                photoURL: photoSnap.val()
+            };
             const conversationItem = document.createElement('div');
             conversationItem.className = 'conversation-item';
             conversationItem.onclick = () => openConversation(conversationId, otherUserId);
@@ -110,11 +114,15 @@ function openConversation(conversationId, otherUserId) {
     if (conversationsList) conversationsList.classList.add('hidden');
     if (conversationView) conversationView.classList.remove('hidden');
 
-    // Load other user's data for header
-    database.ref(`users/${otherUserId}`).once('value').then(userSnapshot => {
-        if (!userSnapshot.exists()) return;
-
-        const userData = userSnapshot.val();
+    // Load other user's data for header - only read accessible fields
+    Promise.all([
+        database.ref(`users/${otherUserId}/username`).once('value'),
+        database.ref(`users/${otherUserId}/photoURL`).once('value')
+    ]).then(([usernameSnap, photoSnap]) => {
+        const userData = {
+            username: usernameSnap.val(),
+            photoURL: photoSnap.val()
+        };
         const conversationHeader = document.getElementById('conversationHeader');
         if (conversationHeader) {
             conversationHeader.innerHTML = `

@@ -189,7 +189,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 <span>${yapData.replies || 0}</span>
             </button>
             <button class="action-btn reyap ${isReyapped ? 'reyapped' : ''}" aria-label="Reyap">
-                <i class="${isReyapped ? 'fas' : 'far'} fa-retweet"></i>
+                <i class="fas fa-retweet"></i>
                 <span>${yapData.reyaps || 0}</span>
             </button>
             <button class="action-btn like ${isLiked ? 'liked' : ''}" aria-label="Like">
