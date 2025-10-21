@@ -341,18 +341,22 @@ function deleteYap(yapId, yapUid) {
         return;
     }
     
-    const updates = {};
-    
-    // Remove from main yaps collection
-    updates[`yaps/${yapId}`] = null;
-    
-    // Remove from user's yaps
-    updates[`userYaps/${yapUid}/${yapId}`] = null;
-    
-    // Remove all likes for this yap
-    database.ref(`likes/${yapId}`).once('value').then(snapshot => {
-        if (snapshot.exists()) {
-            const likes = snapshot.val();
+    // Fetch all related data first, then build updates object
+    Promise.all([
+        database.ref(`likes/${yapId}`).once('value'),
+        database.ref(`reyaps/${yapId}`).once('value')
+    ]).then(([likesSnapshot, reyapsSnapshot]) => {
+        const updates = {};
+        
+        // Remove from main yaps collection
+        updates[`yaps/${yapId}`] = null;
+        
+        // Remove from user's yaps
+        updates[`userYaps/${yapUid}/${yapId}`] = null;
+        
+        // Remove all likes for this yap
+        if (likesSnapshot.exists()) {
+            const likes = likesSnapshot.val();
             Object.keys(likes).forEach(userId => {
                 updates[`likes/${yapId}/${userId}`] = null;
                 updates[`userLikes/${userId}/${yapId}`] = null;
@@ -360,20 +364,18 @@ function deleteYap(yapId, yapUid) {
         }
         
         // Remove all reyaps for this yap
-        return database.ref(`reyaps/${yapId}`).once('value');
-    }).then(snapshot => {
-        if (snapshot.exists()) {
-            const reyaps = snapshot.val();
+        if (reyapsSnapshot.exists()) {
+            const reyaps = reyapsSnapshot.val();
             Object.keys(reyaps).forEach(userId => {
                 updates[`reyaps/${yapId}/${userId}`] = null;
                 updates[`userReyaps/${userId}/${yapId}`] = null;
             });
         }
         
-        // Apply all updates
+        // Apply all updates atomically
         return database.ref().update(updates);
     }).then(() => {
-        // Remove the yap element from DOM
+        // Remove the yap element from DOM with animation
         const yapElement = document.querySelector(`[data-yap-id="${yapId}"]`);
         if (yapElement) {
             yapElement.style.transition = 'all 0.3s ease';
@@ -419,6 +421,7 @@ function setupRealTimeUpdates() {
                 
                 realtimeListeners.push(userYapsRef);
                 
+                // Listen for new yaps
                 userYapsRef.on('child_added', snapshot => {
                     const yapData = snapshot.val();
                     if (!yapData) return;
@@ -460,6 +463,23 @@ function setupRealTimeUpdates() {
                                 showSnackbar(`New yap from @${yapData.username}`, 'success', 3000);
                             }
                         });
+                    }
+                });
+                
+                // Listen for deleted yaps (also for all time, not just new ones)
+                const allUserYapsRef = database.ref(`userYaps/${userId}`);
+                realtimeListeners.push(allUserYapsRef);
+                
+                allUserYapsRef.on('child_removed', snapshot => {
+                    const yapId = snapshot.key;
+                    
+                    // Remove the yap element from DOM if it exists
+                    const yapElement = document.querySelector(`[data-yap-id="${yapId}"]`);
+                    if (yapElement) {
+                        yapElement.style.transition = 'all 0.3s ease';
+                        yapElement.style.opacity = '0';
+                        yapElement.style.transform = 'translateX(-100%)';
+                        setTimeout(() => yapElement.remove(), 300);
                     }
                 });
             });

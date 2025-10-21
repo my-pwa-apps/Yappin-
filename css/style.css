@@ -1594,9 +1594,37 @@ body.dark-mode .sidebar {
     display: none;
 }
 
+/* Pending follow request button */
+.follow-btn.pending {
+    background-color: transparent;
+    color: #ff9800;
+    border: 1px solid #ff9800;
+}
+
+.follow-btn.pending:hover {
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
+.follow-btn.pending:hover::before {
+    content: "Cancel";
+}
+
+.follow-btn.pending:hover span {
+    display: none;
+}
+
 /* Dark mode styles for follow button */
 body.dark-mode .follow-btn {
     background-color: #66BB6A;
+}
+
+body.dark-mode .follow-btn.pending {
+    color: #ffb74d;
+    border-color: #ffb74d;
+}
+
+body.dark-mode .follow-btn.pending:hover {
+    background-color: rgba(255, 183, 77, 0.15);
 }
 
 body.dark-mode .follow-btn.following {
@@ -1727,4 +1755,58 @@ body.dark-mode .desktop-compose-btn:hover,
 body.dark-mode .desktop-compose-btn:focus {
     background-color: #81C784;
     box-shadow: 0 8px 25px rgba(102, 187, 106, 0.6);
+}
+
+/* Toggle Switch for Settings */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+body.dark-mode .slider {
+    background-color: #546e7a;
+}
+
+body.dark-mode input:checked + .slider {
+    background-color: #66BB6A;
 }

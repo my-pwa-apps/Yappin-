@@ -8,6 +8,10 @@
         "inviteCodes": {
           ".read": "auth != null && auth.uid === $uid",
           ".write": "auth != null && auth.uid === $uid"
+        },
+        "privacy": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid"
         }
       }
     },
@@ -39,12 +43,12 @@
       }
     },
     
-    // Likes: readable by all, writable by authenticated users
+    // Likes: readable by all authenticated users, writable by like owner or yap owner (for deletion)
     "likes": {
       "$yapId": {
+        ".read": "auth != null",
         "$uid": {
-          ".read": "auth != null",
-          ".write": "auth != null && auth.uid === $uid"
+          ".write": "auth != null && (auth.uid === $uid || root.child('yaps').child($yapId).child('uid').val() === auth.uid)"
         }
       }
     },
@@ -59,12 +63,12 @@
       }
     },
     
-    // Reyaps: readable by all, writable by authenticated users
+    // Reyaps: readable by all authenticated users, writable by reyap owner or yap owner (for deletion)
     "reyaps": {
       "$yapId": {
+        ".read": "auth != null",
         "$uid": {
-          ".read": "auth != null",
-          ".write": "auth != null && auth.uid === $uid"
+          ".write": "auth != null && (auth.uid === $uid || root.child('yaps').child($yapId).child('uid').val() === auth.uid)"
         }
       }
     },
@@ -131,6 +135,16 @@
       "$code": {
         ".read": true,
         ".write": "auth != null"
+      }
+    },
+    
+    // Follow Requests: readable by recipient, writable by requester or recipient
+    "followRequests": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$requesterId": {
+          ".write": "auth != null && (auth.uid === $requesterId || auth.uid === $uid)"
+        }
       }
     }
   }

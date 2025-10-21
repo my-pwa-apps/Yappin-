@@ -87,7 +87,9 @@
                             <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
                             <li><a href="#"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
                             <li><a href="#"><i class="fas fa-bookmark"></i> <span>Bookmarks</span></a></li>
+                            <li><a href="#" onclick="showFollowRequests(); return false;"><i class="fas fa-user-check"></i> <span>Follow Requests</span></a></li>
                             <li><a href="#" onclick="showInviteCodes(); return false;"><i class="fas fa-user-plus"></i> <span>Invite Friends</span></a></li>
+                            <li><a href="#" onclick="showSettings(); return false;"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
                             <li><a href="#"><i class="fas fa-user"></i> <span>Profile</span></a></li>
                         </ul>
                     </nav>
@@ -175,6 +177,45 @@
                             <!-- Invite codes will be loaded here -->
                         </div>
                         <button onclick="generateNewInviteCode()" class="btn primary-btn" style="margin-top: 15px; width: 100%;">Generate New Invite Code</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Follow Requests Modal -->
+            <div id="followRequestsModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Follow Requests</h2>
+                        <button class="close-btn" onclick="closeFollowRequestsModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="followRequestsList">
+                            <!-- Follow requests will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="settingsModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Privacy Settings</h2>
+                        <button class="close-btn" onclick="closeSettingsModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="padding: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="margin: 0 0 5px 0;">Private Account</h3>
+                                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.9em;">Require approval for new followers</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="requireApprovalCheckbox" onchange="toggleAccountPrivacy()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
