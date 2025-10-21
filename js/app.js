@@ -1050,14 +1050,9 @@ function handleSearch() {
         const username = query.substring(1);
         searchUser(username);
     } else {
-        // Regular search - for simplicity combine results
-        Promise.all([
-            searchContent(query),
-            searchHashtag(query),
-            searchUser(query)
-        ]).then(results => {
-            const combinedResults = [].concat(...results);
-            displaySearchResults(combinedResults);
+        // Regular search - only search users (content and hashtag search require reading all yaps)
+        searchUser(query).then(results => {
+            displaySearchResults(results);
         });
     }
 }
@@ -1070,31 +1065,11 @@ function searchContent(query) {
     return Promise.resolve([]);
 }
 
-// Search for hashtags
+// Search for hashtags (disabled - requires reading individual yaps which violates privacy rules)
 function searchHashtag(hashtag) {
-    return database.ref(`hashtags/${hashtag}`)
-        .limitToFirst(20)
-        .once('value')
-        .then(snapshot => {
-            if (!snapshot.exists()) {
-                return [];
-            }
-            
-            // Get the yap IDs
-            const yapIds = Object.keys(snapshot.val());
-            
-            // Fetch the actual yaps
-            return Promise.all(
-                yapIds.map(yapId => 
-                    database.ref(`yaps/${yapId}`).once('value')
-                        .then(yapSnapshot => ({
-                            id: yapId,
-                            ...yapSnapshot.val(),
-                            resultType: 'hashtag'
-                        }))
-                )
-            );
-        });
+    // Hashtag search requires reading yaps, which users can only see if they follow the author or account is public
+    // This global query would cause permission errors
+    return Promise.resolve([]);
 }
 
 // Search for users
