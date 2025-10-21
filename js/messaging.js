@@ -32,6 +32,18 @@ function displayConversations(conversations) {
     const modalBody = messagesModal.querySelector('.modal-body');
     if (!modalBody) return;
 
+    // Check if we're currently in an active conversation - don't reset the view
+    const conversationView = document.getElementById('conversationView');
+    if (conversationView && !conversationView.classList.contains('hidden')) {
+        // We're in an active conversation, just update the conversations list without destroying the view
+        let conversationsList = document.getElementById('conversationsList');
+        if (conversationsList) {
+            conversationsList.innerHTML = ''; // Clear and update the list
+            updateConversationsList(conversationsList, conversations);
+        }
+        return;
+    }
+
     // Check if there are conversations
     const conversationIds = Object.keys(conversations);
     
@@ -60,6 +72,14 @@ function displayConversations(conversations) {
     `;
 
     const conversationsList = document.getElementById('conversationsList');
+    updateConversationsList(conversationsList, conversations);
+}
+
+// Helper function to update conversations list
+function updateConversationsList(conversationsList, conversations) {
+    if (!conversationsList) return;
+    
+    const conversationIds = Object.keys(conversations);
 
     // Load each conversation
     conversationIds.forEach(conversationId => {

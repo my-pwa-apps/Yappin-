@@ -592,11 +592,13 @@ main {
     justify-content: space-between;
     align-items: center;
     margin-top: var(--space-sm);
+    position: relative;
 }
 
 .attach-options {
     display: flex;
     gap: var(--space-xs);
+    position: relative;
 }
 
 .character-count {
@@ -1853,15 +1855,14 @@ body.dark-mode input:checked + .slider {
 .gif-picker,
 .sticker-picker {
     position: absolute;
-    bottom: 100%;
+    bottom: 60px;
     left: 0;
-    right: 0;
-    max-width: 500px;
-    margin: 0 auto 10px;
+    max-width: 350px;
+    width: 350px;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
     z-index: 1000;
     max-height: 400px;
     display: flex;
@@ -2050,8 +2051,11 @@ body.dark-mode input:checked + .slider {
 @media (max-width: 768px) {
     .gif-picker,
     .sticker-picker {
-        max-width: calc(100vw - 20px);
+        width: calc(100vw - 40px);
+        max-width: calc(100vw - 40px);
         max-height: 300px;
+        left: 50%;
+        transform: translateX(-50%);
     }
     
     #gifResults {
