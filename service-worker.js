@@ -2,7 +2,7 @@
 
 // Detect base path from service worker location
 const BASE_PATH = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
-const CACHE_VERSION = 'v33';
+const CACHE_VERSION = 'v34';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
 const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 

@@ -334,7 +334,7 @@ function rejectFollowRequest(requesterId) {
 }
 
 // Remove a follower
-function removeFollower(followerId) {
+async function removeFollower(followerId) {
     if (!auth || !auth.currentUser) {
         showSnackbar('You need to be logged in', 'error');
         return;
@@ -343,7 +343,13 @@ function removeFollower(followerId) {
     const currentUserId = auth.currentUser.uid;
     
     // Confirm before removing
-    if (!confirm('Are you sure you want to remove this follower?')) {
+    const confirmed = await showConfirmModal(
+        'Remove Follower',
+        'Are you sure you want to remove this follower?',
+        'Remove',
+        'Cancel'
+    );
+    if (!confirmed) {
         return;
     }
     

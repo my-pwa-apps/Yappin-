@@ -76,19 +76,16 @@ if (searchInput) {
 }
 
 // Dark mode toggle logic - unified implementation
-const darkModeToggle = document.getElementById('darkModeToggle') || document.getElementById('themeToggleBtn');
+const darkModeToggle = document.getElementById('darkModeToggle');
 
 // Function to apply theme
 function applyTheme(isDark) {
     document.body.classList.toggle('dark-mode', isDark);
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
     
-    // Update icon if toggle exists
-    if (darkModeToggle) {
-        const icon = darkModeToggle.querySelector('i');
-        if (icon) {
-            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        }
+    // Update checkbox state if toggle exists
+    if (darkModeToggle && darkModeToggle.type === 'checkbox') {
+        darkModeToggle.checked = isDark;
     }
     
     // Save theme preference
@@ -103,19 +100,15 @@ function applyInitialTheme() {
     applyTheme(isDarkMode);
 }
 
+// Toggle dark mode (called from checkbox onchange)
+window.toggleDarkMode = function() {
+    const isDarkMode = darkModeToggle.checked;
+    applyTheme(isDarkMode);
+    showSnackbar(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+}
+
 // Apply theme on page load
 applyInitialTheme();
-
-// Add event listener for toggle button
-if (darkModeToggle) {
-    darkModeToggle.addEventListener('click', function() {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-        const newIsDarkMode = currentTheme === 'light';
-        
-        applyTheme(newIsDarkMode);
-        showSnackbar(newIsDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
-    });
-}
 
 // Close modal when clicking outside of it
 window.addEventListener('click', (e) => {
@@ -235,12 +228,17 @@ function openYapModal() {
 window.openYapModal = openYapModal;
 
 // Close modal
-function closeModal() {
+async function closeModal() {
     let saveDraftConfirm = false;
     
     // Ask for confirmation if there's unsaved content
     if (modalYapText.value.trim() !== '') {
-        saveDraftConfirm = confirm("Do you want to save this Yap as a draft?");
+        saveDraftConfirm = await showConfirmModal(
+            'Save Draft',
+            'Do you want to save this Yap as a draft?',
+            'Save',
+            'Discard'
+        );
         if (saveDraftConfirm) {
             saveDraft(modalYapText.value);
             showSnackbar('Draft saved!', 'success');
@@ -1510,12 +1508,18 @@ window.followFromSearch = function(targetUserId) {
     });
 };
 
-window.unfollowFromSearch = function(targetUserId) {
+window.unfollowFromSearch = async function(targetUserId) {
     if (!auth.currentUser) return;
     
     const currentUserId = auth.currentUser.uid;
     
-    if (!confirm('Unfollow this user?')) return;
+    const confirmed = await showConfirmModal(
+        'Unfollow User',
+        'Are you sure you want to unfollow this user?',
+        'Unfollow',
+        'Cancel'
+    );
+    if (!confirmed) return;
     
     const updates = {};
     updates[`following/${currentUserId}/${targetUserId}`] = null;

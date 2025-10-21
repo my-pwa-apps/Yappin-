@@ -381,13 +381,16 @@ if (!navigator.onLine) {
 // Add connection status indicator
 function updateConnectionStatus() {
     const statusIndicator = document.getElementById('connection-status');
+    const statusText = statusIndicator?.querySelector('.connection-text');
     if (statusIndicator) {
         if (navigator.onLine) {
             statusIndicator.classList.remove('offline');
             statusIndicator.classList.add('online');
+            if (statusText) statusText.textContent = 'Online';
         } else {
             statusIndicator.classList.remove('online');
             statusIndicator.classList.add('offline');
+            if (statusText) statusText.textContent = 'Offline';
         }
     }
 }
