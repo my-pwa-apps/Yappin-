@@ -1062,26 +1062,12 @@ function handleSearch() {
     }
 }
 
-// Search for content
+// Search for content (disabled - not compatible with privacy rules)
 function searchContent(query) {
-    // Basic implementation - in a real app this would use server-side search
-    return database.ref('yaps')
-        .orderByChild('content')
-        .startAt(query)
-        .endAt(query + '\uf8ff')
-        .limitToFirst(20)
-        .once('value')
-        .then(snapshot => {
-            const results = [];
-            snapshot.forEach(childSnapshot => {
-                results.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val(),
-                    resultType: 'yap'
-                });
-            });
-            return results;
-        });
+    // Content search across all yaps requires reading /yaps which violates privacy rules
+    // Users can only see yaps from people they follow or public accounts
+    // For now, return empty results and focus on user/hashtag search
+    return Promise.resolve([]);
 }
 
 // Search for hashtags
