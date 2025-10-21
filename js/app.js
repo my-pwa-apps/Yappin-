@@ -1,5 +1,11 @@
 // Main App Script
 
+// Helper function to generate random avatar
+function generateRandomAvatar(seed) {
+    const style = 'bottts-neutral'; // Cute robot animals - gender neutral
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+}
+
 // DOM Elements
 const mobileComposeBtn = document.getElementById('mobileComposeBtn');
 const createYapModal = document.getElementById('createYapModal');
@@ -328,7 +334,7 @@ function createYap(textarea) {
                 likes: 0,
                 reyaps: 0,
                 replies: 0,
-                userPhotoURL: userData.photoURL || null
+                userPhotoURL: userData.photoURL || generateRandomAvatar(auth.currentUser.uid)
             };
             // Add media if any
             if (mediaUrls && mediaUrls.length > 0) {

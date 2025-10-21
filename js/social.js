@@ -1,5 +1,11 @@
 // Social functionality - Follow/Unfollow and User Suggestions
 
+// Helper function to generate random avatar
+function generateRandomAvatar(seed) {
+    const style = 'bottts-neutral'; // Cute robot animals - gender neutral
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+}
+
 // Function to toggle follow/unfollow
 function toggleFollow(userId) {
     if (!auth || !auth.currentUser) {
@@ -147,69 +153,106 @@ function loadSuggestedUsers() {
     
     const currentUserId = auth.currentUser.uid;
     
-    // First get list of users current user is already following
+    // With the new security rules, we can't query all users
+    // Instead, show followers-of-followers or a search prompt
     database.ref(`following/${currentUserId}`).once('value')
-        .then(snapshot => {
-            const following = snapshot.val() || {};
+        .then(followingSnapshot => {
+            const following = followingSnapshot.val() || {};
             const followingIds = Object.keys(following);
             
-            // With new security rules, we can only see users we follow or public accounts
-            // So we'll query public users only for suggestions
-            return database.ref('users').orderByChild('privacy').equalTo('public').limitToFirst(20).once('value')
-                .then(usersSnapshot => {
-                    let html = '<h2>Who to follow</h2>';
-                    const users = usersSnapshot.val() || {};
-                    let suggestionCount = 0;
-                    
-                    Object.entries(users).forEach(([userId, userData]) => {
-                        // Skip if this is the current user or already following
-                        if (userId === currentUserId || followingIds.includes(userId)) {
-                            return;
-                        }
-                        
-                        if (suggestionCount >= 5) return; // Limit to 5 suggestions
-                        
-                        const displayName = userData.displayName || userData.username || 'Anonymous User';
-                        const username = userData.username || userId.substring(0, 8);
-                        const photoURL = userData.photoURL || './images/default-avatar.svg';
-                        
-                        html += `
-                        <div class="suggested-user">
-                            <div class="user-info">
-                                <img src="${photoURL}" alt="${displayName}" class="user-avatar" onerror="this.src='./images/default-avatar.svg'">
-                                <div>
-                                    <p class="user-name">${displayName}</p>
-                                    <p class="user-handle">@${username}</p>
-                                </div>
-                            </div>
-                            <button onclick="toggleFollow('${userId}')" class="follow-btn" data-user-id="${userId}">
-                                <span>Follow</span>
-                            </button>
-                        </div>
-                        `;
-                        suggestionCount++;
-                    });
-                    
-                    if (suggestionCount === 0) {
-                        html += '<p class="no-suggestions">No public users to follow right now. Try searching for specific usernames!</p>';
-                    }
-                    
-                    whoToFollowContainer.innerHTML = html;
-                })
-                .catch(queryError => {
-                    // If query fails, show a helpful message
-                    console.warn('Suggested users query failed (expected with new security rules):', queryError);
+            if (followingIds.length === 0) {
+                // No one followed yet - show invite prompt
+                whoToFollowContainer.innerHTML = `
+                    <h2>Who to follow</h2>
+                    <p class="no-suggestions" style="text-align: center; color: var(--text-secondary); padding: 15px;">
+                        Ask friends for their username to get started!<br>
+                        <small style="display: block; margin-top: 8px;">You can search by @username in the search feature.</small>
+                    </p>
+                `;
+                return;
+            }
+            
+            // Get followers of people you follow (2nd degree connections)
+            const suggestionsMap = new Map();
+            const followerPromises = followingIds.slice(0, 5).map(followedUserId => 
+                database.ref(`followers/${followedUserId}`).once('value')
+                    .then(followersSnapshot => {
+                        const followers = followersSnapshot.val() || {};
+                        Object.keys(followers).forEach(followerId => {
+                            // Add to suggestions if not yourself and not already following
+                            if (followerId !== currentUserId && !followingIds.includes(followerId)) {
+                                suggestionsMap.set(followerId, true);
+                            }
+                        });
+                    })
+                    .catch(() => null) // Ignore errors for individual queries
+            );
+            
+            return Promise.all(followerPromises).then(() => {
+                const suggestionIds = Array.from(suggestionsMap.keys()).slice(0, 5);
+                
+                if (suggestionIds.length === 0) {
                     whoToFollowContainer.innerHTML = `
                         <h2>Who to follow</h2>
                         <p class="no-suggestions" style="text-align: center; color: var(--text-secondary); padding: 15px;">
-                            Search for users by username to connect with friends!
+                            No suggestions available yet.<br>
+                            <small style="display: block; margin-top: 8px;">Search for users by @username to connect!</small>
                         </p>
                     `;
-                });
+                    return;
+                }
+                
+                // Load user details for suggestions
+                const userPromises = suggestionIds.map(userId =>
+                    database.ref(`users/${userId}`).once('value')
+                        .then(userSnapshot => ({
+                            userId,
+                            userData: userSnapshot.val()
+                        }))
+                        .catch(() => ({ userId, userData: null }))
+                );
+                
+                return Promise.all(userPromises);
+            });
+        })
+        .then(suggestions => {
+            if (!suggestions || suggestions.length === 0) return;
+            
+            let html = '<h2>Who to follow</h2>';
+            
+            suggestions.forEach(({ userId, userData }) => {
+                if (!userData) return;
+                
+                const displayName = userData.displayName || userData.username || 'Anonymous User';
+                const username = userData.username || userId.substring(0, 8);
+                const photoURL = userData.photoURL || generateRandomAvatar(userId);
+                
+                html += `
+                <div class="suggested-user">
+                    <div class="user-info">
+                        <img src="${photoURL}" alt="${displayName}" class="user-avatar" onerror="this.src='./images/default-avatar.svg'">
+                        <div>
+                            <p class="user-name">${displayName}</p>
+                            <p class="user-handle">@${username}</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleFollow('${userId}')" class="follow-btn" data-user-id="${userId}">
+                        <span>Follow</span>
+                    </button>
+                </div>
+                `;
+            });
+            
+            whoToFollowContainer.innerHTML = html;
         })
         .catch(error => {
-            console.error('Error loading following list:', error);
-            whoToFollowContainer.innerHTML = '<h2>Who to follow</h2><p class="error">Error loading suggestions.</p>';
+            console.error('Error loading suggestions:', error);
+            whoToFollowContainer.innerHTML = `
+                <h2>Who to follow</h2>
+                <p class="no-suggestions" style="text-align: center; color: var(--text-secondary); padding: 15px;">
+                    Search for users by @username to connect with friends!
+                </p>
+            `;
         });
 }
 

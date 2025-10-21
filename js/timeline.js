@@ -1,5 +1,11 @@
 // Timeline functionality
 
+// Helper function to generate random avatar
+function generateRandomAvatar(seed) {
+    const style = 'bottts-neutral'; // Cute robot animals - gender neutral
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+}
+
 // DOM Elements
 const yapsContainer = document.getElementById('yapsContainer');
 const TIMELINE_PAGE_SIZE = 20; // Load 20 yaps at a time
@@ -150,7 +156,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     const username = (yapData.username || yapData.displayName || 'anonymous').replace(/[<>"']/g, '');
     const content = yapData.content || '';
     const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
-    const avatar = (yapData.userPhotoURL || './images/default-avatar.png').replace(/["'<>]/g, '');
+    const avatar = (yapData.userPhotoURL || generateRandomAvatar(yapData.uid || username)).replace(/["'<>]/g, '');
     const isOwnYap = auth.currentUser && yapData.uid === auth.currentUser.uid;
     
     yapElement.innerHTML = `

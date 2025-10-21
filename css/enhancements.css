@@ -291,7 +291,7 @@ body.dark-mode .error {
 #connection-status {
   position: fixed;
   top: 10px;
-  right: 60px;
+  right: 100px;
   width: 10px;
   height: 10px;
   border-radius: 50%;
