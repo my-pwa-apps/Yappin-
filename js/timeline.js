@@ -415,14 +415,14 @@ function setupRealTimeUpdates() {
             
             // Set up listener for each followed user
             followedUserIds.forEach(userId => {
-                const userYapsRef = database.ref(`userYaps/${userId}`)
+                // Listen for new yaps (only future ones)
+                const newYapsRef = database.ref(`userYaps/${userId}`)
                     .orderByChild('timestamp')
                     .startAt(currentTime);
                 
-                realtimeListeners.push(userYapsRef);
+                realtimeListeners.push(newYapsRef);
                 
-                // Listen for new yaps
-                userYapsRef.on('child_added', snapshot => {
+                newYapsRef.on('child_added', snapshot => {
                     const yapData = snapshot.val();
                     if (!yapData) return;
                     
@@ -466,20 +466,25 @@ function setupRealTimeUpdates() {
                     }
                 });
                 
-                // Listen for deleted yaps (also for all time, not just new ones)
-                const allUserYapsRef = database.ref(`userYaps/${userId}`);
-                realtimeListeners.push(allUserYapsRef);
+                // Listen for deleted yaps on the unfiltered reference (catches all deletions)
+                const deletionsRef = database.ref(`userYaps/${userId}`);
+                realtimeListeners.push(deletionsRef);
                 
-                allUserYapsRef.on('child_removed', snapshot => {
+                deletionsRef.on('child_removed', snapshot => {
                     const yapId = snapshot.key;
+                    
+                    console.log('[Timeline] Yap removed from Firebase:', yapId);
                     
                     // Remove the yap element from DOM if it exists
                     const yapElement = document.querySelector(`[data-yap-id="${yapId}"]`);
                     if (yapElement) {
+                        console.log('[Timeline] Removing yap from DOM:', yapId);
                         yapElement.style.transition = 'all 0.3s ease';
                         yapElement.style.opacity = '0';
                         yapElement.style.transform = 'translateX(-100%)';
                         setTimeout(() => yapElement.remove(), 300);
+                    } else {
+                        console.log('[Timeline] Yap not found in DOM:', yapId);
                     }
                 });
             });
