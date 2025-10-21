@@ -330,7 +330,11 @@ function generateInviteCode(userId) {
         used: false
     };
     
-    return database.ref(`inviteCodes/${code}`).set(inviteData)
+    const updates = {};
+    updates[`inviteCodes/${code}`] = inviteData;
+    updates[`users/${userId}/inviteCodes/${code}`] = true; // Store reference in user profile
+    
+    return database.ref().update(updates)
         .then(() => code);
 }
 
@@ -399,32 +403,43 @@ window.showInviteCodes = function() {
     // Show modal
     modal.classList.remove('hidden');
     
-    // Load invite codes
+    // Load invite codes from user's own collection
     codesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Loading...</p>';
     
-    database.ref('inviteCodes').orderByChild('createdBy').equalTo(auth.currentUser.uid).once('value')
+    // Get list of codes from user's inviteCodes list
+    database.ref(`users/${auth.currentUser.uid}/inviteCodes`).once('value')
         .then(snapshot => {
-            codesList.innerHTML = '';
+            const userCodes = snapshot.val();
             
-            if (!snapshot.exists()) {
+            if (!userCodes || Object.keys(userCodes).length === 0) {
                 codesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No invite codes yet. Generate one below!</p>';
                 return;
             }
             
-            const codes = [];
-            snapshot.forEach(child => {
-                codes.push({
-                    code: child.key,
-                    data: child.val()
-                });
-            });
+            // Fetch details for each code
+            const codePromises = Object.keys(userCodes).map(code => 
+                database.ref(`inviteCodes/${code}`).once('value')
+                    .then(codeSnapshot => ({
+                        code: code,
+                        data: codeSnapshot.val()
+                    }))
+            );
+            
+            return Promise.all(codePromises);
+        })
+        .then(codes => {
+            if (!codes) return;
+            
+            codesList.innerHTML = '';
             
             codes.forEach(({ code, data }) => {
+                if (!data) return; // Skip if code was deleted
+                
                 const codeItem = document.createElement('div');
                 codeItem.style.cssText = 'padding: 15px; background: var(--hover-color); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center;';
                 
                 const status = data.used ? 
-                    `<span style="color: var(--text-secondary); font-size: 0.9em;">Used by ${data.usedBy || 'someone'}</span>` :
+                    `<span style="color: var(--text-secondary); font-size: 0.9em;">Used</span>` :
                     '<span style="color: var(--primary-color); font-weight: 600;">Available</span>';
                 
                 codeItem.innerHTML = `

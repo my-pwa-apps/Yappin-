@@ -4,7 +4,11 @@
     "users": {
       ".read": "auth != null",
       "$uid": {
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        "inviteCodes": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid"
+        }
       }
     },
     
@@ -28,6 +32,7 @@
     "userYaps": {
       ".read": "auth != null",
       "$uid": {
+        ".indexOn": ["timestamp"],
         "$yapId": {
           ".write": "auth != null && auth.uid === $uid"
         }
@@ -120,8 +125,9 @@
       }
     },
     
-    // Invite Codes: readable by everyone (for validation), writable by authenticated users
+    // Invite Codes: individual codes readable by anyone for validation, list readable by authenticated users only
     "inviteCodes": {
+      ".indexOn": ["createdBy", "used"],
       "$code": {
         ".read": true,
         ".write": "auth != null"
