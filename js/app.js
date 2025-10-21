@@ -513,9 +513,12 @@ function createYap(textarea) {
     // Get the text content
     const content = textarea.value.trim();
     
-    // Validate content
-    if (!content) {
-        showSnackbar('Yap cannot be empty', 'error');
+    // Check for media attachments
+    const mediaFiles = getMediaAttachments();
+    
+    // Validate content - must have either text or media
+    if (!content && (!mediaFiles || mediaFiles.length === 0)) {
+        showSnackbar('Yap must have text or images', 'error');
         return;
     }
     if (content.length > MAX_YAP_LENGTH) {
@@ -531,8 +534,7 @@ function createYap(textarea) {
     const originalText = postButton.innerHTML;
     postButton.disabled = true;
     postButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
-    // Check for media attachments
-    const mediaFiles = getMediaAttachments();
+    
     // Get user data
     database.ref(`users/${auth.currentUser.uid}`).once('value')
         .then(snapshot => {
@@ -553,13 +555,18 @@ function createYap(textarea) {
             const yapData = {
                 uid: auth.currentUser.uid,
                 username: userData.username || userData.displayName || 'anonymous',
-                text: content,  // Changed from 'content' to 'text' to match Firebase rules
                 timestamp: Date.now(),
                 likes: 0,
                 reyaps: 0,
                 replies: 0,
                 userPhotoURL: userData.photoURL || generateRandomAvatar(auth.currentUser.uid)
             };
+            
+            // Add text only if not empty
+            if (content) {
+                yapData.text = content;
+            }
+            
             // Add media if any
             if (mediaUrls && mediaUrls.length > 0) {
                 yapData.media = mediaUrls;

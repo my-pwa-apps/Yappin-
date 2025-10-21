@@ -58,11 +58,11 @@
         // Can read if: you're the owner, you follow them, they follow you, OR they have a public account
         ".read": "auth != null && (data.child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(data.child('uid').val()).exists() || root.child('followers').child(auth.uid).child(data.child('uid').val()).exists() || root.child('users').child(data.child('uid').val()).child('privacy').val() === 'public')",
         ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)",
-        ".validate": "newData.hasChildren(['text', 'timestamp', 'uid', 'username'])",
+        ".validate": "newData.hasChildren(['timestamp', 'uid', 'username']) && (newData.hasChild('text') || newData.hasChild('media'))",
         
-        // Text validation (max 280 characters)
+        // Text validation (max 280 characters, optional if media exists)
         "text": {
-          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 280"
+          ".validate": "newData.isString() && newData.val().length <= 280"
         },
         
         // UID must match authenticated user

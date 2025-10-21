@@ -176,7 +176,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
             </div>
         </div>
         <div class="yap-content">
-            ${formatYapContent(content)}
+            ${content ? formatYapContent(content) : ''}
             ${yapData.media && yapData.media.length > 0 ? `
                 <div class="yap-media-grid ${yapData.media.length === 1 ? 'single' : yapData.media.length === 2 ? 'double' : yapData.media.length === 3 ? 'triple' : 'quad'}">
                     ${yapData.media.map(url => `<img src="${url}" alt="Yap media" loading="lazy" onerror="this.style.display='none'">`).join('')}
