@@ -65,15 +65,8 @@ if (emojiBtn) {
     emojiBtn.addEventListener('click', toggleEmojiPicker);
 }
 
-// Search functionality
-if (searchInput) {
-    searchInput.addEventListener('input', debounce(handleSearch, 300));
-    searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
-    });
-}
+// Note: Search functionality is set up in DOMContentLoaded event listener below
+// which correctly uses performSearch() function with usernames index
 
 // Dark mode toggle logic - unified implementation
 const darkModeToggle = document.getElementById('darkModeToggle');
@@ -1031,30 +1024,12 @@ function saveBookmarks(bookmarks) {
     localStorage.setItem(key, JSON.stringify(bookmarks));
 }
 
-// Handle search functionality
+// Handle search functionality (LEGACY - NOT USED)
+// This function is replaced by performSearch() which correctly uses the usernames index
+// Kept here for reference only - do not call this function
 function handleSearch() {
-    const query = searchInput.value.trim().toLowerCase();
-    
-    if (!query) {
-        return;
-    }
-    
-    // Show searching state
-    showSnackbar('Searching...', 'default', 1000);
-    
-    // Determine if it's a hashtag search or regular search
-    if (query.startsWith('#')) {
-        const hashtag = query.substring(1);
-        searchHashtag(hashtag);
-    } else if (query.startsWith('@')) {
-        const username = query.substring(1);
-        searchUser(username);
-    } else {
-        // Regular search - only search users (content and hashtag search require reading all yaps)
-        searchUser(query).then(results => {
-            displaySearchResults(results);
-        });
-    }
+    console.warn('handleSearch() is deprecated - use performSearch() instead');
+    return;
 }
 
 // Search for content (disabled - not compatible with privacy rules)
@@ -1072,25 +1047,11 @@ function searchHashtag(hashtag) {
     return Promise.resolve([]);
 }
 
-// Search for users
+// Search for users (disabled - use performSearch() instead which uses usernames index)
 function searchUser(username) {
-    return database.ref('users')
-        .orderByChild('lowercaseUsername')
-        .startAt(username)
-        .endAt(username + '\uf8ff')
-        .limitToFirst(10)
-        .once('value')
-        .then(snapshot => {
-            const results = [];
-            snapshot.forEach(childSnapshot => {
-                results.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val(),
-                    resultType: 'user'
-                });
-            });
-            return results;
-        });
+    // This function tried to query /users directly which requires read permission on all users
+    // Use performSearch() instead which queries the usernames index
+    return Promise.resolve([]);
 }
 
 // Display search results
