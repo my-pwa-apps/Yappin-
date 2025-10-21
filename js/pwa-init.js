@@ -146,6 +146,149 @@ function showInstallPromotion() {
     }, 10000);
 }
 
+// Detect iOS devices
+function isIOS() {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+}
+
+// Detect if Safari on iOS
+function isIOSSafari() {
+    const ua = window.navigator.userAgent;
+    const iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i);
+    const webkit = !!ua.match(/WebKit/i);
+    const iOSSafari = iOS && webkit && !ua.match(/CriOS/i) && !ua.match(/FxiOS/i);
+    return iOSSafari;
+}
+
+// Show iOS-specific install instructions
+function showIOSInstallPrompt() {
+    // Don't show if already in standalone mode
+    if (window.navigator.standalone === true) {
+        return;
+    }
+    
+    // Don't show if not Safari
+    if (!isIOSSafari()) {
+        return;
+    }
+    
+    // Check if already dismissed
+    const dismissed = localStorage.getItem('iosInstallPromptDismissed');
+    if (dismissed) {
+        const dismissedTime = parseInt(dismissed);
+        const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+        if (Date.now() - dismissedTime < sevenDaysInMs) {
+            return;
+        } else {
+            localStorage.removeItem('iosInstallPromptDismissed');
+        }
+    }
+    
+    // Create iOS install banner
+    const banner = document.createElement('div');
+    banner.id = 'ios-install-banner';
+    banner.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        color: var(--text-primary);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        z-index: 1001;
+        max-width: 90%;
+        width: 350px;
+        animation: slideUp 0.3s ease;
+    `;
+    
+    banner.innerHTML = `
+        <button id="ios-dismiss-install" style="
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+        ">×</button>
+        <div style="margin-bottom: 15px;">
+            <div style="font-weight: 600; font-size: 18px; margin-bottom: 10px; color: var(--primary-color);">
+                <i class="fas fa-mobile-alt"></i> Install Yappin'
+            </div>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 14px;">
+                Install this app on your home screen for quick and easy access when you're on the go.
+            </p>
+        </div>
+        <div style="background: var(--hover-color); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+            <div style="font-size: 14px; color: var(--text-primary); margin-bottom: 8px;">
+                <strong>How to install:</strong>
+            </div>
+            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                1. Tap the Share button 
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="vertical-align: middle; margin: 0 2px;">
+                    <path d="M8 0.5L13.5 6H10V11H6V6H2.5L8 0.5Z"/>
+                    <rect x="1" y="12" width="14" height="3" rx="1"/>
+                </svg>
+                in the menu bar<br>
+                2. Scroll and tap "Add to Home Screen"<br>
+                3. Tap "Add" in the top right corner
+            </div>
+        </div>
+        <button id="ios-install-got-it" style="
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+        ">Got it!</button>
+    `;
+    
+    document.body.appendChild(banner);
+    
+    // Add slide up animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+        
+        body.dark-mode #ios-install-banner {
+            background: var(--card-bg);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Handle dismiss button
+    document.getElementById('ios-dismiss-install').addEventListener('click', () => {
+        banner.remove();
+        localStorage.setItem('iosInstallPromptDismissed', Date.now().toString());
+    });
+    
+    // Handle "Got it" button
+    document.getElementById('ios-install-got-it').addEventListener('click', () => {
+        banner.remove();
+        localStorage.setItem('iosInstallPromptDismissed', Date.now().toString());
+    });
+}
+
 // Check if install prompt was recently dismissed
 window.addEventListener('load', () => {
     const dismissed = localStorage.getItem('installPromptDismissed');
@@ -159,6 +302,14 @@ window.addEventListener('load', () => {
             // Clear old dismissal
             localStorage.removeItem('installPromptDismissed');
         }
+    }
+    
+    // Show iOS install prompt for iOS Safari users
+    if (isIOS() && isIOSSafari()) {
+        // Delay showing the prompt by 3 seconds to let the app load first
+        setTimeout(() => {
+            showIOSInstallPrompt();
+        }, 3000);
     }
 });
 

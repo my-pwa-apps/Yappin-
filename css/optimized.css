@@ -694,8 +694,8 @@ input:focus {
 
 /* Header with glass morphism */
 header {
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   background-color: rgba(255, 255, 255, 0.8);
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   box-shadow: var(--shadow-sm);
@@ -784,8 +784,8 @@ body.dark-mode header {
 #snackbar {
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   font-weight: 500;
   letter-spacing: 0.025em;
 }
@@ -902,4 +902,110 @@ body.dark-mode .delete-yap {
 
 body.dark-mode .delete-yap:hover {
   color: #ef4444;
+}
+
+/* Invite hint text */
+.invite-hint {
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+/* Modal body utility classes */
+.modal-body-padding {
+  padding: 20px;
+}
+
+.settings-section {
+  margin-bottom: 30px;
+}
+
+.settings-section:last-child {
+  margin-bottom: 0;
+}
+
+.settings-section-title {
+  margin: 0 0 15px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.profile-picture-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-picture-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-color);
+}
+
+.profile-picture-controls {
+  flex: 1;
+}
+
+.profile-picture-input {
+  display: none;
+}
+
+.upload-hint {
+  margin: 10px 0 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+.privacy-divider {
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.privacy-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.privacy-setting-title {
+  margin: 0 0 5px 0;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.privacy-setting-description {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.invite-codes-description {
+  margin-bottom: 15px;
+  color: var(--text-secondary);
+}
+
+.invite-codes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.generate-invite-btn {
+  margin-top: 15px;
+  width: 100%;
+}
+
+.full-width-btn {
+  width: 100%;
+}
+
+.btn-with-margin {
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.invite-hint {
+  font-size: 0.85em;
+  color: var(--text-secondary);
 }

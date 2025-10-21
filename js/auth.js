@@ -350,13 +350,16 @@ function checkUsernameAvailability(username) {
 function createUserProfile(user, username) {
     const lowercaseUsername = username.toLowerCase();
     
+    // Generate random avatar if no photo URL provided
+    const photoURL = user.photoURL || generateRandomAvatar(user.uid);
+    
     const userData = {
         uid: user.uid,
         username: username,
         lowercaseUsername: lowercaseUsername,
         email: user.email,
         createdAt: firebase.database.ServerValue.TIMESTAMP,
-        photoURL: user.photoURL || null,
+        photoURL: photoURL,
         bio: '',
         followers: 0,
         following: 0
@@ -392,8 +395,6 @@ function checkUserProfile(user) {
 
 // Show invite codes modal
 window.showInviteCodes = function() {
-    console.log('[Invite] showInviteCodes called');
-    
     if (!auth.currentUser) {
         showSnackbar('Please login to view invite codes', 'error');
         return;
@@ -407,8 +408,6 @@ window.showInviteCodes = function() {
         showSnackbar('Error: Modal not found', 'error');
         return;
     }
-    
-    console.log('[Invite] Opening modal...');
     
     // Show modal - use 'show' class not 'hidden'
     modal.classList.remove('hidden');
@@ -429,15 +428,12 @@ window.showInviteCodes = function() {
     // Get list of codes from user's inviteCodes list
     database.ref(`users/${auth.currentUser.uid}/inviteCodes`).once('value')
         .then(snapshot => {
-            console.log('[Invite] User codes snapshot:', snapshot.val());
             const userCodes = snapshot.val();
             
             if (!userCodes || Object.keys(userCodes).length === 0) {
-                console.log('[Invite] No codes found, showing generate message');
                 codesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No invite codes yet. Generate one below!</p>';
                 
                 // Auto-generate 3 codes for the user
-                console.log('[Invite] Auto-generating initial codes...');
                 const generatePromises = [
                     generateInviteCode(auth.currentUser.uid),
                     generateInviteCode(auth.currentUser.uid),
@@ -445,7 +441,6 @@ window.showInviteCodes = function() {
                 ];
                 
                 return Promise.all(generatePromises).then(() => {
-                    console.log('[Invite] Initial codes generated, refreshing...');
                     // Refresh the list
                     return database.ref(`users/${auth.currentUser.uid}/inviteCodes`).once('value');
                 });
@@ -497,8 +492,6 @@ window.showInviteCodes = function() {
                 
                 codesList.appendChild(codeItem);
             });
-            
-            console.log('[Invite] Codes displayed successfully');
         })
         .catch(error => {
             console.error('[Invite] Error loading invite codes:', error);
@@ -549,4 +542,122 @@ window.generateNewInviteCode = function() {
             console.error('Error generating invite code:', error);
             showSnackbar('Error generating invite code', 'error');
         });
+};
+
+// Generate random avatar URL using DiceBear API
+function generateRandomAvatar(seed) {
+    // Use user's UID or username as seed for consistency
+    const style = 'avataaars'; // Options: avataaars, bottts, identicon, initials, personas
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+}
+
+// Upload profile picture
+window.uploadProfilePicture = function() {
+    if (!auth.currentUser) {
+        showSnackbar('Please login to upload a profile picture', 'error');
+        return;
+    }
+    
+    const fileInput = document.getElementById('profilePictureInput');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showSnackbar('Please select a file', 'error');
+        return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showSnackbar('Please select an image file', 'error');
+        return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        showSnackbar('File size must be less than 5MB', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const uploadBtn = document.getElementById('uploadProfilePictureBtn');
+    if (uploadBtn) {
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    }
+    
+    // Upload to Firebase Storage
+    const storageRef = storage.ref(`profile-pictures/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+    const uploadTask = storageRef.put(file);
+    
+    uploadTask.on('state_changed',
+        (snapshot) => {
+            // Progress
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if (uploadBtn) {
+                uploadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${Math.round(progress)}%`;
+            }
+        },
+        (error) => {
+            // Error
+            console.error('Error uploading profile picture:', error);
+            showSnackbar('Error uploading profile picture: ' + error.message, 'error');
+            if (uploadBtn) {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
+            }
+        },
+        () => {
+            // Success
+            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                // Update user profile with new photo URL
+                return database.ref(`users/${auth.currentUser.uid}/photoURL`).set(downloadURL)
+                    .then(() => {
+                        showSnackbar('Profile picture updated successfully', 'success');
+                        
+                        // Update preview
+                        const preview = document.getElementById('profilePicturePreview');
+                        if (preview) {
+                            preview.src = downloadURL;
+                        }
+                        
+                        // Reset upload button
+                        if (uploadBtn) {
+                            uploadBtn.disabled = false;
+                            uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
+                        }
+                        
+                        // Clear file input
+                        fileInput.value = '';
+                        
+                        // Reload timeline to show updated avatar
+                        if (typeof loadTimeline === 'function') {
+                            loadTimeline();
+                        }
+                    });
+            });
+        }
+    );
+};
+
+// Trigger file input click
+window.selectProfilePicture = function() {
+    const fileInput = document.getElementById('profilePictureInput');
+    if (fileInput) {
+        fileInput.click();
+    }
+};
+
+// Preview selected image
+window.previewProfilePicture = function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('profilePicturePreview');
+            if (preview) {
+                preview.src = e.target.result;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
 };

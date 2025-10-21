@@ -175,6 +175,7 @@ header {
     display: flex;
     align-items: center;
     gap: 10px;
+    margin-left: 12px;
     text-decoration: none;
     transition: transform var(--transition-fast);
 }
@@ -1180,38 +1181,9 @@ main {
         display: none;
     }
     
-    /* Hide mobile compose button on desktop */
+    /* Hide mobile compose button on all devices */
     .mobile-compose-btn {
-        display: none;
-    }    /* Mobile compose button styling for mobile devices */    @media (max-width: 768px) {
-        .mobile-compose-btn {
-            display: flex;
-            position: fixed;
-            bottom: 70px; /* Position above the mobile navigation bar */
-            right: 20px; /* Ensure it's on the right corner, not left */
-            left: auto;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%; /* Make it perfectly round */
-            background-color: var(--primary-color);
-            color: white;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 99;
-            font-size: 22px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .mobile-compose-btn:hover, 
-        .mobile-compose-btn:focus {
-            transform: scale(1.05);
-            box-shadow: 0 3px 12px rgba(0,0,0,0.3);
-        }
-
-        .mobile-compose-btn i {
-            color: white;
-        }
+        display: none !important;
     }
 
     body.dark-mode {

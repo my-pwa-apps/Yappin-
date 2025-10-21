@@ -212,6 +212,9 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 icon.classList.replace('fas', 'far');
                 likesCount.textContent = (parseInt(likesCount.textContent) - 1).toString();
             }
+        }).catch(error => {
+            console.error('Like error:', error);
+            showSnackbar('Failed to update like', 'error');
         });
     });
     
@@ -232,7 +235,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
             }
         }).catch(error => {
             console.error('Reyap error:', error);
-            // Don't update UI if there was an error
+            showSnackbar('Failed to update reyap', 'error');
         });
     });
     
@@ -473,18 +476,13 @@ function setupRealTimeUpdates() {
                 deletionsRef.on('child_removed', snapshot => {
                     const yapId = snapshot.key;
                     
-                    console.log('[Timeline] Yap removed from Firebase:', yapId);
-                    
                     // Remove the yap element from DOM if it exists
                     const yapElement = document.querySelector(`[data-yap-id="${yapId}"]`);
                     if (yapElement) {
-                        console.log('[Timeline] Removing yap from DOM:', yapId);
                         yapElement.style.transition = 'all 0.3s ease';
                         yapElement.style.opacity = '0';
                         yapElement.style.transform = 'translateX(-100%)';
                         setTimeout(() => yapElement.remove(), 300);
-                    } else {
-                        console.log('[Timeline] Yap not found in DOM:', yapId);
                     }
                 });
             });

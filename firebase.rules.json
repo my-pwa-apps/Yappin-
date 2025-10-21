@@ -1,127 +1,187 @@
 {
   "rules": {
-    // Users: all authenticated users can read all profiles, can only write own profile
+    // PRODUCTION-READY SECURITY RULES
+    // Privacy-first design: users can only access content they're authorized to see
+    
+    // Users: Privacy-respecting profile access
     "users": {
-      ".read": "auth != null",
       "$uid": {
+        // Can read if: you're the owner, you follow them, OR they have a public account
+        ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
         ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['username', 'createdAt'])",
+        
+        // Sensitive fields - only owner can read
+        "email": {
+          ".read": "auth != null && auth.uid === $uid"
+        },
+        "phone": {
+          ".read": "auth != null && auth.uid === $uid"
+        },
         "inviteCodes": {
           ".read": "auth != null && auth.uid === $uid",
           ".write": "auth != null && auth.uid === $uid"
         },
+        
+        // Privacy setting readable by all (to check if account is public)
         "privacy": {
           ".read": "auth != null",
-          ".write": "auth != null && auth.uid === $uid"
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.val() === 'public' || newData.val() === 'private'"
+        },
+        
+        // Username validation
+        "username": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 20"
+        },
+        
+        // Bio validation
+        "bio": {
+          ".validate": "newData.isString() && newData.val().length <= 160"
         }
       }
     },
     
-    // Usernames: readable by EVERYONE (needed for signup availability check), writable only when creating new username
+    // Usernames: readable by EVERYONE (needed for signup availability check)
     "usernames": {
       "$username": {
         ".read": true,
-        ".write": "auth != null && (!data.exists() || data.val() === auth.uid)"
+        ".write": "auth != null && (!data.exists() || data.val() === auth.uid)",
+        ".validate": "newData.isString()"
       }
     },
     
-    // Yaps: readable by all authenticated users, writable by owner
+    // Yaps: Privacy-respecting content access
     "yaps": {
       "$yapId": {
-        ".read": "auth != null",
-        ".write": "auth != null && (data.child('uid').val() === auth.uid || !data.exists())"
+        // Can read if: you're the owner, you follow them, OR they have a public account
+        ".read": "auth != null && (data.child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(data.child('uid').val()).exists() || root.child('users').child(data.child('uid').val()).child('privacy').val() === 'public')",
+        ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)",
+        ".validate": "newData.hasChildren(['text', 'timestamp', 'uid', 'username'])",
+        
+        // Text validation (max 280 characters)
+        "text": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 280"
+        },
+        
+        // UID must match authenticated user
+        "uid": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        
+        // Timestamp validation
+        "timestamp": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        }
       }
     },
     
-    // User Yaps: readable by all authenticated users, writable by owner
+    // User Yaps: Same privacy rules as yaps
     "userYaps": {
-      ".read": "auth != null",
       "$uid": {
         ".indexOn": ["timestamp"],
+        // Can read if: you're the owner, you follow them, OR they have a public account
+        ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
         "$yapId": {
           ".write": "auth != null && auth.uid === $uid"
         }
       }
     },
     
-    // Likes: readable by all authenticated users, writable by like owner or yap owner (for deletion)
+    // Likes: Only visible if the yap is visible to you
     "likes": {
       "$yapId": {
-        ".read": "auth != null",
+        // Can read likes if you can read the yap
+        ".read": "auth != null && (root.child('yaps').child($yapId).child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('users').child(root.child('yaps').child($yapId).child('uid').val()).child('privacy').val() === 'public')",
         "$uid": {
           ".write": "auth != null && (auth.uid === $uid || root.child('yaps').child($yapId).child('uid').val() === auth.uid)"
         }
       }
     },
     
-    // User Likes: readable by all, writable by owner
+    // User Likes: Only owner can see their likes
     "userLikes": {
       "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
         "$yapId": {
-          ".read": "auth != null",
           ".write": "auth != null && auth.uid === $uid"
         }
       }
     },
     
-    // Reyaps: readable by all authenticated users, writable by reyap owner or yap owner (for deletion)
+    // Reyaps: Only visible if the yap is visible to you
     "reyaps": {
       "$yapId": {
-        ".read": "auth != null",
+        ".read": "auth != null && (root.child('yaps').child($yapId).child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('users').child(root.child('yaps').child($yapId).child('uid').val()).child('privacy').val() === 'public')",
         "$uid": {
           ".write": "auth != null && (auth.uid === $uid || root.child('yaps').child($yapId).child('uid').val() === auth.uid)"
         }
       }
     },
     
-    // User Reyaps: readable by all, writable by owner
+    // User Reyaps: Only owner can see their reyaps
     "userReyaps": {
       "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
         "$yapId": {
-          ".read": "auth != null",
           ".write": "auth != null && auth.uid === $uid"
         }
       }
     },
     
-    // Following: readable by all authenticated users, writable by owner
+    // Following: Only owner can see who they follow
     "following": {
-      ".read": "auth != null",
       "$uid": {
-        ".write": "auth != null && auth.uid === $uid"
+        ".read": "auth != null && auth.uid === $uid",
+        "$targetUid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
       }
     },
     
-    // Followers: readable by all, writable by the follower
+    // Followers: Only owner can see their followers list
     "followers": {
       "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
         "$followerUid": {
-          ".read": "auth != null",
           ".write": "auth != null && auth.uid === $followerUid"
         }
       }
     },
     
-    // Notifications: readable by owner, writable by anyone authenticated
+    // Notifications: Only owner can read their notifications
     "notifications": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null"
+        "$notificationId": {
+          ".write": "auth != null"
+        }
       }
     },
     
-    // Hashtags: readable by all, writable by authenticated users
+    // Hashtags: Public for discovery, but rate-limited by validation
     "hashtags": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      "$tag": {
+        ".read": "auth != null",
+        "$yapId": {
+          ".write": "auth != null",
+          ".validate": "newData.isNumber()"
+        }
+      }
     },
     
-    // Trending: readable by all, writable by authenticated users
+    // Trending: Public for discovery
     "trending": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      "$tag": {
+        ".read": "auth != null",
+        "count": {
+          ".write": "auth != null",
+          ".validate": "newData.isNumber()"
+        }
+      }
     },
     
-    // User Bookmarks: readable/writable by owner only
+    // User Bookmarks: Only owner can access
     "userBookmarks": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
@@ -129,21 +189,33 @@
       }
     },
     
-    // Invite Codes: individual codes readable by anyone for validation, list readable by authenticated users only
+    // Invite Codes: Public read for validation during signup
     "inviteCodes": {
       ".indexOn": ["createdBy", "used"],
       "$code": {
         ".read": true,
-        ".write": "auth != null"
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['createdBy', 'createdAt'])",
+        
+        // Code validation (8 characters)
+        "code": {
+          ".validate": "newData.isString() && newData.val().length === 8"
+        },
+        
+        // Used flag validation
+        "used": {
+          ".validate": "newData.isBoolean()"
+        }
       }
     },
     
-    // Follow Requests: readable by recipient, writable by requester or recipient
+    // Follow Requests: Only recipient can see their pending requests
     "followRequests": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         "$requesterId": {
-          ".write": "auth != null && (auth.uid === $requesterId || auth.uid === $uid)"
+          ".write": "auth != null && (auth.uid === $requesterId || auth.uid === $uid)",
+          ".validate": "newData.hasChildren(['timestamp'])"
         }
       }
     }

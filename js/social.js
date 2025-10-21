@@ -268,6 +268,42 @@ function rejectFollowRequest(requesterId) {
         });
 }
 
+// Remove a follower
+function removeFollower(followerId) {
+    if (!auth || !auth.currentUser) {
+        showSnackbar('You need to be logged in', 'error');
+        return;
+    }
+    
+    const currentUserId = auth.currentUser.uid;
+    
+    // Confirm before removing
+    if (!confirm('Are you sure you want to remove this follower?')) {
+        return;
+    }
+    
+    const updates = {};
+    
+    // Remove follower from your followers list
+    updates[`followers/${currentUserId}/${followerId}`] = null;
+    
+    // Remove you from their following list
+    updates[`following/${followerId}/${currentUserId}`] = null;
+    
+    database.ref().update(updates)
+        .then(() => {
+            showSnackbar('Follower removed', 'success');
+            // Reload followers list if displayed
+            if (typeof loadFollowers === 'function') {
+                loadFollowers();
+            }
+        })
+        .catch(error => {
+            console.error('Error removing follower:', error);
+            showSnackbar(`Error: ${error.message}`, 'error');
+        });
+}
+
 // Load follow requests for current user
 function loadFollowRequests() {
     if (!auth || !auth.currentUser) {
@@ -339,6 +375,76 @@ function loadFollowRequests() {
         .catch(error => {
             console.error('Error loading follow requests:', error);
             requestsContainer.innerHTML = '<p style="text-align: center; color: var(--danger-color); padding: 20px;">Error loading requests</p>';
+        });
+}
+
+// Load followers list
+function loadFollowers() {
+    if (!auth || !auth.currentUser) {
+        return;
+    }
+    
+    const currentUserId = auth.currentUser.uid;
+    const followersContainer = document.getElementById('followersList');
+    
+    if (!followersContainer) {
+        console.warn('Followers list container not found');
+        return;
+    }
+    
+    database.ref(`followers/${currentUserId}`).once('value')
+        .then(snapshot => {
+            const followers = snapshot.val();
+            
+            if (!followers || Object.keys(followers).length === 0) {
+                followersContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No followers yet</p>';
+                return;
+            }
+            
+            followersContainer.innerHTML = '';
+            
+            // Load user details for each follower
+            const followerPromises = Object.keys(followers).map(followerId => 
+                database.ref(`users/${followerId}`).once('value')
+                    .then(userSnapshot => ({
+                        userId: followerId,
+                        userData: userSnapshot.val()
+                    }))
+            );
+            
+            return Promise.all(followerPromises);
+        })
+        .then(followersWithUsers => {
+            if (!followersWithUsers) return;
+            
+            followersWithUsers.forEach(({ userId, userData }) => {
+                if (!userData) return;
+                
+                const displayName = userData.displayName || userData.username || 'Anonymous User';
+                const username = userData.username || userId.substring(0, 8);
+                const photoURL = userData.photoURL || './images/default-avatar.svg';
+                
+                const followerDiv = document.createElement('div');
+                followerDiv.className = 'follower-item';
+                followerDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--hover-color); border-radius: var(--radius-md); margin-bottom: 10px;';
+                
+                followerDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="${photoURL}" alt="${displayName}" class="user-avatar" style="width: 48px; height: 48px; border-radius: 50%;" onerror="this.src='./images/default-avatar.svg'">
+                        <div>
+                            <p style="font-weight: 600; margin: 0;">${displayName}</p>
+                            <p style="color: var(--text-secondary); font-size: 0.9em; margin: 0;">@${username}</p>
+                        </div>
+                    </div>
+                    <button onclick="removeFollower('${userId}')" class="btn" style="padding: 8px 16px; background: var(--danger-color); color: white; border: none;">Remove</button>
+                `;
+                
+                followersContainer.appendChild(followerDiv);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading followers:', error);
+            followersContainer.innerHTML = '<p style="text-align: center; color: var(--danger-color); padding: 20px;">Error loading followers</p>';
         });
 }
 
@@ -436,13 +542,22 @@ function showSettings() {
         }, 10);
     }
     
-    // Load current privacy setting
+    // Load current user settings
     if (auth && auth.currentUser) {
-        database.ref(`users/${auth.currentUser.uid}/privacy/requireApproval`).once('value')
+        database.ref(`users/${auth.currentUser.uid}`).once('value')
             .then(snapshot => {
+                const userData = snapshot.val();
+                
+                // Load privacy setting
                 const checkbox = document.getElementById('requireApprovalCheckbox');
                 if (checkbox) {
-                    checkbox.checked = snapshot.val() === true;
+                    checkbox.checked = userData?.privacy?.requireApproval === true;
+                }
+                
+                // Load profile picture
+                const preview = document.getElementById('profilePicturePreview');
+                if (preview && userData) {
+                    preview.src = userData.photoURL || './images/default-avatar.png';
                 }
             });
     }
@@ -457,14 +572,49 @@ function closeSettingsModal() {
     }
 }
 
+// Show followers modal
+function showFollowers() {
+    const modal = document.getElementById('followersModal');
+    if (!modal) {
+        console.error('Followers modal not found');
+        return;
+    }
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('show');
+    
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        setTimeout(() => {
+            modalContent.style.transform = 'translateY(0)';
+            modalContent.style.opacity = '1';
+        }, 10);
+    }
+    
+    loadFollowers();
+}
+
+// Close followers modal
+function closeFollowersModal() {
+    const modal = document.getElementById('followersModal');
+    if (modal) {
+        modal.classList.remove('show');
+        modal.classList.add('hidden');
+    }
+}
+
 // Make functions globally available
 window.toggleFollow = toggleFollow;
 window.loadSuggestedUsers = loadSuggestedUsers;
 window.approveFollowRequest = approveFollowRequest;
 window.rejectFollowRequest = rejectFollowRequest;
+window.removeFollower = removeFollower;
 window.loadFollowRequests = loadFollowRequests;
+window.loadFollowers = loadFollowers;
 window.toggleAccountPrivacy = toggleAccountPrivacy;
 window.showFollowRequests = showFollowRequests;
 window.closeFollowRequestsModal = closeFollowRequestsModal;
+window.showFollowers = showFollowers;
+window.closeFollowersModal = closeFollowersModal;
 window.showSettings = showSettings;
 window.closeSettingsModal = closeSettingsModal;
