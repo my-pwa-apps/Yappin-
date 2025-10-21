@@ -1,13 +1,9 @@
 // Timeline functionality
 
-// Helper function to generate random avatar (cached)
-const avatarCache = new Map();
+// Helper function to generate random avatar (uses cache from app.js if available)
 function generateRandomAvatar(seed) {
-    if (!avatarCache.has(seed)) {
-        const style = 'fun-emoji';
-        avatarCache.set(seed, `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`);
-    }
-    return avatarCache.get(seed);
+    const style = 'fun-emoji';
+    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
 }
 
 // DOM Elements
@@ -720,3 +716,7 @@ window.cancelReply = function() {
         }
     }
 };
+
+// Export functions globally for use in other modules
+window.loadTimeline = loadTimeline;
+window.createYapElement = createYapElement;
