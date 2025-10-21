@@ -1,5 +1,8 @@
 // Authentication Controller
 
+// Use performance utilities (with fallback)
+const Logger = window.PerformanceUtils?.Logger || console;
+
 // DOM Elements
 const authContainer = document.getElementById('authContainer');
 const contentContainer = document.getElementById('contentContainer');
@@ -40,8 +43,10 @@ auth.onAuthStateChanged(user => {
         // Check if user profile exists, if not create one
         checkUserProfile(user);
         
-        // Load the timeline
-        loadTimeline();
+        // Load the timeline (if function exists)
+        if (typeof loadTimeline === 'function') {
+            loadTimeline();
+        }
     } else {
         // User is signed out
         currentUser = null;

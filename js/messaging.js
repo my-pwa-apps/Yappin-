@@ -1,5 +1,8 @@
 // Direct Messaging System for Yappin'
 
+// Use performance utilities (with fallback)
+const Logger = window.PerformanceUtils?.Logger || console;
+
 // Helper function to generate random avatar
 function generateRandomAvatar(seed) {
     const style = 'fun-emoji'; // Cute fun emojis - very friendly

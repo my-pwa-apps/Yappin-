@@ -1,7 +1,12 @@
 // Timeline functionality - Optimized version
 
-// Use performance utilities
-const { debounce, throttle, Logger, markPerformance, measurePerformance, rafBatch } = window.PerformanceUtils || {};
+// Use performance utilities (with fallbacks)
+const Logger = window.PerformanceUtils?.Logger || console;
+const debounce = window.PerformanceUtils?.debounce || ((fn) => fn);
+const throttle = window.PerformanceUtils?.throttle || ((fn) => fn);
+const markPerformance = window.PerformanceUtils?.markPerformance || (() => {});
+const measurePerformance = window.PerformanceUtils?.measurePerformance || (() => {});
+const rafBatch = window.PerformanceUtils?.rafBatch || ((fn) => fn());
 
 // Helper function to generate random avatar (uses cache from app.js if available)
 function generateRandomAvatar(seed) {

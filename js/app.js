@@ -1,12 +1,19 @@
 // Main App Script
 
-// Performance Optimization: Cache frequently accessed data
+// Use performance utilities (with fallbacks)
+const Logger = window.PerformanceUtils?.Logger || console;
+const getCachedQuery = window.PerformanceUtils?.getCachedQuery || (() => null);
+const setCachedQuery = window.PerformanceUtils?.setCachedQuery || (() => {});
+const debounce = window.PerformanceUtils?.debounce || ((fn) => fn);
+const throttle = window.PerformanceUtils?.throttle || ((fn) => fn);
+
+// Performance Optimization: Cache frequently accessed user data
 const userDataCache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const USER_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 function getCachedUserData(uid) {
     const cached = userDataCache.get(uid);
-    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    if (cached && Date.now() - cached.timestamp < USER_CACHE_DURATION) {
         return Promise.resolve(cached.data);
     }
     return null;
