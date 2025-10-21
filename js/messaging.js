@@ -316,11 +316,35 @@ window.startConversation = function(otherUserId) {
         // Create conversation ID
         const conversationId = getConversationId(user.uid, otherUserId);
 
-        // Open messages modal and start conversation
+        // Open messages modal
         showMessages();
+        
+        // Wait for modal to load, then open conversation directly
         setTimeout(() => {
+            // Ensure conversation view exists
+            const messagesModal = document.getElementById('messagesModal');
+            if (!messagesModal) return;
+            
+            const modalBody = messagesModal.querySelector('.modal-body');
+            if (!modalBody) return;
+            
+            // Create conversation view if it doesn't exist
+            if (!document.getElementById('conversationView')) {
+                modalBody.innerHTML = `
+                    <div class="conversations-list hidden" id="conversationsList"></div>
+                    <div class="conversation-view" id="conversationView">
+                        <div class="conversation-header" id="conversationHeader"></div>
+                        <div class="conversation-messages" id="conversationMessages"></div>
+                        <div class="conversation-input">
+                            <input type="text" id="messageInput" placeholder="Type a message..." class="input-field">
+                            <button onclick="sendMessage()" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+            
             openConversation(conversationId, otherUserId);
-        }, 100);
+        }, 150);
     }).catch(error => {
         console.error('[ERROR] Failed to check follow status:', error);
         showSnackbar('Failed to start conversation', 'error');
