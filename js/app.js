@@ -587,46 +587,45 @@ function createYap(textarea) {
                     // Commit updates
                     return database.ref().update(updates);
                 }).then(() => {
-                    return { updates, replyToId, newYapKey };
+                    return { replyToId, newYapKey, yapData };
                 });
             }
             
             // Commit updates FIRST (non-reply case)
             return database.ref().update(updates).then(() => {
-                return { updates, replyToId, newYapKey };
+                return { replyToId, newYapKey, yapData };
             });
         })
-        .then(({ updates, replyToId, newYapKey }) => {
-                // AFTER successful creation, handle mentions and notifications
-                const mentions = extractMentions(content);
-                if (mentions.length > 0) {
-                    processMentions(mentions, newYapKey, yapData.username);
-                }
-                
-                // Process mentions for notifications (from notifications.js)
-                if (typeof processMentionsAndNotify === 'function') {
-                    processMentionsAndNotify(newYapKey, content, auth.currentUser.uid);
-                }
-                
-                // If this is a reply, notify the original yap author
-                if (replyToId) {
-                    database.ref(`yaps/${replyToId}/uid`).once('value').then(authorSnapshot => {
-                        const originalAuthorId = authorSnapshot.val();
-                        if (originalAuthorId && typeof notifyReply === 'function') {
-                            notifyReply(replyToId, originalAuthorId, auth.currentUser.uid, content);
-                        }
-                    }).catch(err => console.error('[ERROR] Failed to notify reply:', err));
-                }
-                
-                // Extract hashtags for trending
-                const hashtags = extractHashtags(content);
-                if (hashtags.length > 0) {
-                    processHashtags(hashtags, newYapKey);
-                }
-                
-                // Return the yap data with ID for immediate display
-                return { yapId: newYapKey, yapData };
-            });
+        .then(({ replyToId, newYapKey, yapData }) => {
+            // AFTER successful creation, handle mentions and notifications
+            const mentions = extractMentions(content);
+            if (mentions.length > 0) {
+                processMentions(mentions, newYapKey, yapData.username);
+            }
+            
+            // Process mentions for notifications (from notifications.js)
+            if (typeof processMentionsAndNotify === 'function') {
+                processMentionsAndNotify(newYapKey, content, auth.currentUser.uid);
+            }
+            
+            // If this is a reply, notify the original yap author
+            if (replyToId) {
+                database.ref(`yaps/${replyToId}/uid`).once('value').then(authorSnapshot => {
+                    const originalAuthorId = authorSnapshot.val();
+                    if (originalAuthorId && typeof notifyReply === 'function') {
+                        notifyReply(replyToId, originalAuthorId, auth.currentUser.uid, content);
+                    }
+                }).catch(err => console.error('[ERROR] Failed to notify reply:', err));
+            }
+            
+            // Extract hashtags for trending
+            const hashtags = extractHashtags(content);
+            if (hashtags.length > 0) {
+                processHashtags(hashtags, newYapKey);
+            }
+            
+            // Return the yap data with ID for immediate display
+            return { yapId: newYapKey, yapData };
         })
         .then(({ yapId, yapData }) => {
             textarea.value = '';
@@ -849,6 +848,9 @@ function formatRelativeTime(timestamp) {
         year: 'numeric'
     });
 }
+
+// Make formatRelativeTime globally available
+window.formatRelativeTime = formatRelativeTime;
 
 // Handle like/unlike yap
 function toggleLike(yapId) {
