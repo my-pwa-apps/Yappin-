@@ -1459,10 +1459,13 @@ function performSearch(query) {
                         followBtn.onclick = () => unfollowFromSearch(uid);
                         
                         // Check if they follow back (mutual follow = can message)
-                        database.ref(`following/${uid}/${currentUser.uid}`).once('value').then(mutualSnapshot => {
-                            if (mutualSnapshot.exists() && messageBtn) {
+                        // With new rules, can read following/${otherUserId}/${currentUser.uid} for mutual follow checks
+                        database.ref(`following/${uid}/${currentUser.uid}`).once('value').then(theyFollowMe => {
+                            if (theyFollowMe.exists() && messageBtn) {
                                 messageBtn.classList.remove('hidden');
                             }
+                        }).catch(err => {
+                            console.error('[ERROR] Failed to check follower status:', err);
                         });
                     }
                 });

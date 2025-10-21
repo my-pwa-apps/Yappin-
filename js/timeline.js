@@ -199,6 +199,9 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
             <button class="action-btn share" aria-label="Share">
                 <i class="far fa-share-square"></i>
             </button>
+            <button class="action-btn message hidden" aria-label="Message" data-user-id="${yapData.uid}">
+                <i class="far fa-envelope"></i>
+            </button>
         </div>
     `;
     
@@ -207,6 +210,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     const reyapBtn = yapElement.querySelector('.action-btn.reyap');
     const replyBtn = yapElement.querySelector('.action-btn.reply');
     const shareBtn = yapElement.querySelector('.action-btn.share');
+    const messageBtn = yapElement.querySelector('.action-btn.message');
     
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -284,6 +288,31 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
             }
         }
     });
+    
+    // Message button - check for mutual follow and show if applicable
+    if (messageBtn && auth.currentUser && yapData.uid !== auth.currentUser.uid) {
+        // Check if we follow them and they follow us (mutual follow)
+        // New rules allow reading following/${otherUserId}/${currentUser.uid} for mutual follow checks
+        Promise.all([
+            database.ref(`following/${auth.currentUser.uid}/${yapData.uid}`).once('value'),
+            database.ref(`following/${yapData.uid}/${auth.currentUser.uid}`).once('value')
+        ]).then(([iFollowThem, theyFollowMe]) => {
+            // Show message button only if mutual follow
+            if (iFollowThem.exists() && theyFollowMe.exists()) {
+                messageBtn.classList.remove('hidden');
+            }
+        }).catch(error => {
+            console.error('[ERROR] Failed to check follow status for message button:', error);
+        });
+        
+        messageBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const userId = messageBtn.dataset.userId;
+            if (userId && typeof startConversation === 'function') {
+                startConversation(userId);
+            }
+        });
+    }
     
     // Add delete button listener if it's the user's own yap
     const deleteBtn = yapElement.querySelector('.delete-yap');

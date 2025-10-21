@@ -143,21 +143,25 @@
       }
     },
     
-    // Following: Only owner can see who they follow
+    // Following: Owner can see full list, others can check specific relationships
     "following": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         "$targetUid": {
+          // Allow reading if checking if this user follows YOU (for mutual follow/DM checks)
+          ".read": "auth != null && (auth.uid === $uid || $targetUid === auth.uid)",
           ".write": "auth != null && auth.uid === $uid"
         }
       }
     },
     
-    // Followers: Only owner can see their followers list
+    // Followers: Owner can see full list, others can check specific relationships
     "followers": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         "$followerUid": {
+          // Allow reading if checking if YOU follow this user (for mutual follow/DM checks)
+          ".read": "auth != null && (auth.uid === $uid || $followerUid === auth.uid)",
           ".write": "auth != null && auth.uid === $followerUid"
         }
       }
