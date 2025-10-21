@@ -83,9 +83,9 @@
           ".validate": "newData.val() === auth.uid"
         },
         
-        // Timestamp validation
+        // Timestamp validation (allow 5 minutes time difference for clock skew)
         "timestamp": {
-          ".validate": "newData.isNumber() && newData.val() <= now"
+          ".validate": "newData.isNumber() && newData.val() <= (now + 300000) && newData.val() >= (now - 86400000)"
         }
       }
     },
@@ -255,10 +255,14 @@
         ".read": "auth != null && ($conversationId.contains(auth.uid))",
         "$messageId": {
           ".write": "auth != null && ($conversationId.contains(auth.uid))",
-          ".validate": "newData.hasChildren(['senderId', 'receiverId', 'text', 'timestamp'])",
+          ".validate": "newData.hasChildren(['senderId', 'receiverId', 'timestamp']) && (newData.hasChild('text') || newData.hasChild('media'))",
           
           "text": {
             ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
+          },
+          
+          "media": {
+            ".validate": "newData.isString() || (newData.hasChildren() && newData.val() !== null)"
           }
         }
       }

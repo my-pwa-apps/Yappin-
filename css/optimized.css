@@ -1332,11 +1332,23 @@ body.dark-mode .delete-yap:hover {
 }
 
 /* Message Input */
+.conversation-input-wrapper {
+  position: relative;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--background-color);
+}
+
+.conversation-input-actions {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .conversation-input {
   display: flex;
   gap: 8px;
   padding: 12px;
-  border-top: 1px solid var(--border-color);
   flex-shrink: 0;
   background-color: var(--background-color);
 }
@@ -1349,6 +1361,27 @@ body.dark-mode .delete-yap:hover {
 .conversation-input .btn {
   padding: 10px 16px;
   flex-shrink: 0;
+}
+
+/* DM Message media */
+.message-media {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.message-image,
+.message-gif {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.message-gif {
+  border: 2px solid var(--primary-color);
 }
 
 /* Responsive adjustments */
@@ -1518,8 +1551,9 @@ body.dark-mode .delete-yap:hover {
 /* Emoji Picker */
 .emoji-picker {
   position: absolute;
-  bottom: 60px;
+  top: 100%;
   left: 0;
+  margin-top: 8px;
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);

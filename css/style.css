@@ -1855,8 +1855,9 @@ body.dark-mode input:checked + .slider {
 .gif-picker,
 .sticker-picker {
     position: absolute;
-    bottom: 60px;
+    top: 100%;
     left: 0;
+    margin-top: 8px;
     max-width: 350px;
     width: 350px;
     background: var(--card-bg);
