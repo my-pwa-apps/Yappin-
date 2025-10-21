@@ -594,61 +594,94 @@ window.uploadProfilePicture = function() {
     const uploadBtn = document.getElementById('uploadProfilePictureBtn');
     if (uploadBtn) {
         uploadBtn.disabled = true;
-        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
     }
     
-    // Upload to Firebase Storage
-    const storageRef = storage.ref(`profile-pictures/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
-    const uploadTask = storageRef.put(file);
+    // Convert to base64 (no Firebase Storage needed)
+    const reader = new FileReader();
     
-    uploadTask.on('state_changed',
-        (snapshot) => {
-            // Progress
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            if (uploadBtn) {
-                uploadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${Math.round(progress)}%`;
+    reader.onload = (e) => {
+        // Compress image
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            
+            // Max dimensions for profile picture
+            const maxSize = 400;
+            if (width > height && width > maxSize) {
+                height = (height * maxSize) / width;
+                width = maxSize;
+            } else if (height > maxSize) {
+                width = (width * maxSize) / height;
+                height = maxSize;
             }
-        },
-        (error) => {
-            // Error
-            console.error('Error uploading profile picture:', error);
-            showSnackbar('Error uploading profile picture: ' + error.message, 'error');
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convert to base64 with compression
+            const base64 = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // Update user profile with base64 image
+            database.ref(`users/${auth.currentUser.uid}/photoURL`).set(base64)
+                .then(() => {
+                    showSnackbar('Profile picture updated successfully', 'success');
+                    
+                    // Update preview
+                    const preview = document.getElementById('profilePicturePreview');
+                    if (preview) {
+                        preview.src = base64;
+                    }
+                    
+                    // Reset upload button
+                    if (uploadBtn) {
+                        uploadBtn.disabled = false;
+                        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
+                    }
+                    
+                    // Clear file input
+                    fileInput.value = '';
+                    
+                    // Reload timeline to show updated avatar
+                    if (typeof loadTimeline === 'function') {
+                        loadTimeline();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating profile picture:', error);
+                    showSnackbar('Error updating profile picture: ' + error.message, 'error');
+                    if (uploadBtn) {
+                        uploadBtn.disabled = false;
+                        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
+                    }
+                });
+        };
+        
+        img.onerror = () => {
+            showSnackbar('Failed to load image', 'error');
             if (uploadBtn) {
                 uploadBtn.disabled = false;
                 uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
             }
-        },
-        () => {
-            // Success
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                // Update user profile with new photo URL
-                return database.ref(`users/${auth.currentUser.uid}/photoURL`).set(downloadURL)
-                    .then(() => {
-                        showSnackbar('Profile picture updated successfully', 'success');
-                        
-                        // Update preview
-                        const preview = document.getElementById('profilePicturePreview');
-                        if (preview) {
-                            preview.src = downloadURL;
-                        }
-                        
-                        // Reset upload button
-                        if (uploadBtn) {
-                            uploadBtn.disabled = false;
-                            uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
-                        }
-                        
-                        // Clear file input
-                        fileInput.value = '';
-                        
-                        // Reload timeline to show updated avatar
-                        if (typeof loadTimeline === 'function') {
-                            loadTimeline();
-                        }
-                    });
-            });
+        };
+        
+        img.src = e.target.result;
+    };
+    
+    reader.onerror = () => {
+        showSnackbar('Failed to read file', 'error');
+        if (uploadBtn) {
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
         }
-    );
+    };
+    
+    reader.readAsDataURL(file);
 };
 
 // Trigger file input click

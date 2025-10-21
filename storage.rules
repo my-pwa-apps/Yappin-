@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Profile pictures - readable by all, writable by owner
+    match /profile-pictures/{userId}/{fileName} {
+      allow read: if true;  // Public read for all profile pictures
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024  // Max 5MB
+                   && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Yap media - readable by all, writable by authenticated users
+    match /yap-media/{userId}/{fileName} {
+      allow read: if true;  // Public read for all media
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 5 * 1024 * 1024  // Max 5MB
+                   && request.resource.contentType.matches('image/.*');
+    }
+    
+    // Default deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

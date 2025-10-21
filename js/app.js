@@ -100,6 +100,16 @@ function applyInitialTheme() {
     applyTheme(isDarkMode);
 }
 
+// Listen for system theme changes (only if user hasn't set a preference)
+const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+darkModeMediaQuery.addEventListener('change', (e) => {
+    // Only auto-update if user hasn't manually set a preference
+    const savedTheme = localStorage.getItem('theme');
+    if (!savedTheme) {
+        applyTheme(e.matches);
+    }
+});
+
 // Toggle dark mode (called from checkbox onchange)
 window.toggleDarkMode = function() {
     const isDarkMode = darkModeToggle.checked;
@@ -650,19 +660,53 @@ function createYap(textarea) {
         });
 }
 
-// Upload media files and return URLs
+// Convert images to base64 (no Firebase Storage needed)
 function uploadMediaFiles(files) {
     const promises = [];
     
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const fileRef = storage.ref().child(`yap-media/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
         
-        promises.push(
-            fileRef.put(file).then(snapshot => {
-                return snapshot.ref.getDownloadURL();
-            })
-        );
+        // Convert to base64
+        promises.push(new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                // Compress large images
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // Max dimensions to keep database size reasonable
+                    const maxSize = 1200;
+                    if (width > height && width > maxSize) {
+                        height = (height * maxSize) / width;
+                        width = maxSize;
+                    } else if (height > maxSize) {
+                        width = (width * maxSize) / height;
+                        height = maxSize;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convert to base64 with compression (0.8 quality)
+                    const base64 = canvas.toDataURL('image/jpeg', 0.8);
+                    resolve(base64);
+                };
+                
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = e.target.result;
+            };
+            
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        }));
     }
     
     return Promise.all(promises);
