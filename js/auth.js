@@ -559,7 +559,7 @@ window.generateNewInviteCode = function() {
 // Generate random avatar URL using DiceBear API
 function generateRandomAvatar(seed) {
     // Use user's UID or username as seed for consistency
-    const style = 'bottts-neutral'; // Cute robot animals - gender neutral
+    const style = 'fun-emoji'; // Cute fun emojis - very friendly
     return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
 }
 

@@ -2,7 +2,7 @@
 
 // Helper function to generate random avatar
 function generateRandomAvatar(seed) {
-    const style = 'bottts-neutral'; // Cute robot animals - gender neutral
+    const style = 'fun-emoji'; // Cute fun emojis - very friendly
     return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
 }
 
@@ -91,16 +91,13 @@ function toggleFollow(userId) {
                         updates[`following/${currentUserId}/${userId}`] = true;
                         updates[`followers/${userId}/${currentUserId}`] = true;
                         
-                        // Send notification
-                        updates[`notifications/${userId}/${Date.now()}`] = {
-                            type: 'new_follower',
-                            from: currentUserId,
-                            timestamp: firebase.database.ServerValue.TIMESTAMP,
-                            read: false
-                        };
-                        
                         return database.ref().update(updates)
                             .then(() => {
+                                // Send notification using notifications.js
+                                if (typeof notifyFollow === 'function') {
+                                    notifyFollow(userId, currentUserId);
+                                }
+                                
                                 showSnackbar('Followed successfully', 'success');
                                 updateFollowButtonUI(userId, 'following');
                                 // Reload timeline to reflect changes

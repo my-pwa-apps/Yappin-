@@ -2,7 +2,7 @@
 
 // Helper function to generate random avatar
 function generateRandomAvatar(seed) {
-    const style = 'bottts-neutral'; // Cute robot animals - gender neutral
+    const style = 'fun-emoji'; // Cute fun emojis - very friendly
     return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
 }
 
@@ -365,6 +365,21 @@ function createYap(textarea) {
             if (mentions.length > 0) {
                 processMentions(mentions, newYapKey, yapData.username);
             }
+            
+            // Process mentions for notifications (from notifications.js)
+            if (typeof processMentionsAndNotify === 'function') {
+                processMentionsAndNotify(newYapKey, content, auth.currentUser.uid);
+            }
+            
+            // If this is a reply, notify the original yap author
+            if (replyToId) {
+                database.ref(`yaps/${replyToId}/uid`).once('value').then(authorSnapshot => {
+                    const originalAuthorId = authorSnapshot.val();
+                    if (originalAuthorId && typeof notifyReply === 'function') {
+                        notifyReply(replyToId, originalAuthorId, auth.currentUser.uid, content);
+                    }
+                });
+            }
             // Extract hashtags for trending
             const hashtags = extractHashtags(content);
             if (hashtags.length > 0) {
@@ -590,31 +605,13 @@ function toggleLike(yapId) {
                     return yapRef.child('likes').transaction(likes => {
                         return (likes || 0) + 1;
                     }).then(() => {
-                        // Create notification if the yap is not from the current user
-                        if (yapData && yapData.uid !== auth.currentUser.uid) {
-                            // Get current user info
-                            return database.ref(`users/${auth.currentUser.uid}`).once('value')
-                                .then(userSnapshot => {
-                                    const userData = userSnapshot.val();
-                                    
-                                    // Create notification
-                                    const notificationData = {
-                                        type: 'like',
-                                        fromUserId: auth.currentUser.uid,
-                                        fromUsername: userData.username,
-                                        yapId: yapId,
-                                        timestamp: firebase.database.ServerValue.TIMESTAMP,
-                                        read: false
-                                    };
-                                    
-                                    // Add notification
-                                    updates[`notifications/${yapData.uid}/${generateId()}`] = notificationData;
-                                    
-                                    return database.ref().update(updates);
-                                });
-                        }
-                        
-                        return database.ref().update(updates);
+                        // Update database
+                        return database.ref().update(updates).then(() => {
+                            // Create notification if the yap is not from the current user
+                            if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyLike === 'function') {
+                                notifyLike(yapId, yapData.uid, auth.currentUser.uid);
+                            }
+                        });
                     });
                 });
             }
@@ -661,31 +658,13 @@ function toggleReyap(yapId) {
                     return yapRef.child('reyaps').transaction(reyaps => {
                         return (reyaps || 0) + 1;
                     }).then(() => {
-                        // Create notification if the yap is not from the current user
-                        if (yapData && yapData.uid !== auth.currentUser.uid) {
-                            // Get current user info
-                            return database.ref(`users/${auth.currentUser.uid}`).once('value')
-                                .then(userSnapshot => {
-                                    const userData = userSnapshot.val();
-                                    
-                                    // Create notification
-                                    const notificationData = {
-                                        type: 'reyap',
-                                        fromUserId: auth.currentUser.uid,
-                                        fromUsername: userData.username,
-                                        yapId: yapId,
-                                        timestamp: firebase.database.ServerValue.TIMESTAMP,
-                                        read: false
-                                    };
-                                    
-                                    // Add notification
-                                    updates[`notifications/${yapData.uid}/${generateId()}`] = notificationData;
-                                    
-                                    return database.ref().update(updates);
-                                });
-                        }
-                        
-                        return database.ref().update(updates);
+                        // Update database
+                        return database.ref().update(updates).then(() => {
+                            // Create notification if the yap is not from the current user
+                            if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyReyap === 'function') {
+                                notifyReyap(yapId, yapData.uid, auth.currentUser.uid);
+                            }
+                        });
                     });
                 });
             }
@@ -1223,21 +1202,34 @@ function performSearch(query) {
                         <div class="search-user-name">${userData.username}</div>
                         <div class="search-user-bio">${userData.bio || 'No bio'}</div>
                     </div>
-                    <button onclick="followFromSearch('${uid}')" class="btn btn-primary search-follow-btn" id="search-follow-${uid}">
-                        <i class="fas fa-user-plus"></i> Follow
-                    </button>
+                    <div class="search-actions">
+                        <button onclick="followFromSearch('${uid}')" class="btn btn-primary search-follow-btn" id="search-follow-${uid}">
+                            <i class="fas fa-user-plus"></i> Follow
+                        </button>
+                        <button onclick="startConversation('${uid}')" class="btn search-message-btn hidden" id="search-message-${uid}">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                    </div>
                 `;
                 searchResults.appendChild(userCard);
                 
-                // Check if already following
+                // Check if already following and if mutual follow
                 database.ref(`following/${currentUser.uid}/${uid}`).once('value').then(snapshot => {
-                    const btn = document.getElementById(`search-follow-${uid}`);
-                    if (!btn) return;
+                    const followBtn = document.getElementById(`search-follow-${uid}`);
+                    const messageBtn = document.getElementById(`search-message-${uid}`);
+                    if (!followBtn) return;
                     
                     if (snapshot.exists()) {
-                        btn.innerHTML = '<i class="fas fa-check"></i> Following';
-                        btn.classList.add('following');
-                        btn.onclick = () => unfollowFromSearch(uid);
+                        followBtn.innerHTML = '<i class="fas fa-check"></i> Following';
+                        followBtn.classList.add('following');
+                        followBtn.onclick = () => unfollowFromSearch(uid);
+                        
+                        // Check if they follow back (mutual follow = can message)
+                        database.ref(`following/${uid}/${currentUser.uid}`).once('value').then(mutualSnapshot => {
+                            if (mutualSnapshot.exists() && messageBtn) {
+                                messageBtn.classList.remove('hidden');
+                            }
+                        });
                     }
                 });
             });
@@ -1335,10 +1327,20 @@ window.showMessages = function() {
     const messagesModal = document.getElementById('messagesModal');
     if (!messagesModal) return;
     toggleModal(messagesModal, true);
+    
+    // Load conversations (from messaging.js)
+    if (typeof loadConversations === 'function') {
+        loadConversations();
+    }
 };
 
 window.closeMessagesModal = function() {
     const messagesModal = document.getElementById('messagesModal');
     if (!messagesModal) return;
     toggleModal(messagesModal, false);
+    
+    // Close any open conversation
+    if (typeof closeConversation === 'function') {
+        closeConversation();
+    }
 };

@@ -2,7 +2,7 @@
 
 // Helper function to generate random avatar
 function generateRandomAvatar(seed) {
-    const style = 'bottts-neutral'; // Cute robot animals - gender neutral
+    const style = 'fun-emoji'; // Cute fun emojis - very friendly
     return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
 }
 
