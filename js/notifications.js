@@ -23,7 +23,7 @@ function loadNotifications() {
 // Display notifications (called when clicking the notifications icon)
 function displayNotifications(notifications) {
     // This will be implemented when we create a notifications modal/dropdown
-    console.log('[Notifications]', notifications);
+
 }
 
 // Update notifications badge count

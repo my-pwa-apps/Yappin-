@@ -1,9 +1,13 @@
 // Timeline functionality
 
-// Helper function to generate random avatar
+// Helper function to generate random avatar (cached)
+const avatarCache = new Map();
 function generateRandomAvatar(seed) {
-    const style = 'fun-emoji'; // Cute fun emojis - very friendly
-    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+    if (!avatarCache.has(seed)) {
+        const style = 'fun-emoji';
+        avatarCache.set(seed, `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`);
+    }
+    return avatarCache.get(seed);
 }
 
 // DOM Elements
@@ -11,6 +15,21 @@ const yapsContainer = document.getElementById('yapsContainer');
 const TIMELINE_PAGE_SIZE = 20; // Load 20 yaps at a time
 let lastYapTimestamp = null;
 let isLoadingMore = false;
+
+// Intersection Observer for infinite scroll
+let infiniteScrollObserver = null;
+
+function setupInfiniteScroll() {
+    if (!infiniteScrollObserver) {
+        infiniteScrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !isLoadingMore) {
+                    loadTimeline(true);
+                }
+            });
+        }, { rootMargin: '100px' });
+    }
+}
 
 // Load timeline with pagination
 function loadTimeline(loadMore = false) {
@@ -295,35 +314,25 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
         messageBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             const userId = messageBtn.dataset.userId;
-            console.log('[DEBUG] Message button clicked for user:', userId);
             if (userId && typeof startConversation === 'function') {
                 startConversation(userId);
-            } else {
-                console.error('[ERROR] startConversation not available or no userId');
             }
         });
         
         // Check visibility only if not current user's own yap
         if (auth.currentUser && yapData.uid !== auth.currentUser.uid) {
             // Check if we follow them and they follow us (mutual follow)
-            console.log('[DEBUG] Checking message button for yap by:', yapData.uid, 'Current user:', auth.currentUser.uid);
             Promise.all([
                 database.ref(`following/${auth.currentUser.uid}/${yapData.uid}`).once('value'),
                 database.ref(`following/${yapData.uid}/${auth.currentUser.uid}`).once('value')
             ]).then(([iFollowThem, theyFollowMe]) => {
-                console.log('[DEBUG] Follow status - I follow them:', iFollowThem.exists(), 'They follow me:', theyFollowMe.exists());
                 // Show message button only if mutual follow
                 if (iFollowThem.exists() && theyFollowMe.exists()) {
-                    console.log('[DEBUG] Mutual follow confirmed! Showing message button for user:', yapData.uid);
                     messageBtn.classList.remove('hidden');
-                } else {
-                    console.log('[DEBUG] Not mutual follow, keeping button hidden');
                 }
             }).catch(error => {
-                console.error('[ERROR] Failed to check follow status for message button:', error);
+                console.error('Failed to check mutual follow status:', error);
             });
-        } else {
-            console.log('[DEBUG] Skipping message button check - either no auth or own yap');
         }
     }
     

@@ -1,8 +1,8 @@
-// Service Worker for Yappin' PWA
+// Service Worker for Yappin' PWA - Optimized
 
 // Detect base path from service worker location
 const BASE_PATH = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
-const CACHE_VERSION = 'v55';
+const CACHE_VERSION = 'v56';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
 const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 

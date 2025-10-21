@@ -1,9 +1,32 @@
 // Main App Script
 
-// Helper function to generate random avatar
+// Performance Optimization: Cache frequently accessed data
+const userDataCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+function getCachedUserData(uid) {
+    const cached = userDataCache.get(uid);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        return Promise.resolve(cached.data);
+    }
+    return null;
+}
+
+function setCachedUserData(uid, data) {
+    userDataCache.set(uid, {
+        data: data,
+        timestamp: Date.now()
+    });
+}
+
+// Helper function to generate random avatar (cached)
+const avatarCache = new Map();
 function generateRandomAvatar(seed) {
-    const style = 'fun-emoji'; // Cute fun emojis - very friendly
-    return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+    if (!avatarCache.has(seed)) {
+        const style = 'fun-emoji';
+        avatarCache.set(seed, `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`);
+    }
+    return avatarCache.get(seed);
 }
 
 // DOM Elements
@@ -1394,7 +1417,7 @@ function performSearch(query) {
             
             // Remove duplicates
             const uniqueUserIds = [...new Set(userIds)];
-            console.log('[DEBUG] Search found users:', uniqueUserIds);
+
             
             // Load user details - only read accessible fields
             const promises = uniqueUserIds.map(uid => {

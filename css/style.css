@@ -1,4 +1,4 @@
-/* Main Styling for Yappin' PWA */
+/* Main Styling for Yappin' PWA - Optimized */
 
 :root {
     /* Base colors - Modern Green Theme */
@@ -28,6 +28,11 @@
     --space-sm: 10px;
     --space-md: 15px;
     --space-lg: 20px;
+    
+    /* Performance */
+    --transition-fast: 150ms;
+    --transition-normal: 250ms;
+    --transition-slow: 350ms;
     
     /* Shadows */
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -102,12 +107,17 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: var(--text-primary);
     background-color: #fff;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* Focus styles for accessibility */
@@ -1716,6 +1726,48 @@ body.dark-mode .loading-spinner {
     .desktop-compose-btn {
         display: flex;
     }
+}
+
+/* Loading Skeleton Animations */
+.skeleton {
+    background: linear-gradient(90deg, var(--hover-color) 25%, var(--border-color) 50%, var(--hover-color) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: var(--border-radius-md);
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-yap {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.skeleton-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-bottom: var(--space-sm);
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: var(--space-xs);
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+.skeleton-text.long {
+    width: 90%;
 }
 
 /* Dark mode styling for desktop compose button */
