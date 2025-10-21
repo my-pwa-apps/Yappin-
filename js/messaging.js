@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Start a new conversation with a user (called from profile/search)
+// Start a new conversation with a user (called from profile/search/timeline)
 window.startConversation = function(otherUserId) {
     const user = auth.currentUser;
     if (!user) {
@@ -313,37 +313,43 @@ window.startConversation = function(otherUserId) {
             return;
         }
 
-        // Create conversation ID and open modal
+        // Create conversation ID
         const conversationId = getConversationId(user.uid, otherUserId);
-        showMessages();
         
-        // Wait for modal to load, then open conversation directly
+        // Open modal without loading conversations list
+        const messagesModal = document.getElementById('messagesModal');
+        if (!messagesModal) {
+            showSnackbar('Messages modal not found', 'error');
+            return;
+        }
+        
+        toggleModal(messagesModal, true);
+        
+        // Wait for modal animation, then set up conversation view
         setTimeout(() => {
-            const messagesModal = document.getElementById('messagesModal');
-            const modalBody = messagesModal?.querySelector('.modal-body');
+            const modalBody = messagesModal.querySelector('.modal-body');
             
-            if (!messagesModal || !modalBody) {
+            if (!modalBody) {
                 showSnackbar('Unable to open messages', 'error');
                 return;
             }
             
-            // Create conversation view if it doesn't exist
-            if (!document.getElementById('conversationView')) {
-                modalBody.innerHTML = `
-                    <div class="conversations-list hidden" id="conversationsList"></div>
-                    <div class="conversation-view" id="conversationView">
-                        <div class="conversation-header" id="conversationHeader"></div>
-                        <div class="conversation-messages" id="conversationMessages"></div>
-                        <div class="conversation-input">
-                            <input type="text" id="messageInput" placeholder="Type a message..." class="input-field">
-                            <button onclick="sendMessage()" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
-                        </div>
+            // Always recreate the conversation view structure to ensure it's clean
+            modalBody.innerHTML = `
+                <div class="conversations-list hidden" id="conversationsList"></div>
+                <div class="conversation-view" id="conversationView">
+                    <div class="conversation-header" id="conversationHeader"></div>
+                    <div class="conversation-messages" id="conversationMessages"></div>
+                    <div class="conversation-input">
+                        <input type="text" id="messageInput" placeholder="Type a message..." class="input-field">
+                        <button onclick="sendMessage()" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
                     </div>
-                `;
-            }
+                </div>
+            `;
             
+            // Open the conversation
             openConversation(conversationId, otherUserId);
-        }, 150);
+        }, 200);
     }).catch(error => {
         console.error('Failed to start conversation:', error);
         showSnackbar('Failed to start conversation', 'error');

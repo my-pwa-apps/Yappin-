@@ -318,12 +318,23 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
         // Check visibility only if not current user's own yap
         if (auth.currentUser && yapData.uid !== auth.currentUser.uid) {
             // Check if we follow them and they follow us (mutual follow)
+            const currentUid = auth.currentUser.uid;
+            const otherUid = yapData.uid;
+            
             Promise.all([
-                database.ref(`following/${auth.currentUser.uid}/${yapData.uid}`).once('value'),
-                database.ref(`following/${yapData.uid}/${auth.currentUser.uid}`).once('value')
+                database.ref(`following/${currentUid}/${otherUid}`).once('value'),
+                database.ref(`following/${otherUid}/${currentUid}`).once('value')
             ]).then(([iFollowThem, theyFollowMe]) => {
+                const iFollow = iFollowThem.exists();
+                const theyFollow = theyFollowMe.exists();
+                
+                // Debug: Log follow status for troubleshooting
+                if (iFollow || theyFollow) {
+                    console.log(`[Message Button] ${yapData.username}: I follow=${iFollow}, They follow=${theyFollow}`);
+                }
+                
                 // Show message button only if mutual follow
-                if (iFollowThem.exists() && theyFollowMe.exists()) {
+                if (iFollow && theyFollow) {
                     messageBtn.classList.remove('hidden');
                 }
             }).catch(error => {
