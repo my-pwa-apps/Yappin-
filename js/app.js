@@ -1068,3 +1068,277 @@ function trapFocus(element) {
 if (createYapModal) {
     trapFocus(createYapModal);
 }
+
+// ========================================
+// NEW MODAL HANDLERS FOR NAVIGATION
+// ========================================
+
+// Profile Modal (unified with Settings)
+window.showProfile = function() {
+    const profileModal = document.getElementById('profileModal');
+    if (!profileModal) return;
+    
+    toggleModal(profileModal, true);
+    
+    // Load current user's profile picture
+    const user = auth.currentUser;
+    if (user) {
+        const profilePicturePreview = document.getElementById('profilePicturePreview');
+        if (profilePicturePreview && user.photoURL) {
+            profilePicturePreview.src = user.photoURL;
+        }
+        
+        // Load privacy setting
+        database.ref(`users/${user.uid}/privacy`).once('value').then(snapshot => {
+            const privacy = snapshot.val() || 'public';
+            const checkbox = document.getElementById('requireApprovalCheckbox');
+            if (checkbox) {
+                checkbox.checked = (privacy === 'private');
+            }
+        }).catch(error => {
+            console.error('[ERROR] Failed to load privacy setting:', error);
+        });
+    }
+};
+
+window.closeProfileModal = function() {
+    const profileModal = document.getElementById('profileModal');
+    if (!profileModal) return;
+    toggleModal(profileModal, false);
+};
+
+// Search Modal
+window.showSearch = function() {
+    const searchModal = document.getElementById('searchModal');
+    if (!searchModal) return;
+    
+    toggleModal(searchModal, true);
+    
+    // Focus search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.focus();
+        searchInput.value = '';
+        
+        // Clear previous results
+        const searchResults = document.getElementById('searchResults');
+        if (searchResults) {
+            searchResults.innerHTML = '';
+        }
+    }
+};
+
+window.closeSearchModal = function() {
+    const searchModal = document.getElementById('searchModal');
+    if (!searchModal) return;
+    toggleModal(searchModal, false);
+};
+
+// Search functionality
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (searchInput && searchResults) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim().toLowerCase();
+            
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                return;
+            }
+            
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                performSearch(query);
+            }, 300);
+        });
+    }
+});
+
+function performSearch(query) {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+    
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+        searchResults.innerHTML = '<p class="no-results">Please sign in to search</p>';
+        return;
+    }
+    
+    searchResults.innerHTML = '<p class="loading-text">Searching...</p>';
+    
+    // Search by username
+    database.ref('usernames').orderByKey().startAt(query).endAt(query + '\uf8ff').limitToFirst(10).once('value')
+        .then(snapshot => {
+            if (!snapshot.exists()) {
+                searchResults.innerHTML = '<p class="no-results">No users found</p>';
+                return;
+            }
+            
+            const userIds = [];
+            snapshot.forEach(child => {
+                userIds.push(child.val());
+            });
+            
+            // Load user details
+            const promises = userIds.map(uid => database.ref(`users/${uid}`).once('value'));
+            return Promise.all(promises);
+        })
+        .then(snapshots => {
+            if (!snapshots || snapshots.length === 0) {
+                searchResults.innerHTML = '<p class="no-results">No users found</p>';
+                return;
+            }
+            
+            searchResults.innerHTML = '';
+            
+            snapshots.forEach(userSnapshot => {
+                if (!userSnapshot.exists()) return;
+                
+                const userData = userSnapshot.val();
+                const uid = userSnapshot.key;
+                
+                // Skip current user
+                if (uid === currentUser.uid) return;
+                
+                // Check privacy
+                if (userData.privacy === 'private') {
+                    // Check if following
+                    database.ref(`following/${currentUser.uid}/${uid}`).once('value').then(followSnapshot => {
+                        if (!followSnapshot.exists()) {
+                            return; // Don't show private accounts unless following
+                        }
+                    });
+                }
+                
+                const userCard = document.createElement('div');
+                userCard.className = 'user-search-result';
+                userCard.innerHTML = `
+                    <img src="${userData.photoURL || generateRandomAvatar(uid)}" alt="${userData.username}" class="search-user-avatar">
+                    <div class="search-user-info">
+                        <div class="search-user-name">${userData.username}</div>
+                        <div class="search-user-bio">${userData.bio || 'No bio'}</div>
+                    </div>
+                    <button onclick="followFromSearch('${uid}')" class="btn btn-primary search-follow-btn" id="search-follow-${uid}">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </button>
+                `;
+                searchResults.appendChild(userCard);
+                
+                // Check if already following
+                database.ref(`following/${currentUser.uid}/${uid}`).once('value').then(snapshot => {
+                    const btn = document.getElementById(`search-follow-${uid}`);
+                    if (!btn) return;
+                    
+                    if (snapshot.exists()) {
+                        btn.innerHTML = '<i class="fas fa-check"></i> Following';
+                        btn.classList.add('following');
+                        btn.onclick = () => unfollowFromSearch(uid);
+                    }
+                });
+            });
+        })
+        .catch(error => {
+            console.error('[ERROR] Search failed:', error);
+            searchResults.innerHTML = '<p class="error-text">Search failed. Please try again.</p>';
+        });
+}
+
+window.followFromSearch = function(targetUserId) {
+    if (!auth.currentUser) return;
+    
+    const currentUserId = auth.currentUser.uid;
+    
+    // Check if target account is private
+    database.ref(`users/${targetUserId}/privacy`).once('value').then(snapshot => {
+        const privacy = snapshot.val() || 'public';
+        
+        if (privacy === 'private') {
+            // Send follow request
+            const updates = {};
+            updates[`followRequests/${targetUserId}/${currentUserId}`] = true;
+            
+            return database.ref().update(updates).then(() => {
+                showSnackbar('Follow request sent', 'success');
+                const btn = document.getElementById(`search-follow-${targetUserId}`);
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-clock"></i> Pending';
+                    btn.classList.add('pending');
+                    btn.disabled = true;
+                }
+            });
+        } else {
+            // Public account - follow directly
+            const updates = {};
+            updates[`following/${currentUserId}/${targetUserId}`] = true;
+            updates[`followers/${targetUserId}/${currentUserId}`] = true;
+            
+            return database.ref().update(updates).then(() => {
+                // Update counts
+                return Promise.all([
+                    database.ref(`users/${currentUserId}/followingCount`).transaction(count => (count || 0) + 1),
+                    database.ref(`users/${targetUserId}/followersCount`).transaction(count => (count || 0) + 1)
+                ]);
+            }).then(() => {
+                showSnackbar('Now following!', 'success');
+                const btn = document.getElementById(`search-follow-${targetUserId}`);
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> Following';
+                    btn.classList.add('following');
+                    btn.onclick = () => unfollowFromSearch(targetUserId);
+                }
+            });
+        }
+    }).catch(error => {
+        console.error('[ERROR] Follow failed:', error);
+        showSnackbar('Follow failed', 'error');
+    });
+};
+
+window.unfollowFromSearch = function(targetUserId) {
+    if (!auth.currentUser) return;
+    
+    const currentUserId = auth.currentUser.uid;
+    
+    if (!confirm('Unfollow this user?')) return;
+    
+    const updates = {};
+    updates[`following/${currentUserId}/${targetUserId}`] = null;
+    updates[`followers/${targetUserId}/${currentUserId}`] = null;
+    
+    database.ref().update(updates).then(() => {
+        // Update counts
+        return Promise.all([
+            database.ref(`users/${currentUserId}/followingCount`).transaction(count => Math.max((count || 1) - 1, 0)),
+            database.ref(`users/${targetUserId}/followersCount`).transaction(count => Math.max((count || 1) - 1, 0))
+        ]);
+    }).then(() => {
+        showSnackbar('Unfollowed', 'success');
+        const btn = document.getElementById(`search-follow-${targetUserId}`);
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+            btn.classList.remove('following');
+            btn.onclick = () => followFromSearch(targetUserId);
+        }
+    }).catch(error => {
+        console.error('[ERROR] Unfollow failed:', error);
+        showSnackbar('Unfollow failed', 'error');
+    });
+};
+
+// Messages Modal
+window.showMessages = function() {
+    const messagesModal = document.getElementById('messagesModal');
+    if (!messagesModal) return;
+    toggleModal(messagesModal, true);
+};
+
+window.closeMessagesModal = function() {
+    const messagesModal = document.getElementById('messagesModal');
+    if (!messagesModal) return;
+    toggleModal(messagesModal, false);
+};

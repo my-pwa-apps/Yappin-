@@ -27,7 +27,7 @@
                 <button id="darkModeToggle" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode"><i class="fas fa-moon"></i></button>
                 <button id="userBtn" class="hidden" aria-label="User menu" title="User menu"><i class="fas fa-user"></i></button>
                 <div id="userDropdown" class="dropdown hidden">
-                    <a href="#" id="profileLink">Profile</a>
+                    <a href="#" onclick="showProfile(); return false;">Profile</a>
                     <a href="#" id="logoutBtn">Logout</a>
                 </div>
             </div>
@@ -83,15 +83,10 @@
                     <nav>
                         <ul>
                             <li><a href="#" class="active"><i class="fas fa-home"></i> <span>Home</span></a></li>
-                            <li><a href="#"><i class="fas fa-search"></i> <span>Explore</span></a></li>
+                            <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span>Search</span></a></li>
                             <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
-                            <li><a href="#"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
-                            <li><a href="#"><i class="fas fa-bookmark"></i> <span>Bookmarks</span></a></li>
-                            <li><a href="#" onclick="showFollowers(); return false;"><i class="fas fa-users"></i> <span>Followers</span></a></li>
-                            <li><a href="#" onclick="showFollowRequests(); return false;"><i class="fas fa-user-check"></i> <span>Follow Requests</span></a></li>
-                            <li><a href="#" onclick="showInviteCodes(); return false;"><i class="fas fa-user-plus"></i> <span>Invite Friends</span></a></li>
-                            <li><a href="#" onclick="showSettings(); return false;"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
-                            <li><a href="#"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+                            <li><a href="#" onclick="showMessages(); return false;"><i class="fas fa-envelope"></i> <span>Messages</span> <span class="badge hidden" id="messagesBadge">0</span></a></li>
+                            <li><a href="#" onclick="showProfile(); return false;"><i class="fas fa-user"></i> <span>Profile</span></a></li>
                         </ul>
                     </nav>
                 </aside>
@@ -213,11 +208,12 @@
             </div>
 
             <!-- Settings Modal -->
-            <div id="settingsModal" class="modal hidden">
+            <!-- Profile Modal (unified with Settings) -->
+            <div id="profileModal" class="modal hidden">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2>Settings</h2>
-                        <button class="close-btn" onclick="closeSettingsModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                        <h2>Profile & Settings</h2>
+                        <button class="close-btn" onclick="closeProfileModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="modal-body modal-body-padding">
                         <!-- Profile Picture Section -->
@@ -226,6 +222,7 @@
                             <div class="profile-picture-container">
                                 <img id="profilePicturePreview" src="./images/default-avatar.png" alt="Profile" class="profile-picture-preview">
                                 <div class="profile-picture-controls">
+                                    <label for="profilePictureInput" class="visually-hidden">Choose profile picture</label>
                                     <input type="file" id="profilePictureInput" accept="image/*" onchange="previewProfilePicture(event)" class="profile-picture-input">
                                     <button onclick="selectProfilePicture()" class="btn btn-with-margin">
                                         <i class="fas fa-image"></i> Choose Image
@@ -252,6 +249,58 @@
                                 </label>
                             </div>
                         </div>
+
+                        <!-- Social Section -->
+                        <div class="settings-section privacy-divider">
+                            <h3 class="settings-section-title">Social</h3>
+                            <button onclick="showFollowers(); closeProfileModal();" class="btn full-width-btn btn-with-margin">
+                                <i class="fas fa-users"></i> Followers
+                            </button>
+                            <button onclick="showFollowRequests(); closeProfileModal();" class="btn full-width-btn btn-with-margin">
+                                <i class="fas fa-user-clock"></i> Follow Requests
+                            </button>
+                            <button onclick="showInviteCodes(); closeProfileModal();" class="btn full-width-btn btn-with-margin">
+                                <i class="fas fa-user-plus"></i> Invite Friends
+                            </button>
+                        </div>
+
+                        <!-- Account Actions -->
+                        <div class="settings-section privacy-divider">
+                            <button onclick="logout()" class="btn full-width-btn btn-logout">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Modal -->
+            <div id="searchModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Search Users</h2>
+                        <button class="close-btn" onclick="closeSearchModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body modal-body-padding">
+                        <input type="text" id="searchInput" placeholder="Search by username..." class="input-field">
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Modal -->
+            <div id="messagesModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Messages</h2>
+                        <button class="close-btn" onclick="closeMessagesModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body modal-body-padding">
+                        <div class="messages-empty-state">
+                            <i class="fas fa-envelope messages-empty-icon"></i>
+                            <h3>Direct Messages Coming Soon!</h3>
+                            <p class="messages-empty-subtitle">We're working on bringing you private messaging. Stay tuned!</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -263,10 +312,10 @@
         <nav class="mobile-nav">
             <ul>
                 <li><a href="#" class="active"><i class="fas fa-home"></i> <span>Home</span></a></li>
-                <li><a href="#"><i class="fas fa-search"></i> <span>Explore</span></a></li>
+                <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span>Search</span></a></li>
                 <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
-                <li><a href="#" onclick="showInviteCodes(); return false;"><i class="fas fa-user-plus"></i> <span>Invites</span></a></li>
-                <li><a href="#"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+                <li><a href="#" onclick="showMessages(); return false;"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
+                <li><a href="#" onclick="showProfile(); return false;"><i class="fas fa-user"></i> <span>Profile</span></a></li>
             </ul>
         </nav>
     </div>
