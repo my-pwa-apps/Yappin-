@@ -1,0 +1,22 @@
+{
+  "projects": {
+    "default": "yappin-d355d"
+  },
+  "database": {
+    "rules": "firebase.rules.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

@@ -219,6 +219,42 @@
           ".validate": "newData.hasChildren(['timestamp'])"
         }
       }
+    },
+    
+    // Conversations: Only participants can access
+    "conversations": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$conversationId": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['otherUserId', 'lastMessage', 'lastMessageTime'])"
+        }
+      }
+    },
+    
+    // Messages: Only participants in the conversation can read/write
+    "messages": {
+      "$conversationId": {
+        ".read": "auth != null && ($conversationId.contains(auth.uid))",
+        "$messageId": {
+          ".write": "auth != null && ($conversationId.contains(auth.uid))",
+          ".validate": "newData.hasChildren(['senderId', 'receiverId', 'text', 'timestamp'])",
+          
+          "text": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
+          }
+        }
+      }
+    },
+    
+    // Yap Replies: Tracks which yaps are replies to others
+    "yapReplies": {
+      "$yapId": {
+        ".read": "auth != null",
+        "$replyId": {
+          ".write": "auth != null"
+        }
+      }
     }
   }
 }

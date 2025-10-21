@@ -263,9 +263,13 @@ function approveFollowRequest(requesterId) {
     const currentUserId = auth.currentUser.uid;
     const updates = {};
     
-    // Add to following/followers
+    // Add requester to your followers (they follow you)
     updates[`following/${requesterId}/${currentUserId}`] = true;
     updates[`followers/${currentUserId}/${requesterId}`] = true;
+    
+    // Automatically follow them back (mutual follow for DMs)
+    updates[`following/${currentUserId}/${requesterId}`] = true;
+    updates[`followers/${requesterId}/${currentUserId}`] = true;
     
     // Remove from requests
     updates[`followRequests/${currentUserId}/${requesterId}`] = null;
@@ -278,9 +282,19 @@ function approveFollowRequest(requesterId) {
         read: false
     };
     
+    // Update follower/following counts
     database.ref().update(updates)
         .then(() => {
-            showSnackbar('Follow request approved', 'success');
+            // Update counts for both users
+            return Promise.all([
+                database.ref(`users/${requesterId}/followersCount`).transaction(count => (count || 0) + 1),
+                database.ref(`users/${requesterId}/followingCount`).transaction(count => (count || 0) + 1),
+                database.ref(`users/${currentUserId}/followersCount`).transaction(count => (count || 0) + 1),
+                database.ref(`users/${currentUserId}/followingCount`).transaction(count => (count || 0) + 1)
+            ]);
+        })
+        .then(() => {
+            showSnackbar('Follow request approved - Now mutual followers!', 'success');
             // Reload follow requests if displayed
             if (typeof loadFollowRequests === 'function') {
                 loadFollowRequests();
