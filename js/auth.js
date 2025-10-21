@@ -94,7 +94,7 @@ document.addEventListener('click', (e) => {
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    const email = document.getElementById('loginEmail').value;
+    const emailOrUsername = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     
     // Show loading state
@@ -103,8 +103,31 @@ loginForm.addEventListener('submit', (e) => {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Loading...';
     
+    // Determine if input is email or username
+    const isEmail = emailOrUsername.includes('@');
+    
+    // If username, look up email first
+    const loginPromise = isEmail 
+        ? Promise.resolve(emailOrUsername)
+        : database.ref(`usernames/${emailOrUsername.toLowerCase()}`).once('value')
+            .then(snapshot => {
+                if (snapshot.exists()) {
+                    const uid = snapshot.val();
+                    return database.ref(`users/${uid}/email`).once('value')
+                        .then(emailSnap => {
+                            if (emailSnap.exists()) {
+                                return emailSnap.val();
+                            } else {
+                                throw new Error('user-not-found');
+                            }
+                        });
+                } else {
+                    throw new Error('user-not-found');
+                }
+            });
+    
     // Sign in with email and password
-    auth.signInWithEmailAndPassword(email, password)
+    loginPromise.then(email => auth.signInWithEmailAndPassword(email, password))
         .then(() => {
             // Clear form
             loginForm.reset();
@@ -114,28 +137,37 @@ loginForm.addEventListener('submit', (e) => {
             // Handle errors with user-friendly messages
             let errorMessage = 'Login failed. Please try again.';
             
-            switch (error.code) {
-                case 'auth/invalid-email':
-                    errorMessage = 'Invalid email address.';
-                    break;
-                case 'auth/user-disabled':
-                    errorMessage = 'This account has been disabled.';
-                    break;
-                case 'auth/user-not-found':
-                    errorMessage = 'No account found with this email.';
-                    break;
-                case 'auth/wrong-password':
-                case 'auth/invalid-login-credentials':
-                    errorMessage = 'Incorrect email or password.';
-                    break;
-                case 'auth/too-many-requests':
-                    errorMessage = 'Too many failed attempts. Please try again later.';
-                    break;
-                case 'auth/network-request-failed':
-                    errorMessage = 'Network error. Please check your connection.';
-                    break;
-                default:
-                    errorMessage = error.message;
+            // Check for custom username lookup error
+            if (error.message === 'user-not-found') {
+                errorMessage = isEmail 
+                    ? 'No account found with this email.'
+                    : 'No account found with this username.';
+            } else {
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage = 'Invalid email address.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage = 'This account has been disabled.';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage = isEmail 
+                            ? 'No account found with this email.'
+                            : 'No account found with this username.';
+                        break;
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-login-credentials':
+                        errorMessage = 'Incorrect username/email or password.';
+                        break;
+                    case 'auth/too-many-requests':
+                        errorMessage = 'Too many failed attempts. Please try again later.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = 'Network error. Please check your connection.';
+                        break;
+                    default:
+                        errorMessage = error.message;
+                }
             }
             
             showSnackbar(errorMessage, 'error');

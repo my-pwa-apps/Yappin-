@@ -929,6 +929,46 @@ body.dark-mode .delete-yap:hover {
   font-weight: 600;
 }
 
+.profile-info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.form-group .input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.form-group .input-field:disabled {
+  background: var(--bg-secondary);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 .profile-picture-container {
   display: flex;
   align-items: center;
@@ -1265,9 +1305,22 @@ body.dark-mode .delete-yap:hover {
   object-fit: cover;
 }
 
+.conversation-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .conversation-header-name {
   font-weight: 600;
   color: var(--text-primary);
+  font-size: 16px;
+}
+
+.conversation-header-username {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 400;
 }
 
 /* Messages */

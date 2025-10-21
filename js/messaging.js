@@ -117,12 +117,15 @@ function updateConversationsList(conversationsList, conversations) {
         // Load other user's data - only read accessible fields
         Promise.all([
             database.ref(`users/${otherUserId}/username`).once('value'),
+            database.ref(`users/${otherUserId}/displayName`).once('value'),
             database.ref(`users/${otherUserId}/photoURL`).once('value')
-        ]).then(([usernameSnap, photoSnap]) => {
+        ]).then(([usernameSnap, displayNameSnap, photoSnap]) => {
             const userData = {
                 username: usernameSnap.val(),
+                displayName: displayNameSnap.val(),
                 photoURL: photoSnap.val()
             };
+            const displayText = userData.displayName || `@${userData.username}`;
             const conversationItem = document.createElement('div');
             conversationItem.className = 'conversation-item';
             conversationItem.onclick = () => openConversation(conversationId, otherUserId);
@@ -131,9 +134,9 @@ function updateConversationsList(conversationsList, conversations) {
             const unreadClass = conversation.unreadCount > 0 ? 'unread' : '';
             
             conversationItem.innerHTML = `
-                <img src="${userData.photoURL || generateRandomAvatar(otherUserId)}" alt="${userData.username}" class="conversation-avatar">
+                <img src="${userData.photoURL || generateRandomAvatar(otherUserId)}" alt="${displayText}" class="conversation-avatar">
                 <div class="conversation-info">
-                    <div class="conversation-name ${unreadClass}">${userData.username}</div>
+                    <div class="conversation-name ${unreadClass}">${displayText}</div>
                     <div class="conversation-preview">${conversation.lastMessage || 'No messages yet'}</div>
                 </div>
                 ${conversation.unreadCount > 0 ? `<span class="conversation-badge">${conversation.unreadCount}</span>` : ''}
@@ -165,18 +168,24 @@ function openConversation(conversationId, otherUserId) {
     // Load other user's data for header - only read accessible fields
     Promise.all([
         database.ref(`users/${otherUserId}/username`).once('value'),
+        database.ref(`users/${otherUserId}/displayName`).once('value'),
         database.ref(`users/${otherUserId}/photoURL`).once('value')
-    ]).then(([usernameSnap, photoSnap]) => {
+    ]).then(([usernameSnap, displayNameSnap, photoSnap]) => {
         const userData = {
             username: usernameSnap.val(),
+            displayName: displayNameSnap.val(),
             photoURL: photoSnap.val()
         };
+        const displayText = userData.displayName || `@${userData.username}`;
         const conversationHeader = document.getElementById('conversationHeader');
         if (conversationHeader) {
             conversationHeader.innerHTML = `
                 <button onclick="closeConversation()" class="btn-back"><i class="fas fa-arrow-left"></i></button>
-                <img src="${userData.photoURL || generateRandomAvatar(otherUserId)}" alt="${userData.username}" class="conversation-header-avatar">
-                <div class="conversation-header-name">${userData.username}</div>
+                <img src="${userData.photoURL || generateRandomAvatar(otherUserId)}" alt="${displayText}" class="conversation-header-avatar">
+                <div class="conversation-header-info">
+                    <div class="conversation-header-name">${displayText}</div>
+                    ${userData.displayName ? `<div class="conversation-header-username">@${userData.username}</div>` : ''}
+                </div>
             `;
         }
     });
@@ -190,6 +199,11 @@ function openConversation(conversationId, otherUserId) {
 
     // Load messages
     loadMessages(conversationId);
+    
+    // Re-attach event listeners for media buttons (they're recreated in the conversation view)
+    setTimeout(() => {
+        setupDmMediaButtons();
+    }, 100);
 }
 
 // Close conversation and go back to list
@@ -618,39 +632,68 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
 });
 
-function setupDmAttachments() {
-    const dmAttachImageBtn = document.getElementById('dmAttachImageBtn');
-    const dmImageInput = document.getElementById('dmImageInput');
-    
-    if (dmAttachImageBtn && dmImageInput) {
-        dmAttachImageBtn.addEventListener('click', () => {
-            dmImageInput.click();
-        });
-        
-        dmImageInput.addEventListener('change', handleDmImageSelect);
-    }
-    
+// Function to setup all DM media buttons (can be called multiple times)
+function setupDmMediaButtons() {
     // Setup GIF button
     const dmGifBtn = document.getElementById('dmGifBtn');
     if (dmGifBtn) {
-        dmGifBtn.addEventListener('click', toggleDmGifPicker);
+        // Remove old listener if exists
+        dmGifBtn.replaceWith(dmGifBtn.cloneNode(true));
+        const newDmGifBtn = document.getElementById('dmGifBtn');
+        if (newDmGifBtn) {
+            newDmGifBtn.addEventListener('click', toggleDmGifPicker);
+        }
     }
     
     // Setup Sticker button
     const dmStickerBtn = document.getElementById('dmStickerBtn');
     if (dmStickerBtn) {
-        dmStickerBtn.addEventListener('click', toggleDmStickerPicker);
+        dmStickerBtn.replaceWith(dmStickerBtn.cloneNode(true));
+        const newDmStickerBtn = document.getElementById('dmStickerBtn');
+        if (newDmStickerBtn) {
+            newDmStickerBtn.addEventListener('click', toggleDmStickerPicker);
+        }
     }
     
     // Setup Emoji button
     const dmEmojiBtn = document.getElementById('dmEmojiBtn');
     if (dmEmojiBtn) {
-        dmEmojiBtn.addEventListener('click', toggleDmEmojiPicker);
+        dmEmojiBtn.replaceWith(dmEmojiBtn.cloneNode(true));
+        const newDmEmojiBtn = document.getElementById('dmEmojiBtn');
+        if (newDmEmojiBtn) {
+            newDmEmojiBtn.addEventListener('click', toggleDmEmojiPicker);
+        }
     }
     
-    // Setup GIF search
+    // Setup Attachment button
+    const dmAttachImageBtn = document.getElementById('dmAttachImageBtn');
+    const dmImageInput = document.getElementById('dmImageInput');
+    
+    if (dmAttachImageBtn && dmImageInput) {
+        dmAttachImageBtn.replaceWith(dmAttachImageBtn.cloneNode(true));
+        const newDmAttachImageBtn = document.getElementById('dmAttachImageBtn');
+        if (newDmAttachImageBtn) {
+            newDmAttachImageBtn.addEventListener('click', () => {
+                dmImageInput.click();
+            });
+        }
+        
+        // Re-attach change listener to image input
+        dmImageInput.replaceWith(dmImageInput.cloneNode(true));
+        const newDmImageInput = document.getElementById('dmImageInput');
+        if (newDmImageInput) {
+            newDmImageInput.addEventListener('change', handleDmImageSelect);
+        }
+    }
+}
+
+function setupDmAttachments() {
+    setupDmMediaButtons();
+    
+    // Setup GIF search (this persists in the modal, so only setup once)
     const dmGifSearch = document.getElementById('dmGifSearch');
-    if (dmGifSearch) {
+    if (dmGifSearch && !dmGifSearch.hasAttribute('data-listener-attached')) {
+        dmGifSearch.setAttribute('data-listener-attached', 'true');
         let searchTimeout;
         dmGifSearch.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);

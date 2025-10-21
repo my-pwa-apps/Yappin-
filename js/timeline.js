@@ -168,7 +168,9 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     yapElement.dataset.yapId = yapData.id;
     
     // Defensive: fallback for missing data and escape HTML
-    const username = (yapData.username || yapData.displayName || 'anonymous').replace(/[<>"']/g, '');
+    const username = (yapData.username || 'anonymous').replace(/[<>"']/g, '');
+    const displayName = yapData.displayName ? yapData.displayName.replace(/[<>"']/g, '') : null;
+    const displayText = displayName || `@${username}`;
     const content = yapData.text || yapData.content || '';  // Support both 'text' (new) and 'content' (legacy)
     const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
     const avatar = (yapData.userPhotoURL || generateRandomAvatar(yapData.uid || username)).replace(/["'<>]/g, '');
@@ -178,10 +180,11 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
         <div class="yap-header">
             <div class="yap-user">
                 <div class="yap-avatar">
-                    <img src="${avatar}" alt="${username}" onerror="this.src='./images/default-avatar.svg'" loading="lazy">
+                    <img src="${avatar}" alt="${displayText}" onerror="this.src='./images/default-avatar.svg'" loading="lazy">
                 </div>
                 <div class="yap-user-info">
-                    <span class="username">@${username}</span>
+                    <span class="display-name">${displayText}</span>
+                    ${displayName ? `<span class="username-secondary">@${username}</span>` : ''}
                     <span class="time">· ${formattedTime}</span>
                 </div>
             </div>

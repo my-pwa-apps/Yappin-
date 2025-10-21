@@ -662,9 +662,22 @@ main {
     font-size: 14px;
 }
 
+.yap-user-info span.display-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 15px;
+}
+
 .yap-user-info span.username {
     font-weight: 700;
     color: var(--text-primary);
+}
+
+.yap-user-info span.username-secondary {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-left: 4px;
 }
 
 .yap-content {

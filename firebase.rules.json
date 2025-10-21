@@ -18,6 +18,10 @@
           ".read": "auth != null",
           ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 20"
         },
+        "displayName": {
+          ".read": "auth != null",
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 50"
+        },
         "photoURL": {
           ".read": "auth != null"
         },

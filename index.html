@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/optimized.css">
     <link rel="stylesheet" href="css/enhancements.css">
+    <link rel="stylesheet" href="css/material-design.css">
     
     <!-- PWA -->
     <link rel="manifest" href="./manifest.json">
@@ -31,7 +32,10 @@
     <!-- Fonts: Display swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&family=Comfortaa:wght@600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- Material Design Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    
+    <!-- Font Awesome (keeping for backwards compatibility during transition) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -65,8 +69,8 @@
                 
                 <form id="loginForm" class="auth-form">
                     <div class="form-group">
-                        <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" autocomplete="email" required>
+                        <label for="loginEmail">Username or Email</label>
+                        <input type="text" id="loginEmail" autocomplete="username" placeholder="username or email@example.com" required>
                     </div>
                     <div class="form-group">
                         <label for="loginPassword">Password</label>
@@ -269,8 +273,28 @@
                         <button class="close-btn" onclick="closeProfileModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="modal-body modal-body-padding">
-                        <!-- Profile Picture Section -->
+                        <!-- Profile Info Section -->
                         <div class="settings-section">
+                            <h3 class="settings-section-title">Profile Information</h3>
+                            <div class="profile-info-form">
+                                <div class="form-group">
+                                    <label for="displayNameInput">Display Name</label>
+                                    <input type="text" id="displayNameInput" class="input-field" placeholder="Your display name" maxlength="50">
+                                    <p class="input-hint">This is how your name appears to others. If not set, your username is shown.</p>
+                                </div>
+                                <div class="form-group">
+                                    <label for="usernameDisplay">Username</label>
+                                    <input type="text" id="usernameDisplay" class="input-field" disabled readonly>
+                                    <p class="input-hint">Your unique @username cannot be changed.</p>
+                                </div>
+                                <button onclick="updateDisplayName()" class="btn primary-btn full-width-btn">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile Picture Section -->
+                        <div class="settings-section privacy-divider">
                             <h3 class="settings-section-title">Profile Picture</h3>
                             <div class="profile-picture-container">
                                 <img id="profilePicturePreview" src="./images/default-avatar.png" alt="Profile" class="profile-picture-preview">

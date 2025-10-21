@@ -555,11 +555,13 @@ function createYap(textarea) {
     // Get user data - only read accessible fields
     Promise.all([
         database.ref(`users/${auth.currentUser.uid}/username`).once('value'),
+        database.ref(`users/${auth.currentUser.uid}/displayName`).once('value'),
         database.ref(`users/${auth.currentUser.uid}/photoURL`).once('value')
     ])
-        .then(([usernameSnap, photoSnap]) => {
+        .then(([usernameSnap, displayNameSnap, photoSnap]) => {
             const userData = {
                 username: usernameSnap.val(),
+                displayName: displayNameSnap.val(),
                 photoURL: photoSnap.val()
             };
             if (!userData.username) {
@@ -577,13 +579,18 @@ function createYap(textarea) {
             // Create yap object (using 'text' to match Firebase rules)
             const yapData = {
                 uid: auth.currentUser.uid,
-                username: userData.username || userData.displayName || 'anonymous',
+                username: userData.username || 'anonymous',
                 timestamp: Date.now(),
                 likes: 0,
                 reyaps: 0,
                 replies: 0,
                 userPhotoURL: userData.photoURL || generateRandomAvatar(auth.currentUser.uid)
             };
+            
+            // Add displayName if set
+            if (userData.displayName) {
+                yapData.displayName = userData.displayName;
+            }
             
             // Add text only if not empty
             if (content) {
@@ -1330,7 +1337,7 @@ window.showProfile = function() {
     
     toggleModal(profileModal, true);
     
-    // Load current user's profile picture
+    // Load current user's profile data
     const user = auth.currentUser;
     if (user) {
         const profilePicturePreview = document.getElementById('profilePicturePreview');
@@ -1338,17 +1345,68 @@ window.showProfile = function() {
             profilePicturePreview.src = user.photoURL;
         }
         
-        // Load privacy setting
-        database.ref(`users/${user.uid}/privacy`).once('value').then(snapshot => {
-            const privacy = snapshot.val() || 'public';
+        // Load user data from database
+        Promise.all([
+            database.ref(`users/${user.uid}/displayName`).once('value'),
+            database.ref(`users/${user.uid}/username`).once('value'),
+            database.ref(`users/${user.uid}/privacy`).once('value')
+        ]).then(([displayNameSnap, usernameSnap, privacySnap]) => {
+            // Set display name
+            const displayNameInput = document.getElementById('displayNameInput');
+            if (displayNameInput) {
+                displayNameInput.value = displayNameSnap.val() || '';
+            }
+            
+            // Set username (readonly)
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            if (usernameDisplay) {
+                usernameDisplay.value = '@' + (usernameSnap.val() || '');
+            }
+            
+            // Set privacy setting
+            const privacy = privacySnap.val() || 'public';
             const checkbox = document.getElementById('requireApprovalCheckbox');
             if (checkbox) {
                 checkbox.checked = (privacy === 'private');
             }
         }).catch(error => {
-            console.error('[ERROR] Failed to load privacy setting:', error);
+            console.error('[ERROR] Failed to load profile data:', error);
         });
     }
+};
+
+window.updateDisplayName = function() {
+    const user = auth.currentUser;
+    if (!user) {
+        showSnackbar('Please sign in to update your profile', 'error');
+        return;
+    }
+    
+    const displayNameInput = document.getElementById('displayNameInput');
+    if (!displayNameInput) return;
+    
+    const displayName = displayNameInput.value.trim();
+    
+    // Validate display name
+    if (displayName && (displayName.length < 1 || displayName.length > 50)) {
+        showSnackbar('Display name must be 1-50 characters', 'error');
+        return;
+    }
+    
+    // Update in database
+    const updates = {};
+    if (displayName) {
+        updates[`users/${user.uid}/displayName`] = displayName;
+    } else {
+        updates[`users/${user.uid}/displayName`] = null; // Remove if empty
+    }
+    
+    database.ref().update(updates).then(() => {
+        showSnackbar('Display name updated successfully', 'success');
+    }).catch(error => {
+        console.error('[ERROR] Failed to update display name:', error);
+        showSnackbar('Failed to update display name', 'error');
+    });
 };
 
 window.closeProfileModal = function() {
