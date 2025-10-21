@@ -737,14 +737,24 @@ main {
 .action-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-xs);
     color: var(--text-secondary);
     transition: color var(--transition-fast);
+    min-width: 60px;
 }
 
 .action-btn:hover {
     color: var(--primary-color);
     text-decoration: none;
+}
+
+.action-btn.message {
+    color: var(--primary-color);
+}
+
+.action-btn.message:hover {
+    color: var(--primary-hover);
 }
 
 .action-btn.comment:hover {
@@ -1834,4 +1844,243 @@ body.dark-mode .slider {
 
 body.dark-mode input:checked + .slider {
     background-color: #66BB6A;
+}
+
+/* ========================================
+   GIF & STICKER PICKERS
+   ======================================== */
+
+.gif-picker,
+.sticker-picker {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    max-width: 500px;
+    margin: 0 auto 10px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.gif-picker.hidden,
+.sticker-picker.hidden {
+    display: none;
+}
+
+/* GIF Picker Styles */
+.gif-picker {
+    padding: 0;
+}
+
+.gif-picker-header,
+.sticker-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+    gap: 10px;
+}
+
+.sticker-picker-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.gif-picker-header .close-btn,
+.sticker-picker-header .close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.gif-picker-header .close-btn:hover,
+.sticker-picker-header .close-btn:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+#gifSearch {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color var(--transition-fast);
+}
+
+#gifSearch:focus {
+    border-color: var(--primary-color);
+}
+
+#gifResults {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 320px;
+    padding: 12px;
+}
+
+.gif-item {
+    aspect-ratio: 1;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    background: var(--bg-secondary);
+}
+
+.gif-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.gif-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* GIF display in timeline */
+.yap-gif {
+    border-radius: 8px;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Sticker Picker Styles */
+.sticker-picker {
+    padding: 0;
+}
+
+#stickerGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 360px;
+    padding: 12px;
+}
+
+.sticker-item {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+    padding: 0;
+}
+
+.sticker-item:hover {
+    transform: scale(1.15);
+    background: var(--bg-secondary);
+    border-color: var(--primary-color);
+}
+
+.sticker-item:active {
+    transform: scale(1.05);
+}
+
+/* Loading and error states */
+.loading-text,
+.error-text,
+.no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.error-text {
+    color: var(--error-color);
+}
+
+/* GIF button styling */
+#gifBtn,
+#stickerBtn {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gifBtn:hover,
+#stickerBtn:hover {
+    background: var(--bg-secondary);
+}
+
+#gifBtn i,
+#stickerBtn i {
+    font-size: 18px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .gif-picker,
+    .sticker-picker {
+        max-width: calc(100vw - 20px);
+        max-height: 300px;
+    }
+    
+    #gifResults {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        max-height: 240px;
+    }
+    
+    #stickerGrid {
+        grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+        max-height: 260px;
+    }
+    
+    .sticker-item {
+        font-size: 28px;
+    }
+}
+
+/* Dark mode overrides */
+body.dark-mode #gifSearch {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode #gifSearch::placeholder {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .gif-item,
+body.dark-mode .sticker-item:hover {
+    background: var(--bg-secondary);
 }

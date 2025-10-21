@@ -274,10 +274,30 @@ window.sendMessage = function() {
 
         return database.ref().update(updates);
     }).then(() => {
+        // Clear input immediately
         messageInput.value = '';
+        
+        // Optionally display own message immediately (will also come via listener)
+        const tempMessage = {
+            senderId: user.uid,
+            text: text,
+            timestamp: Date.now()
+        };
+        displayMessage(tempMessage);
+        
+        // Scroll to bottom
+        const conversationMessages = document.getElementById('conversationMessages');
+        if (conversationMessages) {
+            conversationMessages.scrollTop = conversationMessages.scrollHeight;
+        }
+        
+        // Update badge for the sender
         updateMessagesBadge();
+        
+        // Focus back on input for quick reply
+        messageInput.focus();
     }).catch(error => {
-        console.error('[ERROR] Failed to send message:', error);
+        console.error('Failed to send message:', error);
         showSnackbar('Failed to send message', 'error');
     });
 };
@@ -392,14 +412,55 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Request notification permission for OS notifications
+function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+}
+
+// Show OS notification for new message (only when app is in background)
+function showMessageNotification(fromUsername, messageText) {
+    // Only show if user is not currently in the conversation
+    if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+        const notification = new Notification(`New message from @${fromUsername}`, {
+            body: messageText,
+            icon: './images/icons/icon-192x192.png',
+            badge: './images/icons/icon-192x192.png',
+            tag: 'yappin-message',
+            requireInteraction: false
+        });
+
+        notification.onclick = function() {
+            window.focus();
+            this.close();
+        };
+    }
+}
+
 // Initialize messaging when user is authenticated
 auth.onAuthStateChanged((user) => {
     if (user) {
         updateMessagesBadge();
         
-        // Listen for new messages to update badge
+        // Request notification permission on first login
+        requestNotificationPermission();
+        
+        // Set up real-time listener for new messages to update badge and show notifications
         database.ref(`conversations/${user.uid}`).on('value', () => {
             updateMessagesBadge();
+        });
+        
+        // Listen for new messages across all conversations for OS notifications
+        database.ref(`conversations/${user.uid}`).on('child_changed', (snapshot) => {
+            const conversation = snapshot.val();
+            if (conversation && conversation.unreadCount > 0 && conversation.lastMessage) {
+                // Show OS notification only if app is in background
+                database.ref(`users/${conversation.otherUserId}/username`).once('value').then(usernameSnap => {
+                    const username = usernameSnap.val() || 'Someone';
+                    showMessageNotification(username, conversation.lastMessage);
+                });
+            }
         });
     }
 });

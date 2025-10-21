@@ -130,7 +130,7 @@ darkModeMediaQuery.addEventListener('change', (e) => {
 window.toggleDarkMode = function() {
     const isDarkMode = darkModeToggle.checked;
     applyTheme(isDarkMode);
-    showSnackbar(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success');
+    // Theme change is obvious, no need for notification
 }
 
 // Apply theme on page load
@@ -403,6 +403,7 @@ window.removeImage = function(index) {
 // Clear all images
 function clearImages() {
     selectedImages = [];
+    selectedGifUrl = null;
     renderImagePreviews();
     if (imageInput) imageInput.value = '';
 }
@@ -722,13 +723,20 @@ function createYap(textarea) {
 }
 
 // Convert images to base64 (no Firebase Storage needed)
-function uploadMediaFiles(files) {
+function uploadMediaFiles(mediaItems) {
     const promises = [];
     
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+    for (let i = 0; i < mediaItems.length; i++) {
+        const item = mediaItems[i];
         
-        // Convert to base64
+        // If it's a GIF URL, just return it as-is
+        if (item.type === 'gif') {
+            promises.push(Promise.resolve({ type: 'gif', url: item.url }));
+            continue;
+        }
+        
+        // Otherwise it's an image file - convert to base64
+        const file = item.file || item;
         promises.push(new Promise((resolve, reject) => {
             const reader = new FileReader();
             
@@ -758,7 +766,7 @@ function uploadMediaFiles(files) {
                     
                     // Convert to base64 with compression (0.8 quality)
                     const base64 = canvas.toDataURL('image/jpeg', 0.8);
-                    resolve(base64);
+                    resolve({ type: 'image', url: base64 });
                 };
                 
                 img.onerror = () => reject(new Error('Failed to load image'));
@@ -773,10 +781,21 @@ function uploadMediaFiles(files) {
     return Promise.all(promises);
 }
 
-// Get attached media files
+// Get attached media files and GIFs
 function getMediaAttachments() {
-    // Return selected images as File objects
-    return selectedImages.map(img => img.file);
+    const attachments = [];
+    
+    // Add image files
+    selectedImages.forEach(img => {
+        attachments.push({ type: 'image', file: img.file });
+    });
+    
+    // Add GIF if selected
+    if (selectedGifUrl) {
+        attachments.push({ type: 'gif', url: selectedGifUrl });
+    }
+    
+    return attachments;
 }
 
 // Extract @mentions from content
@@ -1694,3 +1713,266 @@ window.showConfirmModal = function(title, message, confirmText = 'Confirm', canc
         toggleModal(confirmModal, true);
     });
 };
+
+// ========================================
+// GIF & STICKER FUNCTIONALITY
+// ========================================
+
+// Tenor API (free GIF API, no key needed for basic usage)
+const TENOR_API_KEY = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ'; // Free demo key
+const TENOR_API_URL = 'https://tenor.googleapis.com/v2';
+
+let selectedGifUrl = null;
+let selectedStickerUrl = null;
+
+// GIF Picker
+const gifBtn = document.getElementById('gifBtn');
+const gifPicker = document.getElementById('gifPicker');
+const gifSearch = document.getElementById('gifSearch');
+const gifResults = document.getElementById('gifResults');
+
+if (gifBtn) {
+    gifBtn.addEventListener('click', () => {
+        toggleGifPicker();
+    });
+}
+
+function toggleGifPicker() {
+    if (!gifPicker) return;
+    
+    const isHidden = gifPicker.classList.contains('hidden');
+    
+    // Close other pickers
+    closeStickerPicker();
+    if (emojiPickerElement) emojiPickerElement.classList.add('hidden');
+    
+    if (isHidden) {
+        gifPicker.classList.remove('hidden');
+        loadTrendingGifs();
+        if (gifSearch) gifSearch.focus();
+    } else {
+        gifPicker.classList.add('hidden');
+    }
+}
+
+window.closeGifPicker = function() {
+    if (gifPicker) gifPicker.classList.add('hidden');
+};
+
+function loadTrendingGifs() {
+    if (!gifResults) return;
+    
+    gifResults.innerHTML = '<div class="loading-text">Loading trending GIFs...</div>';
+    
+    fetch(`${TENOR_API_URL}/featured?key=${TENOR_API_KEY}&client_key=yappin&limit=20`)
+        .then(response => response.json())
+        .then(data => {
+            displayGifs(data.results);
+        })
+        .catch(error => {
+            console.error('Failed to load GIFs:', error);
+            gifResults.innerHTML = '<div class="error-text">Failed to load GIFs</div>';
+        });
+}
+
+function searchGifs(query) {
+    if (!query || !gifResults) return;
+    
+    gifResults.innerHTML = '<div class="loading-text">Searching...</div>';
+    
+    fetch(`${TENOR_API_URL}/search?q=${encodeURIComponent(query)}&key=${TENOR_API_KEY}&client_key=yappin&limit=20`)
+        .then(response => response.json())
+        .then(data => {
+            displayGifs(data.results);
+        })
+        .catch(error => {
+            console.error('Failed to search GIFs:', error);
+            gifResults.innerHTML = '<div class="error-text">Search failed</div>';
+        });
+}
+
+function displayGifs(gifs) {
+    if (!gifResults) return;
+    
+    if (!gifs || gifs.length === 0) {
+        gifResults.innerHTML = '<div class="no-results">No GIFs found</div>';
+        return;
+    }
+    
+    gifResults.innerHTML = '';
+    
+    gifs.forEach(gif => {
+        const gifElement = document.createElement('div');
+        gifElement.className = 'gif-item';
+        
+        const img = document.createElement('img');
+        img.src = gif.media_formats.tinygif.url;
+        img.alt = gif.content_description || 'GIF';
+        img.loading = 'lazy';
+        
+        gifElement.appendChild(img);
+        
+        gifElement.addEventListener('click', () => {
+            selectGif(gif.media_formats.gif.url);
+        });
+        
+        gifResults.appendChild(gifElement);
+    });
+}
+
+function selectGif(gifUrl) {
+    selectedGifUrl = gifUrl;
+    
+    // Add to image preview
+    const container = imagePreviewContainer || document.getElementById('imagePreviewContainer');
+    if (container) {
+        container.classList.remove('hidden');
+        
+        const preview = document.createElement('div');
+        preview.className = 'image-preview';
+        preview.innerHTML = `
+            <img src="${gifUrl}" alt="Selected GIF">
+            <button class="remove-image" onclick="removeGif()" aria-label="Remove GIF">×</button>
+        `;
+        
+        container.appendChild(preview);
+    }
+    
+    closeGifPicker();
+    showSnackbar('GIF added!', 'success');
+}
+
+window.removeGif = function() {
+    selectedGifUrl = null;
+    updateImagePreviews();
+};
+
+// Debounce GIF search
+let gifSearchTimeout;
+if (gifSearch) {
+    gifSearch.addEventListener('input', (e) => {
+        clearTimeout(gifSearchTimeout);
+        const query = e.target.value.trim();
+        
+        if (query.length < 2) {
+            loadTrendingGifs();
+            return;
+        }
+        
+        gifSearchTimeout = setTimeout(() => {
+            searchGifs(query);
+        }, 500);
+    });
+}
+
+// Sticker Picker
+const stickerBtn = document.getElementById('stickerBtn');
+const stickerPicker = document.getElementById('stickerPicker');
+const stickerGrid = document.getElementById('stickerGrid');
+
+// Predefined stickers (emoji-style)
+const stickers = [
+    '🎉', '🎊', '🎈', '🎁', '🏆', '🥇', '🌟', '⭐',
+    '✨', '💫', '💥', '💢', '💦', '💨', '🔥', '⚡',
+    '🌈', '☀️', '🌙', '⛅', '☁️', '🌊', '❄️', '⛄',
+    '🎵', '🎶', '🎤', '🎧', '🎸', '🎹', '🎺', '🎻',
+    '🍕', '🍔', '🍟', '🌭', '🍿', '🧈', '🍞', '🥐',
+    '🎂', '🍰', '🧁', '🍪', '🍩', '🍫', '🍬', '🍭',
+    '☕', '🍵', '🥤', '🧃', '🧋', '🍷', '🍺', '🍻',
+    '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🥏',
+    '🎮', '🕹️', '👾', '🎯', '🎲', '🎰', '🎳', '🎪',
+    '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑',
+    '✈️', '🚀', '🛸', '🚁', '⛵', '🚤', '🛥️', '⛴️',
+    '🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨',
+    '💕', '💞', '💓', '💗', '💖', '💘', '💝', '❤️',
+    '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎',
+    '👍', '👎', '👊', '✊', '🤝', '👏', '🙌', '🙏',
+    '💪', '🦾', '🤳', '✍️', '🤙', '🤘', '🤟', '✌️'
+];
+
+if (stickerBtn) {
+    stickerBtn.addEventListener('click', () => {
+        toggleStickerPicker();
+    });
+}
+
+function toggleStickerPicker() {
+    if (!stickerPicker) return;
+    
+    const isHidden = stickerPicker.classList.contains('hidden');
+    
+    // Close other pickers
+    closeGifPicker();
+    if (emojiPickerElement) emojiPickerElement.classList.add('hidden');
+    
+    if (isHidden) {
+        stickerPicker.classList.remove('hidden');
+        loadStickers();
+    } else {
+        stickerPicker.classList.add('hidden');
+    }
+}
+
+window.closeStickerPicker = function() {
+    if (stickerPicker) stickerPicker.classList.add('hidden');
+};
+
+function loadStickers() {
+    if (!stickerGrid) return;
+    
+    stickerGrid.innerHTML = '';
+    
+    stickers.forEach(sticker => {
+        const stickerElement = document.createElement('button');
+        stickerElement.className = 'sticker-item';
+        stickerElement.textContent = sticker;
+        stickerElement.title = `Add ${sticker} sticker`;
+        
+        stickerElement.addEventListener('click', () => {
+            insertSticker(sticker);
+        });
+        
+        stickerGrid.appendChild(stickerElement);
+    });
+}
+
+function insertSticker(sticker) {
+    const activeTextarea = yapText && !yapText.closest('.hidden') ? yapText : modalYapText;
+    
+    if (activeTextarea) {
+        const start = activeTextarea.selectionStart;
+        const end = activeTextarea.selectionEnd;
+        const text = activeTextarea.value;
+        
+        // Insert sticker at cursor position with spaces
+        const before = text.substring(0, start);
+        const after = text.substring(end);
+        activeTextarea.value = before + ` ${sticker} ` + after;
+        
+        // Update cursor position
+        const newPosition = start + sticker.length + 2;
+        activeTextarea.selectionStart = newPosition;
+        activeTextarea.selectionEnd = newPosition;
+        activeTextarea.focus();
+        
+        // Update character count
+        const countElement = activeTextarea === yapText ? characterCount : modalCharacterCount;
+        if (countElement) {
+            updateCharacterCount(activeTextarea, countElement);
+        }
+    }
+    
+    closeStickerPicker();
+}
+
+// Update createYap to handle GIFs
+function getMediaAttachments() {
+    const attachments = [...selectedImages];
+    
+    // Add GIF if selected
+    if (selectedGifUrl) {
+        attachments.push({ type: 'gif', url: selectedGifUrl });
+    }
+    
+    return attachments;
+}

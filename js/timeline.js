@@ -194,7 +194,16 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
             ${content ? formatYapContent(content) : ''}
             ${yapData.media && yapData.media.length > 0 ? `
                 <div class="yap-media-grid ${yapData.media.length === 1 ? 'single' : yapData.media.length === 2 ? 'double' : yapData.media.length === 3 ? 'triple' : 'quad'}">
-                    ${yapData.media.map(url => `<img src="${url}" alt="Yap media" loading="lazy" onerror="this.style.display='none'">`).join('')}
+                    ${yapData.media.map(mediaItem => {
+                        // Handle both old format (string URLs) and new format (objects)
+                        if (typeof mediaItem === 'string') {
+                            return `<img src="${mediaItem}" alt="Yap media" loading="lazy" onerror="this.style.display='none'">`;
+                        } else if (mediaItem.type === 'gif') {
+                            return `<img src="${mediaItem.url}" alt="GIF" class="yap-gif" loading="lazy" onerror="this.style.display='none'">`;
+                        } else {
+                            return `<img src="${mediaItem.url}" alt="Yap media" loading="lazy" onerror="this.style.display='none'">`;
+                        }
+                    }).join('')}
                 </div>
             ` : ''}
         </div>
