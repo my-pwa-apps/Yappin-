@@ -1,12 +1,5 @@
 // Timeline functionality - Optimized version
-
-// Use performance utilities (with fallbacks)
-const Logger = window.PerformanceUtils?.Logger || console;
-const debounce = window.PerformanceUtils?.debounce || ((fn) => fn);
-const throttle = window.PerformanceUtils?.throttle || ((fn) => fn);
-const markPerformance = window.PerformanceUtils?.markPerformance || (() => {});
-const measurePerformance = window.PerformanceUtils?.measurePerformance || (() => {});
-const rafBatch = window.PerformanceUtils?.rafBatch || ((fn) => fn());
+// Performance utilities accessed via window.PerformanceUtils
 
 // Helper function to generate random avatar (uses cache from app.js if available)
 function generateRandomAvatar(seed) {
@@ -42,7 +35,7 @@ function loadTimeline(loadMore = false) {
     }
     
     if (!yapsContainer) {
-        Logger?.error('Yaps container element not found');
+        (window.PerformanceUtils?.Logger || console).error('Yaps container element not found');
         return;
     }
 
@@ -155,7 +148,7 @@ function loadTimeline(loadMore = false) {
             }
         })
         .catch(error => {
-            Logger?.error('Error loading timeline:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error loading timeline:', error);
             if (!loadMore) {
                 yapsContainer.innerHTML = `<p class="error">Error loading Yaps: ${error.message}</p>`;
             }
@@ -167,7 +160,7 @@ function loadTimeline(loadMore = false) {
 function createYapElement(yapData, isLiked = false, isReyapped = false) {
     // Validate yapData
     if (!yapData || !yapData.id) {
-        Logger?.error('Invalid yap data provided to createYapElement:', yapData);
+        (window.PerformanceUtils?.Logger || console).error('Invalid yap data provided to createYapElement:', yapData);
         return document.createElement('div'); // Return empty div
     }
     
@@ -263,7 +256,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 likesCount.textContent = (parseInt(likesCount.textContent) - 1).toString();
             }
         }).catch(error => {
-            Logger?.error('Like error:', error);
+            (window.PerformanceUtils?.Logger || console).error('Like error:', error);
             showSnackbar('Failed to update like', 'error');
         });
     });
@@ -284,7 +277,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 reyapsCount.textContent = (parseInt(reyapsCount.textContent) - 1).toString();
             }
         }).catch(error => {
-            Logger?.error('Reyap error:', error);
+            (window.PerformanceUtils?.Logger || console).error('Reyap error:', error);
             showSnackbar('Failed to update reyap', 'error');
         });
     });
@@ -308,7 +301,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 .then(() => showSnackbar('Shared successfully', 'success'))
                 .catch(error => {
                     if (error.name !== 'AbortError') { // User cancelled
-                        Logger?.error('Error sharing:', error);
+                        (window.PerformanceUtils?.Logger || console).error('Error sharing:', error);
                         showSnackbar('Error sharing', 'error');
                     }
                 });
@@ -350,7 +343,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 
                 // Debug: Log follow status for troubleshooting
                 if (iFollow || theyFollow) {
-                    Logger?.log(`[Message Button] ${yapData.username}: I follow=${iFollow}, They follow=${theyFollow}`);
+                    (window.PerformanceUtils?.Logger || console).log(`[Message Button] ${yapData.username}: I follow=${iFollow}, They follow=${theyFollow}`);
                 }
                 
                 // Show message button only if mutual follow
@@ -358,7 +351,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                     messageBtn.classList.remove('hidden');
                 }
             }).catch(error => {
-                Logger?.error('Failed to check mutual follow status:', error);
+                (window.PerformanceUtils?.Logger || console).error('Failed to check mutual follow status:', error);
             });
         }
     }
@@ -482,7 +475,7 @@ function deleteYap(yapId, yapUid) {
         }
         showSnackbar('Yap deleted successfully', 'success');
     }).catch(error => {
-        Logger?.error('Error deleting yap:', error);
+        (window.PerformanceUtils?.Logger || console).error('Error deleting yap:', error);
         showSnackbar('Error deleting yap: ' + error.message, 'error');
     });
 }
@@ -671,7 +664,7 @@ function loadModalSuggestedUsers() {
                 });
         })
         .catch(error => {
-            Logger?.error('Error loading suggested users:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error loading suggested users:', error);
             suggestionsContainer.innerHTML = '<p class="error">Error loading suggestions. Please try again.</p>';
         });
 }
@@ -687,7 +680,7 @@ function openReplyModal(replyToYapId, replyToUsername, replyToContent) {
     const modalYapText = document.getElementById('modalYapText');
     
     if (!composeModal || !modalYapText) {
-        Logger?.error('Compose modal elements not found');
+        (window.PerformanceUtils?.Logger || console).error('Compose modal elements not found');
         return;
     }
     

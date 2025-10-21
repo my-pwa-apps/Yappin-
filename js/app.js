@@ -1,11 +1,5 @@
 // Main App Script
-
-// Use performance utilities (with fallbacks)
-const Logger = window.PerformanceUtils?.Logger || console;
-const getCachedQuery = window.PerformanceUtils?.getCachedQuery || (() => null);
-const setCachedQuery = window.PerformanceUtils?.setCachedQuery || (() => {});
-const debounce = window.PerformanceUtils?.debounce || ((fn) => fn);
-const throttle = window.PerformanceUtils?.throttle || ((fn) => fn);
+// Performance utilities accessed via window.PerformanceUtils
 
 // Performance Optimization: Cache frequently accessed user data
 const userDataCache = new Map();
@@ -190,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function showSnackbar(message, type = 'default', duration = 3000) {
     const snackbar = document.getElementById('snackbar');
     if (!snackbar) {
-        Logger?.warn('Snackbar element not found');
+        (window.PerformanceUtils?.Logger || console).warn('Snackbar element not found');
         return;
     }
     
@@ -530,7 +524,7 @@ function clearDraft() {
 function createYap(textarea) {
     // Validate textarea element
     if (!textarea) {
-        Logger?.error('Invalid textarea element provided to createYap');
+        (window.PerformanceUtils?.Logger || console).error('Invalid textarea element provided to createYap');
         return;
     }
     
@@ -659,7 +653,7 @@ function createYap(textarea) {
                     if (originalAuthorId && typeof notifyReply === 'function') {
                         notifyReply(replyToId, originalAuthorId, auth.currentUser.uid, content);
                     }
-                }).catch(err => Logger?.error('[ERROR] Failed to notify reply:', err));
+                }).catch(err => (window.PerformanceUtils?.Logger || console).error('[ERROR] Failed to notify reply:', err));
             }
             
             // Extract hashtags for trending
@@ -727,7 +721,7 @@ function createYap(textarea) {
             }
         })
         .catch(error => {
-            Logger?.error('Error posting yap:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error posting yap:', error);
             showSnackbar(`Error: ${error.message}`, 'error');
         })
         .finally(() => {
@@ -974,7 +968,7 @@ function toggleLike(yapId) {
             }
         })
         .catch(error => {
-            Logger?.error('Error toggling like:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error toggling like:', error);
             showSnackbar(`Error: ${error.message}`, 'error');
         });
 }
@@ -1026,7 +1020,7 @@ function toggleReyap(yapId) {
             }
         })
         .catch(error => {
-            Logger?.error('Error toggling reyap:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error toggling reyap:', error);
             showSnackbar(`Error: ${error.message}`, 'error');
         });
 }
@@ -1123,7 +1117,7 @@ function saveBookmarks(bookmarks) {
 // This function is replaced by performSearch() which correctly uses the usernames index
 // Kept here for reference only - do not call this function
 function handleSearch() {
-    Logger?.warn('handleSearch() is deprecated - use performSearch() instead');
+    (window.PerformanceUtils?.Logger || console).warn('handleSearch() is deprecated - use performSearch() instead');
     return;
 }
 
@@ -1225,15 +1219,6 @@ function showNewFeaturesNotification() {
     }
 }
 
-// Debounce utility function to limit how often a function is called
-function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
-
 // Initialize bookmark system when the DOM is ready
 document.addEventListener('DOMContentLoaded', initBookmarkSystem);
 
@@ -1268,7 +1253,7 @@ function toggleFollow(userId) {
             showSnackbar('Follow status updated', 'success');
         })
         .catch(error => {
-            Logger?.error('Error toggling follow:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error toggling follow:', error);
             showSnackbar(`Error: ${error.message}`, 'error');
         });
 }
@@ -1377,7 +1362,7 @@ window.showProfile = function() {
                 checkbox.checked = (privacy === 'private');
             }
         }).catch(error => {
-            Logger?.error('[ERROR] Failed to load profile data:', error);
+            (window.PerformanceUtils?.Logger || console).error('[ERROR] Failed to load profile data:', error);
             showSnackbar('Could not load profile data. Please refresh.', 'error');
             
             // Set fallback values
@@ -1418,7 +1403,7 @@ window.updateDisplayName = function() {
     database.ref().update(updates).then(() => {
         showSnackbar('Display name updated successfully', 'success');
     }).catch(error => {
-        Logger?.error('[ERROR] Failed to update display name:', error);
+        (window.PerformanceUtils?.Logger || console).error('[ERROR] Failed to update display name:', error);
         showSnackbar('Failed to update display name', 'error');
     });
 };
@@ -1592,14 +1577,14 @@ function performSearch(query) {
                                 messageBtn.classList.remove('hidden');
                             }
                         }).catch(err => {
-                            Logger?.error('[ERROR] Failed to check follower status:', err);
+                            (window.PerformanceUtils?.Logger || console).error('[ERROR] Failed to check follower status:', err);
                         });
                     }
                 });
             });
         })
         .catch(error => {
-            Logger?.error('[ERROR] Search failed:', error);
+            (window.PerformanceUtils?.Logger || console).error('[ERROR] Search failed:', error);
             searchResults.innerHTML = '<p class="error-text">Search failed. Please try again.</p>';
         });
 }
@@ -1661,7 +1646,7 @@ window.followFromSearch = function(targetUserId) {
             });
         }
     }).catch(error => {
-        Logger?.error('[ERROR] Follow failed:', error);
+        (window.PerformanceUtils?.Logger || console).error('[ERROR] Follow failed:', error);
         showSnackbar('Follow failed', 'error');
     });
 };
@@ -1704,7 +1689,7 @@ window.unfollowFromSearch = async function(targetUserId) {
             btn.onclick = () => followFromSearch(targetUserId);
         }
     }).catch(error => {
-        Logger?.error('[ERROR] Unfollow failed:', error);
+        (window.PerformanceUtils?.Logger || console).error('[ERROR] Unfollow failed:', error);
         showSnackbar('Unfollow failed', 'error');
     });
 };
@@ -1842,7 +1827,7 @@ function loadTrendingGifs() {
             displayGifs(data.results);
         })
         .catch(error => {
-            Logger?.error('Failed to load GIFs:', error);
+            (window.PerformanceUtils?.Logger || console).error('Failed to load GIFs:', error);
             gifResults.innerHTML = '<div class="error-text">Failed to load GIFs</div>';
         });
 }
@@ -1858,7 +1843,7 @@ function searchGifs(query) {
             displayGifs(data.results);
         })
         .catch(error => {
-            Logger?.error('Failed to search GIFs:', error);
+            (window.PerformanceUtils?.Logger || console).error('Failed to search GIFs:', error);
             gifResults.innerHTML = '<div class="error-text">Search failed</div>';
         });
 }

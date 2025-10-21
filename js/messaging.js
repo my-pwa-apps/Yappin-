@@ -1,7 +1,5 @@
 // Direct Messaging System for Yappin'
-
-// Use performance utilities (with fallback)
-const Logger = window.PerformanceUtils?.Logger || console;
+// Performance utilities accessed via window.PerformanceUtils
 
 // Helper function to generate random avatar
 function generateRandomAvatar(seed) {
@@ -147,7 +145,7 @@ function updateConversationsList(conversationsList, conversations) {
 
             conversationsList.appendChild(conversationItem);
         }).catch(error => {
-            Logger?.error('[ERROR] Failed to load conversation:', error);
+            (window.PerformanceUtils?.Logger || console).error('[ERROR] Failed to load conversation:', error);
         });
     });
 }
@@ -264,7 +262,7 @@ function loadMessages(conversationId) {
             conversationMessages.scrollTop = conversationMessages.scrollHeight;
         });
     }).catch(error => {
-        Logger?.error('[ERROR] Failed to load messages:', error);
+        (window.PerformanceUtils?.Logger || console).error('[ERROR] Failed to load messages:', error);
         conversationMessages.innerHTML = '<p class="error-text">Failed to load messages</p>';
     });
 }
@@ -423,7 +421,7 @@ window.sendMessage = function() {
         // Focus back on input for quick reply
         messageInput.focus();
     }).catch(error => {
-        Logger?.error('Failed to send message:', error);
+        (window.PerformanceUtils?.Logger || console).error('Failed to send message:', error);
         showSnackbar('Failed to send message', 'error');
     });
 };
@@ -525,7 +523,7 @@ window.startConversation = function(otherUserId) {
             openConversation(conversationId, otherUserId);
         }, 200);
     }).catch(error => {
-        Logger?.error('Failed to start conversation:', error);
+        (window.PerformanceUtils?.Logger || console).error('Failed to start conversation:', error);
         showSnackbar('Failed to start conversation', 'error');
     });
 };
@@ -555,7 +553,7 @@ function updateMessagesBadge() {
             }
         }
     }).catch(error => {
-        Logger?.error('[ERROR] Failed to update messages badge:', error);
+        (window.PerformanceUtils?.Logger || console).error('[ERROR] Failed to update messages badge:', error);
     });
 }
 
@@ -818,7 +816,7 @@ function loadDmTrendingGifs() {
             displayDmGifs(data.results);
         })
         .catch(error => {
-            Logger?.error('Failed to load GIFs:', error);
+            (window.PerformanceUtils?.Logger || console).error('Failed to load GIFs:', error);
             results.innerHTML = '<div class="error-text">Failed to load GIFs</div>';
         });
 }
@@ -838,7 +836,7 @@ function searchDmGifs(query) {
             displayDmGifs(data.results);
         })
         .catch(error => {
-            Logger?.error('Failed to search GIFs:', error);
+            (window.PerformanceUtils?.Logger || console).error('Failed to search GIFs:', error);
             results.innerHTML = '<div class="error-text">Search failed</div>';
         });
 }

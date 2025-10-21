@@ -1,7 +1,5 @@
 // Authentication Controller
-
-// Use performance utilities (with fallback)
-const Logger = window.PerformanceUtils?.Logger || console;
+// Performance utilities accessed via window.PerformanceUtils
 
 // DOM Elements
 const authContainer = document.getElementById('authContainer');
@@ -37,7 +35,7 @@ auth.onAuthStateChanged(user => {
             })
             .catch(() => {
                 // Keep default icon on error
-                Logger?.warn('Could not load user avatar');
+                (window.PerformanceUtils?.Logger || console).warn('Could not load user avatar');
             });
         
         // Check if user profile exists, if not create one
@@ -176,7 +174,7 @@ loginForm.addEventListener('submit', (e) => {
             }
             
             showSnackbar(errorMessage, 'error');
-            Logger?.error('Login error:', error);
+            (window.PerformanceUtils?.Logger || console).error('Login error:', error);
         })
         .finally(() => {
             // Reset button state
@@ -312,7 +310,7 @@ signupForm.addEventListener('submit', (e) => {
             }
             
             showSnackbar(errorMessage, 'error', 5000);
-            Logger?.error('Signup error:', error);
+            (window.PerformanceUtils?.Logger || console).error('Signup error:', error);
         })
         .finally(() => {
             // Reset button state
@@ -325,7 +323,7 @@ signupForm.addEventListener('submit', (e) => {
 logoutBtn.addEventListener('click', () => {
     auth.signOut()
         .catch(error => {
-            Logger?.error('Logout error:', error);
+            (window.PerformanceUtils?.Logger || console).error('Logout error:', error);
             showSnackbar(`Error: ${error.message}`);
         });
 });
@@ -421,7 +419,7 @@ function createUserProfile(user, username) {
     
     return database.ref().update(updates)
         .catch(error => {
-            Logger?.error('Error creating user profile:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error creating user profile:', error);
             throw error;
         });
 }
@@ -439,7 +437,7 @@ function checkUserProfile(user) {
             return snapshot.val();
         })
         .catch(error => {
-            Logger?.error('Error checking user profile:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error checking user profile:', error);
         });
 }
 
@@ -454,7 +452,7 @@ window.showInviteCodes = function() {
     const codesList = document.getElementById('inviteCodesList');
     
     if (!modal) {
-        Logger?.error('[Invite] Modal not found!');
+        (window.PerformanceUtils?.Logger || console).error('[Invite] Modal not found!');
         showSnackbar('Error: Modal not found', 'error');
         return;
     }
@@ -544,7 +542,7 @@ window.showInviteCodes = function() {
             });
         })
         .catch(error => {
-            Logger?.error('[Invite] Error loading invite codes:', error);
+            (window.PerformanceUtils?.Logger || console).error('[Invite] Error loading invite codes:', error);
             codesList.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Error loading codes: ${error.message}</p>`;
             showSnackbar('Error loading invite codes', 'error');
         });
@@ -589,7 +587,7 @@ window.generateNewInviteCode = function() {
             showInviteCodes();
         })
         .catch(error => {
-            Logger?.error('Error generating invite code:', error);
+            (window.PerformanceUtils?.Logger || console).error('Error generating invite code:', error);
             showSnackbar('Error generating invite code', 'error');
         });
 };
@@ -691,7 +689,7 @@ window.uploadProfilePicture = function() {
                     }
                 })
                 .catch(error => {
-                    Logger?.error('Error updating profile picture:', error);
+                    (window.PerformanceUtils?.Logger || console).error('Error updating profile picture:', error);
                     showSnackbar('Error updating profile picture: ' + error.message, 'error');
                     if (uploadBtn) {
                         uploadBtn.disabled = false;
