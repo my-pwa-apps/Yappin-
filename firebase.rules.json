@@ -7,8 +7,8 @@
     "users": {
       ".indexOn": ["privacy"],
       "$uid": {
-        // Can read if: you're the owner, you follow them, OR they have a public account
-        ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
+        // Can read if: you're the owner, you follow them, they follow you, OR they have a public account
+        ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('followers').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['username', 'createdAt'])",
         
@@ -55,8 +55,8 @@
     // Yaps: Privacy-respecting content access
     "yaps": {
       "$yapId": {
-        // Can read if: you're the owner, you follow them, OR they have a public account
-        ".read": "auth != null && (data.child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(data.child('uid').val()).exists() || root.child('users').child(data.child('uid').val()).child('privacy').val() === 'public')",
+        // Can read if: you're the owner, you follow them, they follow you, OR they have a public account
+        ".read": "auth != null && (data.child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(data.child('uid').val()).exists() || root.child('followers').child(auth.uid).child(data.child('uid').val()).exists() || root.child('users').child(data.child('uid').val()).child('privacy').val() === 'public')",
         ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)",
         ".validate": "newData.hasChildren(['text', 'timestamp', 'uid', 'username'])",
         
@@ -81,8 +81,8 @@
     "userYaps": {
       "$uid": {
         ".indexOn": ["timestamp"],
-        // Can read if: you're the owner, you follow them, OR they have a public account
-        ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
+        // Can read if: you're the owner, you follow them, they follow you, OR they have a public account
+        ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('followers').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
         "$yapId": {
           ".write": "auth != null && auth.uid === $uid"
         }
@@ -93,7 +93,7 @@
     "likes": {
       "$yapId": {
         // Can read likes if you can read the yap
-        ".read": "auth != null && (root.child('yaps').child($yapId).child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('users').child(root.child('yaps').child($yapId).child('uid').val()).child('privacy').val() === 'public')",
+        ".read": "auth != null && (root.child('yaps').child($yapId).child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('followers').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('users').child(root.child('yaps').child($yapId).child('uid').val()).child('privacy').val() === 'public')",
         "$uid": {
           ".write": "auth != null && (auth.uid === $uid || root.child('yaps').child($yapId).child('uid').val() === auth.uid)"
         }
@@ -113,7 +113,7 @@
     // Reyaps: Only visible if the yap is visible to you
     "reyaps": {
       "$yapId": {
-        ".read": "auth != null && (root.child('yaps').child($yapId).child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('users').child(root.child('yaps').child($yapId).child('uid').val()).child('privacy').val() === 'public')",
+        ".read": "auth != null && (root.child('yaps').child($yapId).child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('followers').child(auth.uid).child(root.child('yaps').child($yapId).child('uid').val()).exists() || root.child('users').child(root.child('yaps').child($yapId).child('uid').val()).child('privacy').val() === 'public')",
         "$uid": {
           ".write": "auth != null && (auth.uid === $uid || root.child('yaps').child($yapId).child('uid').val() === auth.uid)"
         }
