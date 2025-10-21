@@ -634,11 +634,13 @@ function createYap(textarea) {
             return { yapId: newYapKey, yapData };
         })
         .then(({ yapId, yapData }) => {
+            // Clear draft FIRST to prevent it from being reloaded
+            clearDraft();
+            
             // Clear text area
             textarea.value = '';
             
-            // Clear draft and images
-            clearDraft();
+            // Clear images
             clearImages();
             
             // Clear reply context
@@ -664,7 +666,8 @@ function createYap(textarea) {
             }
             
             if (textarea === modalYapText) {
-                closeModal();
+                // Close modal without asking to save (we already posted!)
+                toggleModal(createYapModal, false);
             }
             showSnackbar('Yap posted successfully!', 'success');
             

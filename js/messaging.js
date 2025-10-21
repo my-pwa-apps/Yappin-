@@ -297,39 +297,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Start a new conversation with a user (called from profile/search)
 window.startConversation = function(otherUserId) {
+    console.log('[DEBUG] startConversation called with userId:', otherUserId);
+    
     const user = auth.currentUser;
     if (!user) {
+        console.error('[ERROR] No authenticated user');
         showSnackbar('Please sign in to send messages', 'error');
         return;
     }
+
+    console.log('[DEBUG] Current user:', user.uid, 'Target user:', otherUserId);
 
     // Check if users follow each other
     Promise.all([
         database.ref(`following/${user.uid}/${otherUserId}`).once('value'),
         database.ref(`following/${otherUserId}/${user.uid}`).once('value')
     ]).then(([iFollowThem, theyFollowMe]) => {
+        console.log('[DEBUG] Follow check - I follow them:', iFollowThem.exists(), 'They follow me:', theyFollowMe.exists());
+        
         if (!iFollowThem.exists() || !theyFollowMe.exists()) {
+            console.log('[DEBUG] Not mutual follow, cannot message');
             showSnackbar('You can only message users who follow each other', 'error');
             return;
         }
 
         // Create conversation ID
         const conversationId = getConversationId(user.uid, otherUserId);
+        console.log('[DEBUG] Conversation ID:', conversationId);
 
         // Open messages modal
+        console.log('[DEBUG] Opening messages modal...');
         showMessages();
         
         // Wait for modal to load, then open conversation directly
         setTimeout(() => {
+            console.log('[DEBUG] Creating conversation view...');
+            
             // Ensure conversation view exists
             const messagesModal = document.getElementById('messagesModal');
-            if (!messagesModal) return;
+            if (!messagesModal) {
+                console.error('[ERROR] Messages modal not found');
+                return;
+            }
             
             const modalBody = messagesModal.querySelector('.modal-body');
-            if (!modalBody) return;
+            if (!modalBody) {
+                console.error('[ERROR] Modal body not found');
+                return;
+            }
             
             // Create conversation view if it doesn't exist
             if (!document.getElementById('conversationView')) {
+                console.log('[DEBUG] Creating conversation view HTML');
                 modalBody.innerHTML = `
                     <div class="conversations-list hidden" id="conversationsList"></div>
                     <div class="conversation-view" id="conversationView">
@@ -341,8 +360,11 @@ window.startConversation = function(otherUserId) {
                         </div>
                     </div>
                 `;
+            } else {
+                console.log('[DEBUG] Conversation view already exists');
             }
             
+            console.log('[DEBUG] Opening conversation...');
             openConversation(conversationId, otherUserId);
         }, 150);
     }).catch(error => {
