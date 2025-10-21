@@ -410,8 +410,18 @@ window.showInviteCodes = function() {
     
     console.log('[Invite] Opening modal...');
     
-    // Show modal
+    // Show modal - use 'show' class not 'hidden'
     modal.classList.remove('hidden');
+    modal.classList.add('show');
+    
+    // Also show modal content
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        setTimeout(() => {
+            modalContent.style.transform = 'translateY(0)';
+            modalContent.style.opacity = '1';
+        }, 10);
+    }
     
     // Load invite codes from user's own collection
     codesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Loading...</p>';
@@ -495,6 +505,20 @@ window.showInviteCodes = function() {
             codesList.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Error loading codes: ${error.message}</p>`;
             showSnackbar('Error loading invite codes', 'error');
         });
+};
+
+// Close invite modal
+window.closeInviteModal = function() {
+    const modal = document.getElementById('inviteCodesModal');
+    if (modal) {
+        modal.classList.remove('show');
+        modal.classList.add('hidden');
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.style.transform = 'translateY(20px)';
+            modalContent.style.opacity = '0';
+        }
+    }
 };
 
 // Copy invite code to clipboard
