@@ -199,15 +199,19 @@ function loadSuggestedUsers() {
                     return;
                 }
                 
-                // Load user details for suggestions
-                const userPromises = suggestionIds.map(userId =>
-                    database.ref(`users/${userId}`).once('value')
-                        .then(userSnapshot => ({
-                            userId,
-                            userData: userSnapshot.val()
-                        }))
-                        .catch(() => ({ userId, userData: null }))
-                );
+                // Load user details for suggestions - only read accessible fields
+                const userPromises = suggestionIds.map(userId => {
+                    return Promise.all([
+                        database.ref(`users/${userId}/username`).once('value'),
+                        database.ref(`users/${userId}/photoURL`).once('value')
+                    ]).then(([usernameSnap, photoSnap]) => ({
+                        userId,
+                        userData: {
+                            username: usernameSnap.val(),
+                            photoURL: photoSnap.val()
+                        }
+                    })).catch(() => ({ userId, userData: null }));
+                });
                 
                 return Promise.all(userPromises);
             });
@@ -220,8 +224,8 @@ function loadSuggestedUsers() {
             suggestions.forEach(({ userId, userData }) => {
                 if (!userData) return;
                 
-                const displayName = userData.displayName || userData.username || 'Anonymous User';
                 const username = userData.username || userId.substring(0, 8);
+                const displayName = userData.username || 'Anonymous User';
                 const photoURL = userData.photoURL || generateRandomAvatar(userId);
                 
                 html += `
@@ -400,15 +404,20 @@ function loadFollowRequests() {
             
             requestsContainer.innerHTML = '';
             
-            // Load user details for each requester
-            const requestPromises = Object.keys(requests).map(requesterId => 
-                database.ref(`users/${requesterId}`).once('value')
-                    .then(userSnapshot => ({
-                        userId: requesterId,
-                        userData: userSnapshot.val(),
-                        requestData: requests[requesterId]
-                    }))
-            );
+            // Load user details for each requester - only read accessible fields
+            const requestPromises = Object.keys(requests).map(requesterId => {
+                return Promise.all([
+                    database.ref(`users/${requesterId}/username`).once('value'),
+                    database.ref(`users/${requesterId}/photoURL`).once('value')
+                ]).then(([usernameSnap, photoSnap]) => ({
+                    userId: requesterId,
+                    userData: {
+                        username: usernameSnap.val(),
+                        photoURL: photoSnap.val()
+                    },
+                    requestData: requests[requesterId]
+                }));
+            });
             
             return Promise.all(requestPromises);
         })
@@ -418,9 +427,9 @@ function loadFollowRequests() {
             requestsWithUsers.forEach(({ userId, userData, requestData }) => {
                 if (!userData) return;
                 
-                const displayName = userData.displayName || userData.username || 'Anonymous User';
                 const username = userData.username || userId.substring(0, 8);
-                const photoURL = userData.photoURL || './images/default-avatar.svg';
+                const displayName = userData.username || 'Anonymous User';
+                const photoURL = userData.photoURL || generateRandomAvatar(userId);
                 
                 const requestDiv = document.createElement('div');
                 requestDiv.className = 'follow-request-item';
@@ -474,14 +483,20 @@ function loadFollowers() {
             
             followersContainer.innerHTML = '';
             
-            // Load user details for each follower
-            const followerPromises = Object.keys(followers).map(followerId => 
-                database.ref(`users/${followerId}`).once('value')
-                    .then(userSnapshot => ({
-                        userId: followerId,
-                        userData: userSnapshot.val()
-                    }))
-            );
+            // Load user details for each follower - only read accessible fields
+            const followerPromises = Object.keys(followers).map(followerId => {
+                // Read only the fields we have permission to read
+                return Promise.all([
+                    database.ref(`users/${followerId}/username`).once('value'),
+                    database.ref(`users/${followerId}/photoURL`).once('value')
+                ]).then(([usernameSnap, photoSnap]) => ({
+                    userId: followerId,
+                    userData: {
+                        username: usernameSnap.val(),
+                        photoURL: photoSnap.val()
+                    }
+                }));
+            });
             
             return Promise.all(followerPromises);
         })
@@ -491,9 +506,9 @@ function loadFollowers() {
             followersWithUsers.forEach(({ userId, userData }) => {
                 if (!userData) return;
                 
-                const displayName = userData.displayName || userData.username || 'Anonymous User';
                 const username = userData.username || userId.substring(0, 8);
-                const photoURL = userData.photoURL || './images/default-avatar.svg';
+                const displayName = userData.username || 'Anonymous User';
+                const photoURL = userData.photoURL || generateRandomAvatar(userId);
                 
                 const followerDiv = document.createElement('div');
                 followerDiv.className = 'follower-item';
