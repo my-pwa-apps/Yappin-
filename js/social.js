@@ -357,26 +357,24 @@ async function removeFollower(followerId) {
         return;
     }
     
-    const updates = {};
-    
-    // Remove follower from your followers list
-    updates[`followers/${currentUserId}/${followerId}`] = null;
-    
-    // Remove you from their following list
-    updates[`following/${followerId}/${currentUserId}`] = null;
-    
-    database.ref().update(updates)
-        .then(() => {
-            showSnackbar('Follower removed', 'success');
-            // Reload followers list if displayed
-            if (typeof loadFollowers === 'function') {
-                loadFollowers();
-            }
-        })
-        .catch(error => {
-            console.error('Error removing follower:', error);
-            showSnackbar(`Error: ${error.message}`, 'error');
-        });
+    // Make individual writes instead of batched update
+    Promise.all([
+        database.ref(`followers/${currentUserId}/${followerId}`).remove(),
+        database.ref(`following/${followerId}/${currentUserId}`).remove(),
+        database.ref(`users/${currentUserId}/followersCount`).transaction(count => Math.max((count || 1) - 1, 0)),
+        database.ref(`users/${followerId}/followingCount`).transaction(count => Math.max((count || 1) - 1, 0))
+    ])
+    .then(() => {
+        showSnackbar('Follower removed', 'success');
+        // Reload followers list if displayed
+        if (typeof loadFollowers === 'function') {
+            loadFollowers();
+        }
+    })
+    .catch(error => {
+        console.error('Error removing follower:', error);
+        showSnackbar(`Error: ${error.message}`, 'error');
+    });
 }
 
 // Load follow requests for current user

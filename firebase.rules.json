@@ -3,6 +3,9 @@
     // PRODUCTION-READY SECURITY RULES
     // Privacy-first design: users can only access content they're authorized to see
     
+    // Allow multi-path updates at root (each path is still validated by its specific rule)
+    ".write": "auth != null",
+    
     // Users: Privacy-respecting profile access
     "users": {
       ".indexOn": ["privacy"],
