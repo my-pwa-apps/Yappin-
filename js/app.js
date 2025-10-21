@@ -1431,8 +1431,22 @@ function performSearch(query) {
                 userIds.push(child.val());
             });
             
-            // Load user details
-            const promises = userIds.map(uid => database.ref(`users/${uid}`).once('value'));
+            // Load user details - only read accessible fields
+            const promises = userIds.map(uid => {
+                return Promise.all([
+                    database.ref(`users/${uid}/username`).once('value'),
+                    database.ref(`users/${uid}/photoURL`).once('value'),
+                    database.ref(`users/${uid}/privacy`).once('value')
+                ]).then(([usernameSnap, photoSnap, privacySnap]) => ({
+                    key: uid,
+                    val: () => ({
+                        username: usernameSnap.val(),
+                        photoURL: photoSnap.val(),
+                        privacy: privacySnap.val()
+                    }),
+                    exists: () => usernameSnap.exists()
+                }));
+            });
             return Promise.all(promises);
         })
         .then(snapshots => {
@@ -1467,8 +1481,8 @@ function performSearch(query) {
                 userCard.innerHTML = `
                     <img src="${userData.photoURL || generateRandomAvatar(uid)}" alt="${userData.username}" class="search-user-avatar">
                     <div class="search-user-info">
-                        <div class="search-user-name">${userData.username}</div>
-                        <div class="search-user-bio">${userData.bio || 'No bio'}</div>
+                        <div class="search-user-name">@${userData.username}</div>
+                        <div class="search-user-bio">${userData.privacy === 'private' ? '🔒 Private Account' : 'Public Account'}</div>
                     </div>
                     <div class="search-actions">
                         <button onclick="followFromSearch('${uid}')" class="btn btn-primary search-follow-btn" id="search-follow-${uid}">
