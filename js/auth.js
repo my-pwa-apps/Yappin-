@@ -391,7 +391,8 @@ function createUserProfile(user, username) {
 
 // Check if user profile exists, if not create one
 function checkUserProfile(user) {
-    return database.ref(`users/${user.uid}`).once('value')
+    // Only check username field (which is always readable for the owner)
+    return database.ref(`users/${user.uid}/username`).once('value')
         .then(snapshot => {
             if (!snapshot.exists() && user.email) {
                 // No profile exists, create a default one

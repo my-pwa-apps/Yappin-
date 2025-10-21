@@ -352,6 +352,7 @@ if (isRunningAsPWA()) {
 
 // Handle online/offline status
 window.addEventListener('online', () => {
+    updateConnectionStatus();
     if (typeof showSnackbar === 'function') {
         showSnackbar('Connection restored', 'success', 2000);
     }
@@ -364,18 +365,23 @@ window.addEventListener('online', () => {
 });
 
 window.addEventListener('offline', () => {
+    updateConnectionStatus();
     if (typeof showSnackbar === 'function') {
         showSnackbar('You are offline. Some features may be limited.', 'error', 5000);
     }
 });
 
-// Check initial connection status
+// Check and set initial connection status
 if (!navigator.onLine) {
     window.addEventListener('load', () => {
+        updateConnectionStatus();
         if (typeof showSnackbar === 'function') {
             showSnackbar('You are currently offline', 'error', 3000);
         }
     });
+} else {
+    // Set initial status to online
+    window.addEventListener('DOMContentLoaded', updateConnectionStatus);
 }
 
 // Add connection status indicator

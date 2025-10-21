@@ -324,8 +324,19 @@ body.dark-mode #connection-status {
 /* Adjust position on smaller screens */
 @media (max-width: 768px) {
   #connection-status {
-    top: 15px;
-    right: 15px;
+    top: 70px;  /* Move below header to avoid avatar overlap */
+    right: 10px;
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .connection-text {
+    font-size: 10px;
+  }
+  
+  .connection-dot {
+    width: 6px;
+    height: 6px;
   }
 }
 
