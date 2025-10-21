@@ -357,13 +357,22 @@ async function removeFollower(followerId) {
         return;
     }
     
-    // Make individual writes instead of batched update
+    // Get current counts and decrement
     Promise.all([
-        database.ref(`followers/${currentUserId}/${followerId}`).remove(),
-        database.ref(`following/${followerId}/${currentUserId}`).remove(),
-        database.ref(`users/${currentUserId}/followersCount`).transaction(count => Math.max((count || 1) - 1, 0)),
-        database.ref(`users/${followerId}/followingCount`).transaction(count => Math.max((count || 1) - 1, 0))
-    ])
+        database.ref(`users/${currentUserId}`).once('value'),
+        database.ref(`users/${followerId}`).once('value')
+    ]).then(([currentUserSnap, followerSnap]) => {
+        const currentFollowersCount = currentUserSnap.val()?.followersCount || 0;
+        const followerFollowingCount = followerSnap.val()?.followingCount || 0;
+        
+        const updates = {};
+        updates[`followers/${currentUserId}/${followerId}`] = null;
+        updates[`following/${followerId}/${currentUserId}`] = null;
+        updates[`users/${currentUserId}/followersCount`] = Math.max(0, currentFollowersCount - 1);
+        updates[`users/${followerId}/followingCount`] = Math.max(0, followerFollowingCount - 1);
+        
+        return database.ref().update(updates);
+    })
     .then(() => {
         showSnackbar('Follower removed', 'success');
         // Reload followers list if displayed
@@ -687,18 +696,181 @@ function closeFollowersModal() {
     }
 }
 
+// Load following list
+function loadFollowing() {
+    if (!auth || !auth.currentUser) {
+        return;
+    }
+    
+    const currentUserId = auth.currentUser.uid;
+    const followingContainer = document.getElementById('followingList');
+    
+    if (!followingContainer) {
+        console.warn('Following list container not found');
+        return;
+    }
+    
+    database.ref(`following/${currentUserId}`).once('value')
+        .then(snapshot => {
+            const following = snapshot.val();
+            
+            if (!following || Object.keys(following).length === 0) {
+                followingContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">Not following anyone yet</p>';
+                return;
+            }
+            
+            followingContainer.innerHTML = '';
+            
+            // Load user details for each followed user
+            const followingPromises = Object.keys(following).map(userId => {
+                return Promise.all([
+                    database.ref(`users/${userId}/username`).once('value'),
+                    database.ref(`users/${userId}/photoURL`).once('value')
+                ]).then(([usernameSnap, photoSnap]) => ({
+                    userId: userId,
+                    userData: {
+                        username: usernameSnap.val(),
+                        photoURL: photoSnap.val()
+                    }
+                }));
+            });
+            
+            return Promise.all(followingPromises);
+        })
+        .then(followingWithUsers => {
+            if (!followingWithUsers) return;
+            
+            followingWithUsers.forEach(({ userId, userData }) => {
+                if (!userData) return;
+                
+                const username = userData.username || userId.substring(0, 8);
+                const displayName = userData.username || 'Anonymous User';
+                const photoURL = userData.photoURL || generateRandomAvatar(userId);
+                
+                const followingDiv = document.createElement('div');
+                followingDiv.className = 'following-item';
+                followingDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--hover-color); border-radius: var(--radius-md); margin-bottom: 10px;';
+                
+                followingDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="${photoURL}" alt="${displayName}" class="user-avatar" style="width: 48px; height: 48px; border-radius: 50%;" onerror="this.src='./images/default-avatar.svg'">
+                        <div>
+                            <p style="font-weight: 600; margin: 0;">${displayName}</p>
+                            <p style="color: var(--text-secondary); font-size: 0.9em; margin: 0;">@${username}</p>
+                        </div>
+                    </div>
+                    <button onclick="unfollowUser('${userId}')" class="btn" style="padding: 8px 16px; background: var(--secondary-color); color: white; border: none;">Unfollow</button>
+                `;
+                
+                followingContainer.appendChild(followingDiv);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading following:', error);
+            followingContainer.innerHTML = '<p style="text-align: center; color: var(--danger-color); padding: 20px;">Error loading following list</p>';
+        });
+}
+
+// Show following modal
+function showFollowing() {
+    const modal = document.getElementById('followingModal');
+    if (!modal) {
+        console.error('Following modal not found');
+        return;
+    }
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('show');
+    
+    const modalContent = modal.querySelector('.modal-content');
+    if (modalContent) {
+        setTimeout(() => {
+            modalContent.style.transform = 'translateY(0)';
+            modalContent.style.opacity = '1';
+        }, 10);
+    }
+    
+    loadFollowing();
+}
+
+// Close following modal
+function closeFollowingModal() {
+    const modal = document.getElementById('followingModal');
+    if (modal) {
+        modal.classList.remove('show');
+        modal.classList.add('hidden');
+    }
+}
+
+// Unfollow a user from the following list
+async function unfollowUser(userId) {
+    if (!auth || !auth.currentUser) {
+        showSnackbar('You need to be logged in', 'error');
+        return;
+    }
+    
+    const currentUserId = auth.currentUser.uid;
+    
+    // Confirm before unfollowing
+    const confirmed = await showConfirmModal(
+        'Unfollow User',
+        'Are you sure you want to unfollow this user?',
+        'Unfollow',
+        'Cancel'
+    );
+    if (!confirmed) {
+        return;
+    }
+    
+    // Get current counts and decrement
+    Promise.all([
+        database.ref(`users/${currentUserId}`).once('value'),
+        database.ref(`users/${userId}`).once('value')
+    ]).then(([currentUserSnap, targetUserSnap]) => {
+        const currentFollowingCount = currentUserSnap.val()?.followingCount || 0;
+        const targetFollowersCount = targetUserSnap.val()?.followersCount || 0;
+        
+        const updates = {};
+        updates[`following/${currentUserId}/${userId}`] = null;
+        updates[`followers/${userId}/${currentUserId}`] = null;
+        updates[`users/${currentUserId}/followingCount`] = Math.max(0, currentFollowingCount - 1);
+        updates[`users/${userId}/followersCount`] = Math.max(0, targetFollowersCount - 1);
+        
+        return database.ref().update(updates);
+    })
+    .then(() => {
+        showSnackbar('Unfollowed successfully', 'success');
+        // Reload following list
+        if (typeof loadFollowing === 'function') {
+            loadFollowing();
+        }
+        // Reload timeline to remove their yaps
+        if (typeof loadTimeline === 'function') {
+            loadTimeline();
+        }
+    })
+    .catch(error => {
+        console.error('Error unfollowing user:', error);
+        showSnackbar(`Error: ${error.message}`, 'error');
+    });
+}
+
 // Make functions globally available
 window.toggleFollow = toggleFollow;
 window.loadSuggestedUsers = loadSuggestedUsers;
 window.approveFollowRequest = approveFollowRequest;
 window.rejectFollowRequest = rejectFollowRequest;
 window.removeFollower = removeFollower;
+window.unfollowUser = unfollowUser;
 window.loadFollowRequests = loadFollowRequests;
 window.loadFollowers = loadFollowers;
+window.loadFollowing = loadFollowing;
 window.toggleAccountPrivacy = toggleAccountPrivacy;
 window.showFollowRequests = showFollowRequests;
 window.closeFollowRequestsModal = closeFollowRequestsModal;
 window.showFollowers = showFollowers;
 window.closeFollowersModal = closeFollowersModal;
+window.showFollowing = showFollowing;
+window.closeFollowingModal = closeFollowingModal;
 window.showSettings = showSettings;
 window.closeSettingsModal = closeSettingsModal;

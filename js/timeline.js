@@ -252,8 +252,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     
     replyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        // TODO: Implement reply functionality
-        showSnackbar('Reply feature coming soon!');
+        openReplyModal(yapId, username, content);
     });
     
     shareBtn.addEventListener('click', (e) => {
@@ -598,3 +597,75 @@ function loadModalSuggestedUsers() {
             suggestionsContainer.innerHTML = '<p class="error">Error loading suggestions. Please try again.</p>';
         });
 }
+
+// Reply functionality
+function openReplyModal(replyToYapId, replyToUsername, replyToContent) {
+    if (!auth.currentUser) {
+        showSnackbar('Please sign in to reply', 'error');
+        return;
+    }
+    
+    const composeModal = document.getElementById('composeModal');
+    const modalYapText = document.getElementById('modalYapText');
+    
+    if (!composeModal || !modalYapText) {
+        console.error('Compose modal elements not found');
+        return;
+    }
+    
+    // Store reply context
+    window.replyContext = {
+        yapId: replyToYapId,
+        username: replyToUsername
+    };
+    
+    // Pre-fill with @username mention
+    modalYapText.value = `@${replyToUsername} `;
+    
+    // Show modal
+    toggleModal(composeModal, true);
+    
+    // Focus text area at the end
+    modalYapText.focus();
+    modalYapText.setSelectionRange(modalYapText.value.length, modalYapText.value.length);
+    
+    // Update character count
+    if (typeof updateCharacterCount === 'function') {
+        updateCharacterCount();
+    }
+    
+    // Add reply indicator
+    let replyIndicator = document.getElementById('replyIndicator');
+    if (!replyIndicator) {
+        replyIndicator = document.createElement('div');
+        replyIndicator.id = 'replyIndicator';
+        replyIndicator.style.cssText = 'padding: 8px 12px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; font-size: 14px; color: var(--text-secondary);';
+        modalYapText.parentElement.insertBefore(replyIndicator, modalYapText);
+    }
+    
+    const truncatedContent = replyToContent.length > 50 ? replyToContent.substring(0, 50) + '...' : replyToContent;
+    replyIndicator.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span>Replying to @${replyToUsername}: "${truncatedContent}"</span>
+            <button onclick="cancelReply()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    replyIndicator.style.display = 'block';
+}
+
+window.cancelReply = function() {
+    window.replyContext = null;
+    const replyIndicator = document.getElementById('replyIndicator');
+    if (replyIndicator) {
+        replyIndicator.style.display = 'none';
+    }
+    const modalYapText = document.getElementById('modalYapText');
+    if (modalYapText && modalYapText.value.startsWith('@')) {
+        modalYapText.value = '';
+        if (typeof updateCharacterCount === 'function') {
+            updateCharacterCount();
+        }
+    }
+};

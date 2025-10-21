@@ -565,13 +565,9 @@ function createYap(textarea) {
                 yapData.media = mediaUrls;
             }
             // Check if this is a reply to another yap
-            const replyToId = textarea.dataset.replyTo;
+            const replyToId = window.replyContext?.yapId || textarea.dataset.replyTo;
             if (replyToId) {
                 yapData.replyTo = replyToId;
-                // Increment reply count of the parent yap
-                database.ref(`yaps/${replyToId}/replies`).transaction(current => {
-                    return (current || 0) + 1;
-                });
             }
             // Generate a new key for the yap
             const newYapKey = database.ref('yaps').push().key;
@@ -580,13 +576,27 @@ function createYap(textarea) {
             updates[`yaps/${newYapKey}`] = yapData;
             // Store the full yap object in userYaps for timeline consistency
             updates[`userYaps/${auth.currentUser.uid}/${newYapKey}`] = yapData;
-            // If this is a reply, add to the replies list
+            // If this is a reply, add to the replies list and update reply count
             if (replyToId) {
                 updates[`yapReplies/${replyToId}/${newYapKey}`] = true;
+                // Get current reply count and increment
+                return database.ref(`yaps/${replyToId}`).once('value').then(parentSnap => {
+                    const currentReplies = parentSnap.val()?.replies || 0;
+                    updates[`yaps/${replyToId}/replies`] = currentReplies + 1;
+                    
+                    // Commit updates
+                    return database.ref().update(updates);
+                }).then(() => {
+                    return { updates, replyToId, newYapKey };
+                });
             }
             
-            // Commit updates FIRST
+            // Commit updates FIRST (non-reply case)
             return database.ref().update(updates).then(() => {
+                return { updates, replyToId, newYapKey };
+            });
+        })
+        .then(({ updates, replyToId, newYapKey }) => {
                 // AFTER successful creation, handle mentions and notifications
                 const mentions = extractMentions(content);
                 if (mentions.length > 0) {
@@ -622,6 +632,16 @@ function createYap(textarea) {
             textarea.value = '';
             clearDraft();
             clearImages(); // Clear attached images
+            
+            // Clear reply context
+            if (window.replyContext) {
+                window.replyContext = null;
+                const replyIndicator = document.getElementById('replyIndicator');
+                if (replyIndicator) {
+                    replyIndicator.style.display = 'none';
+                }
+            }
+            
             if (textarea.dataset.replyTo) {
                 delete textarea.dataset.replyTo;
                 const replyInfo = textarea.parentElement.querySelector('.reply-info');
@@ -849,30 +869,29 @@ function toggleLike(yapId) {
                 updates[`likes/${yapId}/${auth.currentUser.uid}`] = null;
                 updates[`userLikes/${auth.currentUser.uid}/${yapId}`] = null;
                 
-                // Update yap likes count
-                return yapRef.child('likes').transaction(likes => {
-                    return (likes || 0) - 1;
-                }).then(() => database.ref().update(updates));
+                // Get current count and decrement
+                return yapRef.once('value').then(yapSnapshot => {
+                    const currentCount = yapSnapshot.val()?.likes || 0;
+                    updates[`yaps/${yapId}/likes`] = Math.max(0, currentCount - 1);
+                    return database.ref().update(updates);
+                });
             } else {
                 // User hasn't liked this yap, so add the like
                 updates[`likes/${yapId}/${auth.currentUser.uid}`] = true;
                 updates[`userLikes/${auth.currentUser.uid}/${yapId}`] = true;
                 
-                // Get yap info for notification
+                // Get yap info for notification and current count
                 return yapRef.once('value').then(yapSnapshot => {
                     const yapData = yapSnapshot.val();
+                    const currentCount = yapData?.likes || 0;
+                    updates[`yaps/${yapId}/likes`] = currentCount + 1;
                     
-                    // Update yap likes count
-                    return yapRef.child('likes').transaction(likes => {
-                        return (likes || 0) + 1;
-                    }).then(() => {
-                        // Update database
-                        return database.ref().update(updates).then(() => {
-                            // Create notification if the yap is not from the current user
-                            if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyLike === 'function') {
-                                notifyLike(yapId, yapData.uid, auth.currentUser.uid);
-                            }
-                        });
+                    // Update database
+                    return database.ref().update(updates).then(() => {
+                        // Create notification if the yap is not from the current user
+                        if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyLike === 'function') {
+                            notifyLike(yapId, yapData.uid, auth.currentUser.uid);
+                        }
                     });
                 });
             }
@@ -902,30 +921,29 @@ function toggleReyap(yapId) {
                 updates[`reyaps/${yapId}/${auth.currentUser.uid}`] = null;
                 updates[`userReyaps/${auth.currentUser.uid}/${yapId}`] = null;
                 
-                // Update yap reyaps count
-                return yapRef.child('reyaps').transaction(reyaps => {
-                    return (reyaps || 0) - 1;
-                }).then(() => database.ref().update(updates));
+                // Get current count and decrement
+                return yapRef.once('value').then(yapSnapshot => {
+                    const currentCount = yapSnapshot.val()?.reyaps || 0;
+                    updates[`yaps/${yapId}/reyaps`] = Math.max(0, currentCount - 1);
+                    return database.ref().update(updates);
+                });
             } else {
                 // User hasn't reyapped this, so add the reyap
                 updates[`reyaps/${yapId}/${auth.currentUser.uid}`] = true;
                 updates[`userReyaps/${auth.currentUser.uid}/${yapId}`] = true;
                 
-                // Get yap info for notification
+                // Get yap info for notification and current count
                 return yapRef.once('value').then(yapSnapshot => {
                     const yapData = yapSnapshot.val();
+                    const currentCount = yapData?.reyaps || 0;
+                    updates[`yaps/${yapId}/reyaps`] = currentCount + 1;
                     
-                    // Update yap reyaps count
-                    return yapRef.child('reyaps').transaction(reyaps => {
-                        return (reyaps || 0) + 1;
-                    }).then(() => {
-                        // Update database
-                        return database.ref().update(updates).then(() => {
-                            // Create notification if the yap is not from the current user
-                            if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyReyap === 'function') {
-                                notifyReyap(yapId, yapData.uid, auth.currentUser.uid);
-                            }
-                        });
+                    // Update database
+                    return database.ref().update(updates).then(() => {
+                        // Create notification if the yap is not from the current user
+                        if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyReyap === 'function') {
+                            notifyReyap(yapId, yapData.uid, auth.currentUser.uid);
+                        }
                     });
                 });
             }
@@ -1477,12 +1495,18 @@ window.followFromSearch = function(targetUserId) {
             updates[`following/${currentUserId}/${targetUserId}`] = true;
             updates[`followers/${targetUserId}/${currentUserId}`] = true;
             
-            return database.ref().update(updates).then(() => {
-                // Update counts
-                return Promise.all([
-                    database.ref(`users/${currentUserId}/followingCount`).transaction(count => (count || 0) + 1),
-                    database.ref(`users/${targetUserId}/followersCount`).transaction(count => (count || 0) + 1)
-                ]);
+            // Get current counts and increment
+            return Promise.all([
+                database.ref(`users/${currentUserId}`).once('value'),
+                database.ref(`users/${targetUserId}`).once('value')
+            ]).then(([currentUserSnap, targetUserSnap]) => {
+                const currentFollowingCount = currentUserSnap.val()?.followingCount || 0;
+                const targetFollowersCount = targetUserSnap.val()?.followersCount || 0;
+                
+                updates[`users/${currentUserId}/followingCount`] = currentFollowingCount + 1;
+                updates[`users/${targetUserId}/followersCount`] = targetFollowersCount + 1;
+                
+                return database.ref().update(updates);
             }).then(() => {
                 showSnackbar('Now following!', 'success');
                 const btn = document.getElementById(`search-follow-${targetUserId}`);
@@ -1490,6 +1514,11 @@ window.followFromSearch = function(targetUserId) {
                     btn.innerHTML = '<i class="fas fa-check"></i> Following';
                     btn.classList.add('following');
                     btn.onclick = () => unfollowFromSearch(targetUserId);
+                }
+                
+                // Reload timeline to show new user's yaps
+                if (typeof loadTimeline === 'function') {
+                    loadTimeline();
                 }
             });
         }
@@ -1516,12 +1545,18 @@ window.unfollowFromSearch = async function(targetUserId) {
     updates[`following/${currentUserId}/${targetUserId}`] = null;
     updates[`followers/${targetUserId}/${currentUserId}`] = null;
     
-    database.ref().update(updates).then(() => {
-        // Update counts
-        return Promise.all([
-            database.ref(`users/${currentUserId}/followingCount`).transaction(count => Math.max((count || 1) - 1, 0)),
-            database.ref(`users/${targetUserId}/followersCount`).transaction(count => Math.max((count || 1) - 1, 0))
-        ]);
+    // Get current counts and decrement
+    Promise.all([
+        database.ref(`users/${currentUserId}`).once('value'),
+        database.ref(`users/${targetUserId}`).once('value')
+    ]).then(([currentUserSnap, targetUserSnap]) => {
+        const currentFollowingCount = currentUserSnap.val()?.followingCount || 0;
+        const targetFollowersCount = targetUserSnap.val()?.followersCount || 0;
+        
+        updates[`users/${currentUserId}/followingCount`] = Math.max(0, currentFollowingCount - 1);
+        updates[`users/${targetUserId}/followersCount`] = Math.max(0, targetFollowersCount - 1);
+        
+        return database.ref().update(updates);
     }).then(() => {
         showSnackbar('Unfollowed', 'success');
         const btn = document.getElementById(`search-follow-${targetUserId}`);

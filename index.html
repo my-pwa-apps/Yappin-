@@ -189,6 +189,21 @@
                 </div>
             </div>
 
+            <!-- Following Modal -->
+            <div id="followingModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Following</h2>
+                        <button class="close-btn" onclick="closeFollowingModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="followingList">
+                            <!-- Following will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Settings Modal -->
             <!-- Profile Modal (unified with Settings) -->
             <div id="profileModal" class="modal hidden">
@@ -252,6 +267,9 @@
                             <h3 class="settings-section-title">Social</h3>
                             <button onclick="showFollowers(); closeProfileModal();" class="btn full-width-btn btn-with-margin">
                                 <i class="fas fa-users"></i> Followers
+                            </button>
+                            <button onclick="showFollowing(); closeProfileModal();" class="btn full-width-btn btn-with-margin">
+                                <i class="fas fa-user-friends"></i> Following
                             </button>
                             <button onclick="showFollowRequests(); closeProfileModal();" class="btn full-width-btn btn-with-margin">
                                 <i class="fas fa-user-clock"></i> Follow Requests
