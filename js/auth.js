@@ -25,6 +25,18 @@ auth.onAuthStateChanged(user => {
         contentContainer.classList.remove('hidden');
         userBtn.classList.remove('hidden');
         
+        // Load user avatar and update button
+        database.ref(`users/${user.uid}/photoURL`).once('value')
+            .then(snapshot => {
+                const photoURL = snapshot.val() || generateRandomAvatar(user.uid);
+                // Replace the icon with avatar image
+                userBtn.innerHTML = `<img src="${photoURL}" alt="User avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" onerror="this.src='./images/default-avatar.svg'">`;
+            })
+            .catch(() => {
+                // Keep default icon on error
+                console.warn('Could not load user avatar');
+            });
+        
         // Check if user profile exists, if not create one
         checkUserProfile(user);
         

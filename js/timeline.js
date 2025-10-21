@@ -157,7 +157,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
         <div class="yap-header">
             <div class="yap-user">
                 <div class="yap-avatar">
-                    <img src="${avatar}" alt="${username}" onerror="this.src='./images/default-avatar.png'" loading="lazy">
+                    <img src="${avatar}" alt="${username}" onerror="this.src='./images/default-avatar.svg'" loading="lazy">
                 </div>
                 <div class="yap-user-info">
                     <span class="username">@${username}</span>
