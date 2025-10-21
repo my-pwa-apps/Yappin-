@@ -2,7 +2,7 @@
 
 // Detect base path from service worker location
 const BASE_PATH = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
-const CACHE_VERSION = 'v68';
+const CACHE_VERSION = 'v69';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
 const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
@@ -14,6 +14,7 @@ const STATIC_ASSETS = [
   `${BASE_PATH}/css/optimized.css`,
   `${BASE_PATH}/css/enhancements.css`,
   `${BASE_PATH}/css/material-design.css`,
+  `${BASE_PATH}/js/performance.js`,
   `${BASE_PATH}/js/app.js`,
   `${BASE_PATH}/js/auth.js`,
   `${BASE_PATH}/js/firebase-config.js`,
@@ -21,6 +22,8 @@ const STATIC_ASSETS = [
   `${BASE_PATH}/js/social.js`,
   `${BASE_PATH}/js/pwa-init.js`,
   `${BASE_PATH}/js/utils.js`,
+  `${BASE_PATH}/js/messaging.js`,
+  `${BASE_PATH}/js/notifications.js`,
   `${BASE_PATH}/manifest.json`,
   `${BASE_PATH}/offline.html`,
   `${BASE_PATH}/images/icons/icon-192x192.png`,

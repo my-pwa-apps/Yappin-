@@ -34,7 +34,7 @@ auth.onAuthStateChanged(user => {
             })
             .catch(() => {
                 // Keep default icon on error
-                console.warn('Could not load user avatar');
+                Logger?.warn('Could not load user avatar');
             });
         
         // Check if user profile exists, if not create one
@@ -171,7 +171,7 @@ loginForm.addEventListener('submit', (e) => {
             }
             
             showSnackbar(errorMessage, 'error');
-            console.error('Login error:', error);
+            Logger?.error('Login error:', error);
         })
         .finally(() => {
             // Reset button state
@@ -307,7 +307,7 @@ signupForm.addEventListener('submit', (e) => {
             }
             
             showSnackbar(errorMessage, 'error', 5000);
-            console.error('Signup error:', error);
+            Logger?.error('Signup error:', error);
         })
         .finally(() => {
             // Reset button state
@@ -320,7 +320,7 @@ signupForm.addEventListener('submit', (e) => {
 logoutBtn.addEventListener('click', () => {
     auth.signOut()
         .catch(error => {
-            console.error('Logout error:', error);
+            Logger?.error('Logout error:', error);
             showSnackbar(`Error: ${error.message}`);
         });
 });
@@ -416,7 +416,7 @@ function createUserProfile(user, username) {
     
     return database.ref().update(updates)
         .catch(error => {
-            console.error('Error creating user profile:', error);
+            Logger?.error('Error creating user profile:', error);
             throw error;
         });
 }
@@ -434,7 +434,7 @@ function checkUserProfile(user) {
             return snapshot.val();
         })
         .catch(error => {
-            console.error('Error checking user profile:', error);
+            Logger?.error('Error checking user profile:', error);
         });
 }
 
@@ -449,7 +449,7 @@ window.showInviteCodes = function() {
     const codesList = document.getElementById('inviteCodesList');
     
     if (!modal) {
-        console.error('[Invite] Modal not found!');
+        Logger?.error('[Invite] Modal not found!');
         showSnackbar('Error: Modal not found', 'error');
         return;
     }
@@ -539,7 +539,7 @@ window.showInviteCodes = function() {
             });
         })
         .catch(error => {
-            console.error('[Invite] Error loading invite codes:', error);
+            Logger?.error('[Invite] Error loading invite codes:', error);
             codesList.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Error loading codes: ${error.message}</p>`;
             showSnackbar('Error loading invite codes', 'error');
         });
@@ -584,7 +584,7 @@ window.generateNewInviteCode = function() {
             showInviteCodes();
         })
         .catch(error => {
-            console.error('Error generating invite code:', error);
+            Logger?.error('Error generating invite code:', error);
             showSnackbar('Error generating invite code', 'error');
         });
 };
@@ -686,7 +686,7 @@ window.uploadProfilePicture = function() {
                     }
                 })
                 .catch(error => {
-                    console.error('Error updating profile picture:', error);
+                    Logger?.error('Error updating profile picture:', error);
                     showSnackbar('Error updating profile picture: ' + error.message, 'error');
                     if (uploadBtn) {
                         uploadBtn.disabled = false;
