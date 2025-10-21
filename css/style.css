@@ -1229,14 +1229,14 @@ main {
     }
 
     .mobile-nav ul li a.active {
-        background-color: #263238;
-        color: #66BB6A;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
     }
 
     .mobile-compose-btn {
-        background-color: #66BB6A;
+        background-color: var(--primary-color);
         color: white;
-        box-shadow: 0 3px 12px rgba(102, 187, 106, 0.3);
+        box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
     }
 }
 
@@ -1498,22 +1498,23 @@ body.dark-mode input, body.dark-mode textarea {
 
 /* Mobile navigation dark mode */
 body.dark-mode .mobile-nav {
-    background-color: #1a252b;
-    border-top-color: #263238;
+    background-color: var(--card-bg);
+    border-top-color: var(--border-color);
 }
 
 body.dark-mode .mobile-nav ul li a {
-    color: #B0BEC5;
+    color: var(--text-secondary);
 }
 
 body.dark-mode .mobile-nav ul li a.active {
-    color: #66BB6A;
+    color: var(--primary-color);
+    background-color: var(--primary-light);
 }
 
 body.dark-mode .mobile-compose-btn {
-    background-color: #66BB6A;
+    background-color: var(--primary-color);
     color: white;
-    box-shadow: 0 3px 12px rgba(102, 187, 106, 0.3);
+    box-shadow: 0 3px 12px rgba(52, 211, 153, 0.3);
 }
 
 /* Properly handle dark mode for the sidebar on mobile */

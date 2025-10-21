@@ -269,6 +269,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
     text-decoration: none;
     position: relative;
     transition: all var(--transition-fast);
+    border-radius: var(--radius-md);
   }
   
   .mobile-nav ul li a i {
@@ -278,6 +279,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   
   .mobile-nav ul li a.active {
     color: var(--primary-color);
+    background-color: var(--primary-light);
+    font-weight: 600;
   }
   
   .mobile-nav ul li a:active i {

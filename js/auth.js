@@ -140,10 +140,17 @@ loginForm.addEventListener('submit', (e) => {
 signupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
+    const inviteCode = document.getElementById('signupInviteCode').value.trim();
     const username = document.getElementById('signupUsername').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('signupConfirmPassword').value;
+    
+    // Validate invite code
+    if (!inviteCode) {
+        showSnackbar('Please enter an invite code', 'error');
+        return;
+    }
     
     // Validate username using utils
     const usernameValidation = window.utils ? 
@@ -183,8 +190,16 @@ signupForm.addEventListener('submit', (e) => {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Loading...';
     
-    // Check if username is available
-    checkUsernameAvailability(username)
+    // Validate invite code first
+    validateInviteCode(inviteCode)
+        .then(isValid => {
+            if (!isValid) {
+                throw new Error('Invalid or expired invite code. Please ask a friend for a valid invite.');
+            }
+            
+            // Check if username is available
+            return checkUsernameAvailability(username);
+        })
         .then(isAvailable => {
             if (!isAvailable) {
                 throw new Error('Username is already taken');
@@ -194,13 +209,28 @@ signupForm.addEventListener('submit', (e) => {
             return auth.createUserWithEmailAndPassword(email, password);
         })
         .then(userCredential => {
-            // Create user profile
-            return createUserProfile(userCredential.user, username);
+            // Mark invite code as used
+            return markInviteCodeAsUsed(inviteCode, userCredential.user.uid)
+                .then(() => userCredential);
         })
-        .then(() => {
+        .then(userCredential => {
+            // Create user profile
+            return createUserProfile(userCredential.user, username)
+                .then(() => userCredential);
+        })
+        .then(userCredential => {
+            // Generate 3 invite codes for the new user
+            const invitePromises = [
+                generateInviteCode(userCredential.user.uid),
+                generateInviteCode(userCredential.user.uid),
+                generateInviteCode(userCredential.user.uid)
+            ];
+            return Promise.all(invitePromises);
+        })
+        .then(codes => {
             // Clear form
             signupForm.reset();
-            showSnackbar('Account created successfully!', 'success');
+            showSnackbar('Account created successfully! Check your profile for invite codes to share.', 'success', 5000);
         })
         .catch(error => {
             // Handle errors with user-friendly messages
@@ -250,6 +280,59 @@ logoutBtn.addEventListener('click', () => {
             showSnackbar(`Error: ${error.message}`);
         });
 });
+
+// Validate invite code
+function validateInviteCode(code) {
+    return database.ref('inviteCodes').child(code).once('value')
+        .then(snapshot => {
+            if (!snapshot.exists()) {
+                return false;
+            }
+            
+            const inviteData = snapshot.val();
+            
+            // Check if already used
+            if (inviteData.used) {
+                return false;
+            }
+            
+            // Check if expired (optional: 30 days validity)
+            const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            if (inviteData.createdAt < thirtyDaysAgo) {
+                return false;
+            }
+            
+            return true;
+        });
+}
+
+// Mark invite code as used
+function markInviteCodeAsUsed(code, newUserId) {
+    return database.ref(`inviteCodes/${code}`).update({
+        used: true,
+        usedBy: newUserId,
+        usedAt: firebase.database.ServerValue.TIMESTAMP
+    });
+}
+
+// Generate invite code for user
+function generateInviteCode(userId) {
+    // Generate a random 8-character code
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude confusing chars
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    
+    const inviteData = {
+        createdBy: userId,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        used: false
+    };
+    
+    return database.ref(`inviteCodes/${code}`).set(inviteData)
+        .then(() => code);
+}
 
 // Check if username is available
 function checkUsernameAvailability(username) {
@@ -302,3 +385,91 @@ function checkUserProfile(user) {
             console.error('Error checking user profile:', error);
         });
 }
+
+// Show invite codes modal
+window.showInviteCodes = function() {
+    if (!auth.currentUser) {
+        showSnackbar('Please login to view invite codes', 'error');
+        return;
+    }
+    
+    const modal = document.getElementById('inviteCodesModal');
+    const codesList = document.getElementById('inviteCodesList');
+    
+    // Show modal
+    modal.classList.remove('hidden');
+    
+    // Load invite codes
+    codesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Loading...</p>';
+    
+    database.ref('inviteCodes').orderByChild('createdBy').equalTo(auth.currentUser.uid).once('value')
+        .then(snapshot => {
+            codesList.innerHTML = '';
+            
+            if (!snapshot.exists()) {
+                codesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No invite codes yet. Generate one below!</p>';
+                return;
+            }
+            
+            const codes = [];
+            snapshot.forEach(child => {
+                codes.push({
+                    code: child.key,
+                    data: child.val()
+                });
+            });
+            
+            codes.forEach(({ code, data }) => {
+                const codeItem = document.createElement('div');
+                codeItem.style.cssText = 'padding: 15px; background: var(--hover-color); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center;';
+                
+                const status = data.used ? 
+                    `<span style="color: var(--text-secondary); font-size: 0.9em;">Used by ${data.usedBy || 'someone'}</span>` :
+                    '<span style="color: var(--primary-color); font-weight: 600;">Available</span>';
+                
+                codeItem.innerHTML = `
+                    <div>
+                        <div style="font-size: 1.2em; font-weight: 700; font-family: monospace; letter-spacing: 2px;">${code}</div>
+                        <div style="margin-top: 5px;">${status}</div>
+                    </div>
+                    ${!data.used ? `<button onclick="copyInviteCode('${code}')" class="btn primary-btn" style="padding: 8px 16px;">Copy</button>` : ''}
+                `;
+                
+                codesList.appendChild(codeItem);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading invite codes:', error);
+            codesList.innerHTML = '<p style="text-align: center; color: var(--danger-color);">Error loading codes</p>';
+        });
+};
+
+// Copy invite code to clipboard
+window.copyInviteCode = function(code) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(code)
+            .then(() => showSnackbar('Invite code copied to clipboard!', 'success'))
+            .catch(() => showSnackbar('Failed to copy code', 'error'));
+    } else {
+        showSnackbar('Clipboard not supported', 'error');
+    }
+};
+
+// Generate new invite code
+window.generateNewInviteCode = function() {
+    if (!auth.currentUser) {
+        showSnackbar('Please login to generate invite codes', 'error');
+        return;
+    }
+    
+    generateInviteCode(auth.currentUser.uid)
+        .then(code => {
+            showSnackbar(`New invite code generated: ${code}`, 'success', 5000);
+            // Refresh the list
+            showInviteCodes();
+        })
+        .catch(error => {
+            console.error('Error generating invite code:', error);
+            showSnackbar('Error generating invite code', 'error');
+        });
+};

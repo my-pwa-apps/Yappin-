@@ -54,6 +54,11 @@
                 
                 <form id="signupForm" class="auth-form hidden">
                     <div class="form-group">
+                        <label for="signupInviteCode">Invite Code</label>
+                        <input type="text" id="signupInviteCode" placeholder="Enter your invite code" required>
+                        <small style="color: var(--text-secondary); font-size: 0.85em;">Yappin' is invite-only. Ask a friend for an invite code!</small>
+                    </div>
+                    <div class="form-group">
                         <label for="signupUsername">Username</label>
                         <input type="text" id="signupUsername" autocomplete="username" required>
                     </div>
@@ -82,6 +87,7 @@
                             <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
                             <li><a href="#"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
                             <li><a href="#"><i class="fas fa-bookmark"></i> <span>Bookmarks</span></a></li>
+                            <li><a href="#" onclick="showInviteCodes(); return false;"><i class="fas fa-user-plus"></i> <span>Invite Friends</span></a></li>
                             <li><a href="#"><i class="fas fa-user"></i> <span>Profile</span></a></li>
                         </ul>
                     </nav>
@@ -89,7 +95,7 @@
 
                 <section class="timeline">
                     <div class="compose-yap">
-                        <textarea id="yapText" placeholder="What's happening?"></textarea>
+                        <textarea id="yapText" placeholder="What's Yappinin'?"></textarea>
                         <div class="compose-actions">
                             <div class="attach-options">
                                 <button class="icon-btn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
@@ -143,7 +149,7 @@
                         <button id="closeYapModal" class="close-btn" aria-label="Close modal" title="Close"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="modal-body">
-                        <textarea id="modalYapText" placeholder="What's happening?"></textarea>
+                        <textarea id="modalYapText" placeholder="What's Yappinin'?"></textarea>
                         <div class="compose-actions">
                             <div class="attach-options">
                                 <button class="icon-btn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
@@ -153,7 +159,25 @@
                             <button id="modalPostYapBtn" class="btn primary-btn">Yap</button>
                         </div>
                     </div>
-                </div>            </div>
+                </div>
+            </div>
+
+            <!-- Invite Codes Modal -->
+            <div id="inviteCodesModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Your Invite Codes</h2>
+                        <button class="close-btn" onclick="document.getElementById('inviteCodesModal').classList.add('hidden')" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="margin-bottom: 15px; color: var(--text-secondary);">Share these codes with friends to invite them to Yappin'!</p>
+                        <div id="inviteCodesList" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Invite codes will be loaded here -->
+                        </div>
+                        <button onclick="generateNewInviteCode()" class="btn primary-btn" style="margin-top: 15px; width: 100%;">Generate New Invite Code</button>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <div id="snackbar"></div>

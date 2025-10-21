@@ -118,6 +118,14 @@
         ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid"
       }
+    },
+    
+    // Invite Codes: readable by everyone (for validation), writable by authenticated users
+    "inviteCodes": {
+      "$code": {
+        ".read": true,
+        ".write": "auth != null"
+      }
     }
   }
 }
