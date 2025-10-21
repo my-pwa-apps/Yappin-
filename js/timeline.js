@@ -154,7 +154,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     
     // Defensive: fallback for missing data and escape HTML
     const username = (yapData.username || yapData.displayName || 'anonymous').replace(/[<>"']/g, '');
-    const content = yapData.content || '';
+    const content = yapData.text || yapData.content || '';  // Support both 'text' (new) and 'content' (legacy)
     const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
     const avatar = (yapData.userPhotoURL || generateRandomAvatar(yapData.uid || username)).replace(/["'<>]/g, '');
     const isOwnYap = auth.currentUser && yapData.uid === auth.currentUser.uid;
@@ -284,9 +284,15 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     // Add delete button listener if it's the user's own yap
     const deleteBtn = yapElement.querySelector('.delete-yap');
     if (deleteBtn) {
-        deleteBtn.addEventListener('click', (e) => {
+        deleteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
-            if (confirm('Are you sure you want to delete this yap?')) {
+            const confirmed = await showConfirmModal(
+                'Delete Yap',
+                'Are you sure you want to delete this yap? This action cannot be undone.',
+                'Delete',
+                'Cancel'
+            );
+            if (confirmed) {
                 deleteYap(yapData.id, yapData.uid);
             }
         });

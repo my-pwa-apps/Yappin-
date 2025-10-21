@@ -19,10 +19,19 @@ const characterCount = document.getElementById('characterCount');
 const modalCharacterCount = document.getElementById('modalCharacterCount');
 const searchInput = document.getElementById('searchInput');
 const themeToggle = document.getElementById('themeToggle');
+const imageInput = document.getElementById('imageInput');
+const attachImageBtn = document.getElementById('attachImageBtn');
+const emojiBtn = document.getElementById('emojiBtn');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 
 // Constants
 const MAX_YAP_LENGTH = 280;
 const DRAFTS_STORAGE_KEY = 'yappin_drafts';
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGES = 4;
+
+// Image attachments storage
+let selectedImages = [];
 
 // Event Listeners
 
@@ -39,6 +48,22 @@ modalYapText.addEventListener('input', () => updateCharacterCount(modalYapText, 
 // Add auto-save for drafts
 yapText.addEventListener('input', debounce(() => saveDraft(yapText.value), 500));
 modalYapText.addEventListener('input', debounce(() => saveDraft(modalYapText.value), 500));
+
+// Image attachment functionality
+if (attachImageBtn && imageInput) {
+    attachImageBtn.addEventListener('click', () => imageInput.click());
+    imageInput.addEventListener('change', handleImageSelect);
+}
+
+// Paste image functionality
+if (yapText) {
+    yapText.addEventListener('paste', handlePaste);
+}
+
+// Emoji picker functionality
+if (emojiBtn) {
+    emojiBtn.addEventListener('click', toggleEmojiPicker);
+}
 
 // Search functionality
 if (searchInput) {
@@ -260,6 +285,197 @@ function saveDraft(content) {
     }
 }
 
+// ========================================
+// IMAGE ATTACHMENTS & PASTE
+// ========================================
+
+// Handle image selection from file input
+function handleImageSelect(event) {
+    const files = Array.from(event.target.files);
+    addImagesToYap(files);
+}
+
+// Handle paste events (including images)
+function handlePaste(event) {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    
+    for (let item of items) {
+        if (item.type.indexOf('image') !== -1) {
+            event.preventDefault();
+            const file = item.getAsFile();
+            addImagesToYap([file]);
+        }
+    }
+}
+
+// Add images to yap
+function addImagesToYap(files) {
+    for (let file of files) {
+        // Check if we've reached the limit
+        if (selectedImages.length >= MAX_IMAGES) {
+            showSnackbar(`Maximum ${MAX_IMAGES} images allowed`, 'error');
+            break;
+        }
+        
+        // Check file size
+        if (file.size > MAX_IMAGE_SIZE) {
+            showSnackbar(`Image too large. Max size: 5MB`, 'error');
+            continue;
+        }
+        
+        // Check if it's an image
+        if (!file.type.startsWith('image/')) {
+            showSnackbar('Only images are allowed', 'error');
+            continue;
+        }
+        
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            selectedImages.push({
+                file: file,
+                dataUrl: e.target.result
+            });
+            renderImagePreviews();
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Render image previews
+function renderImagePreviews() {
+    if (!imagePreviewContainer) return;
+    
+    if (selectedImages.length === 0) {
+        imagePreviewContainer.classList.add('hidden');
+        imagePreviewContainer.innerHTML = '';
+        return;
+    }
+    
+    imagePreviewContainer.classList.remove('hidden');
+    imagePreviewContainer.innerHTML = '';
+    
+    selectedImages.forEach((image, index) => {
+        const preview = document.createElement('div');
+        preview.className = 'image-preview';
+        preview.innerHTML = `
+            <img src="${image.dataUrl}" alt="Preview ${index + 1}">
+            <button class="image-preview-remove" onclick="removeImage(${index})" aria-label="Remove image">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        imagePreviewContainer.appendChild(preview);
+    });
+}
+
+// Remove image from selection
+window.removeImage = function(index) {
+    selectedImages.splice(index, 1);
+    renderImagePreviews();
+    // Clear file input
+    if (imageInput) imageInput.value = '';
+};
+
+// Clear all images
+function clearImages() {
+    selectedImages = [];
+    renderImagePreviews();
+    if (imageInput) imageInput.value = '';
+}
+
+// ========================================
+// EMOJI PICKER
+// ========================================
+
+const commonEmojis = [
+    '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂',
+    '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩',
+    '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜',
+    '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐',
+    '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬',
+    '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒',
+    '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵',
+    '🤯', '🤠', '🥳', '🥸', '😎', '🤓', '🧐', '😕',
+    '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺',
+    '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱',
+    '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤',
+    '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩',
+    '🤡', '👹', '👺', '👻', '👽', '👾', '🤖', '😺',
+    '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾',
+    '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
+    '🤎', '💔', '❤️‍🔥', '❤️‍🩹', '💕', '💞', '💓', '💗',
+    '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️',
+    '👍', '👎', '👊', '✊', '🤛', '🤜', '🤞', '✌️',
+    '🤟', '🤘', '👌', '🤏', '👈', '👉', '👆', '👇',
+    '☝️', '👋', '🤚', '🖐️', '✋', '🖖', '👏', '🙌',
+    '🎉', '🎊', '🎈', '🎁', '🏆', '🥇', '🥈', '🥉',
+    '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉',
+    '🔥', '⭐', '🌟', '✨', '💫', '💥', '💢', '💦',
+    '💨', '🌈', '☀️', '🌙', '⚡', '☁️', '🌊', '🎵',
+    '🎶', '🎤', '🎧', '📱', '💻', '⌚', '📷', '🎮'
+];
+
+let emojiPickerElement = null;
+
+function toggleEmojiPicker() {
+    if (!emojiPickerElement) {
+        createEmojiPicker();
+    }
+    
+    if (emojiPickerElement.classList.contains('hidden')) {
+        emojiPickerElement.classList.remove('hidden');
+    } else {
+        emojiPickerElement.classList.add('hidden');
+    }
+}
+
+function createEmojiPicker() {
+    emojiPickerElement = document.createElement('div');
+    emojiPickerElement.className = 'emoji-picker hidden';
+    
+    commonEmojis.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.className = 'emoji-btn-item';
+        btn.textContent = emoji;
+        btn.onclick = () => insertEmoji(emoji);
+        emojiPickerElement.appendChild(btn);
+    });
+    
+    // Insert after compose actions
+    const composeActions = document.querySelector('.compose-actions');
+    if (composeActions) {
+        composeActions.parentElement.insertBefore(emojiPickerElement, composeActions);
+    }
+    
+    // Close picker when clicking outside
+    document.addEventListener('click', (e) => {
+        if (emojiPickerElement && 
+            !emojiPickerElement.contains(e.target) && 
+            !emojiBtn.contains(e.target)) {
+            emojiPickerElement.classList.add('hidden');
+        }
+    });
+}
+
+function insertEmoji(emoji) {
+    const textarea = yapText;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    
+    textarea.value = text.substring(0, start) + emoji + text.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
+    textarea.focus();
+    
+    // Update character count
+    updateCharacterCount(textarea, characterCount);
+    
+    // Hide picker
+    if (emojiPickerElement) {
+        emojiPickerElement.classList.add('hidden');
+    }
+}
+
 // Load draft from localStorage
 function loadDraft() {
     const draft = localStorage.getItem(DRAFTS_STORAGE_KEY);
@@ -325,11 +541,11 @@ function createYap(textarea) {
             return { userData, mediaUrls: [] };
         })
         .then(({ userData, mediaUrls }) => {
-            // Create yap object
+            // Create yap object (using 'text' to match Firebase rules)
             const yapData = {
                 uid: auth.currentUser.uid,
                 username: userData.username || userData.displayName || 'anonymous',
-                content: content,
+                text: content,  // Changed from 'content' to 'text' to match Firebase rules
                 timestamp: Date.now(),
                 likes: 0,
                 reyaps: 0,
@@ -360,33 +576,36 @@ function createYap(textarea) {
             if (replyToId) {
                 updates[`yapReplies/${replyToId}/${newYapKey}`] = true;
             }
-            // Extract mentions to notify users
-            const mentions = extractMentions(content);
-            if (mentions.length > 0) {
-                processMentions(mentions, newYapKey, yapData.username);
-            }
             
-            // Process mentions for notifications (from notifications.js)
-            if (typeof processMentionsAndNotify === 'function') {
-                processMentionsAndNotify(newYapKey, content, auth.currentUser.uid);
-            }
-            
-            // If this is a reply, notify the original yap author
-            if (replyToId) {
-                database.ref(`yaps/${replyToId}/uid`).once('value').then(authorSnapshot => {
-                    const originalAuthorId = authorSnapshot.val();
-                    if (originalAuthorId && typeof notifyReply === 'function') {
-                        notifyReply(replyToId, originalAuthorId, auth.currentUser.uid, content);
-                    }
-                });
-            }
-            // Extract hashtags for trending
-            const hashtags = extractHashtags(content);
-            if (hashtags.length > 0) {
-                processHashtags(hashtags, newYapKey);
-            }
-            // Commit updates
+            // Commit updates FIRST
             return database.ref().update(updates).then(() => {
+                // AFTER successful creation, handle mentions and notifications
+                const mentions = extractMentions(content);
+                if (mentions.length > 0) {
+                    processMentions(mentions, newYapKey, yapData.username);
+                }
+                
+                // Process mentions for notifications (from notifications.js)
+                if (typeof processMentionsAndNotify === 'function') {
+                    processMentionsAndNotify(newYapKey, content, auth.currentUser.uid);
+                }
+                
+                // If this is a reply, notify the original yap author
+                if (replyToId) {
+                    database.ref(`yaps/${replyToId}/uid`).once('value').then(authorSnapshot => {
+                        const originalAuthorId = authorSnapshot.val();
+                        if (originalAuthorId && typeof notifyReply === 'function') {
+                            notifyReply(replyToId, originalAuthorId, auth.currentUser.uid, content);
+                        }
+                    }).catch(err => console.error('[ERROR] Failed to notify reply:', err));
+                }
+                
+                // Extract hashtags for trending
+                const hashtags = extractHashtags(content);
+                if (hashtags.length > 0) {
+                    processHashtags(hashtags, newYapKey);
+                }
+                
                 // Return the yap data with ID for immediate display
                 return { yapId: newYapKey, yapData };
             });
@@ -394,6 +613,7 @@ function createYap(textarea) {
         .then(({ yapId, yapData }) => {
             textarea.value = '';
             clearDraft();
+            clearImages(); // Clear attached images
             if (textarea.dataset.replyTo) {
                 delete textarea.dataset.replyTo;
                 const replyInfo = textarea.parentElement.querySelector('.reply-info');
@@ -452,9 +672,8 @@ function uploadMediaFiles(files) {
 
 // Get attached media files
 function getMediaAttachments() {
-    // This would get file inputs from the form
-    // For now just return an empty array
-    return [];
+    // Return selected images as File objects
+    return selectedImages.map(img => img.file);
 }
 
 // Extract @mentions from content
@@ -1343,4 +1562,58 @@ window.closeMessagesModal = function() {
     if (typeof closeConversation === 'function') {
         closeConversation();
     }
+};
+
+// ========================================
+// CONFIRMATION MODAL
+// ========================================
+
+// Show confirmation modal (native app-style)
+window.showConfirmModal = function(title, message, confirmText = 'Confirm', cancelText = 'Cancel') {
+    return new Promise((resolve) => {
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmModalTitle = document.getElementById('confirmModalTitle');
+        const confirmModalMessage = document.getElementById('confirmModalMessage');
+        const confirmModalConfirm = document.getElementById('confirmModalConfirm');
+        const confirmModalCancel = document.getElementById('confirmModalCancel');
+        
+        if (!confirmModal) {
+            // Fallback to browser confirm if modal doesn't exist
+            resolve(confirm(message));
+            return;
+        }
+        
+        // Set content
+        if (confirmModalTitle) confirmModalTitle.textContent = title;
+        if (confirmModalMessage) confirmModalMessage.textContent = message;
+        if (confirmModalConfirm) confirmModalConfirm.textContent = confirmText;
+        if (confirmModalCancel) confirmModalCancel.textContent = cancelText;
+        
+        // Handle confirm
+        const handleConfirm = () => {
+            toggleModal(confirmModal, false);
+            cleanup();
+            resolve(true);
+        };
+        
+        // Handle cancel
+        const handleCancel = () => {
+            toggleModal(confirmModal, false);
+            cleanup();
+            resolve(false);
+        };
+        
+        // Cleanup function
+        const cleanup = () => {
+            if (confirmModalConfirm) confirmModalConfirm.removeEventListener('click', handleConfirm);
+            if (confirmModalCancel) confirmModalCancel.removeEventListener('click', handleCancel);
+        };
+        
+        // Add event listeners
+        if (confirmModalConfirm) confirmModalConfirm.addEventListener('click', handleConfirm);
+        if (confirmModalCancel) confirmModalCancel.addEventListener('click', handleCancel);
+        
+        // Show modal
+        toggleModal(confirmModal, true);
+    });
 };

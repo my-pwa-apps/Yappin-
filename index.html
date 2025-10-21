@@ -94,11 +94,13 @@
                 <section class="timeline">
                     <div class="compose-yap">
                         <textarea id="yapText" placeholder="Keep yappin' man!"></textarea>
+                        <div id="imagePreviewContainer" class="image-preview-container hidden"></div>
                         <div class="compose-actions">
                             <div class="attach-options">
-                                <button class="icon-btn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
-                                <button class="icon-btn" aria-label="Create poll" title="Create poll"><i class="fas fa-poll"></i></button>
-                                <button class="icon-btn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
+                                <label for="imageInput" class="visually-hidden">Attach images</label>
+                                <input type="file" id="imageInput" accept="image/*" multiple class="hidden-input">
+                                <button class="icon-btn" id="attachImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
+                                <button class="icon-btn" id="emojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
                             </div>
                             <button id="postYapBtn" class="btn primary-btn">Yap</button>
                         </div>
@@ -283,6 +285,21 @@
                 </div>
             </div>
         </main>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmModal" class="modal hidden">
+            <div class="modal-content confirm-modal-content">
+                <div class="confirm-modal-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 id="confirmModalTitle">Confirm Action</h3>
+                <p id="confirmModalMessage">Are you sure?</p>
+                <div class="confirm-modal-buttons">
+                    <button class="btn" id="confirmModalCancel">Cancel</button>
+                    <button class="btn btn-danger" id="confirmModalConfirm">Delete</button>
+                </div>
+            </div>
+        </div>
 
         <div id="snackbar"></div>
         
