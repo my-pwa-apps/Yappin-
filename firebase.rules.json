@@ -7,10 +7,37 @@
     "users": {
       ".indexOn": ["privacy"],
       "$uid": {
-        // Can read if: you're the owner, you follow them, they follow you, OR they have a public account
-        ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('followers').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['username', 'createdAt'])",
+        
+        // Basic profile info - readable by all authenticated users (for search/discovery)
+        "username": {
+          ".read": "auth != null",
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 20"
+        },
+        "photoURL": {
+          ".read": "auth != null"
+        },
+        "privacy": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.val() === 'public' || newData.val() === 'private'"
+        },
+        "followersCount": {
+          ".read": "auth != null"
+        },
+        "followingCount": {
+          ".read": "auth != null"
+        },
+        
+        // Extended profile - only if owner, following/follower relationship, or public account
+        "bio": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('followers').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')",
+          ".validate": "newData.isString() && newData.val().length <= 160"
+        },
+        "createdAt": {
+          ".read": "auth != null && (auth.uid === $uid || root.child('following').child(auth.uid).child($uid).exists() || root.child('followers').child(auth.uid).child($uid).exists() || root.child('users').child($uid).child('privacy').val() === 'public')"
+        },
         
         // Sensitive fields - only owner can read
         "email": {
@@ -22,23 +49,6 @@
         "inviteCodes": {
           ".read": "auth != null && auth.uid === $uid",
           ".write": "auth != null && auth.uid === $uid"
-        },
-        
-        // Privacy setting readable by all (to check if account is public)
-        "privacy": {
-          ".read": "auth != null",
-          ".write": "auth != null && auth.uid === $uid",
-          ".validate": "newData.val() === 'public' || newData.val() === 'private'"
-        },
-        
-        // Username validation
-        "username": {
-          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 20"
-        },
-        
-        // Bio validation
-        "bio": {
-          ".validate": "newData.isString() && newData.val().length <= 160"
         }
       }
     },
