@@ -392,6 +392,8 @@ function checkUserProfile(user) {
 
 // Show invite codes modal
 window.showInviteCodes = function() {
+    console.log('[Invite] showInviteCodes called');
+    
     if (!auth.currentUser) {
         showSnackbar('Please login to view invite codes', 'error');
         return;
@@ -399,6 +401,14 @@ window.showInviteCodes = function() {
     
     const modal = document.getElementById('inviteCodesModal');
     const codesList = document.getElementById('inviteCodesList');
+    
+    if (!modal) {
+        console.error('[Invite] Modal not found!');
+        showSnackbar('Error: Modal not found', 'error');
+        return;
+    }
+    
+    console.log('[Invite] Opening modal...');
     
     // Show modal
     modal.classList.remove('hidden');
@@ -409,10 +419,35 @@ window.showInviteCodes = function() {
     // Get list of codes from user's inviteCodes list
     database.ref(`users/${auth.currentUser.uid}/inviteCodes`).once('value')
         .then(snapshot => {
+            console.log('[Invite] User codes snapshot:', snapshot.val());
             const userCodes = snapshot.val();
             
             if (!userCodes || Object.keys(userCodes).length === 0) {
+                console.log('[Invite] No codes found, showing generate message');
                 codesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No invite codes yet. Generate one below!</p>';
+                
+                // Auto-generate 3 codes for the user
+                console.log('[Invite] Auto-generating initial codes...');
+                const generatePromises = [
+                    generateInviteCode(auth.currentUser.uid),
+                    generateInviteCode(auth.currentUser.uid),
+                    generateInviteCode(auth.currentUser.uid)
+                ];
+                
+                return Promise.all(generatePromises).then(() => {
+                    console.log('[Invite] Initial codes generated, refreshing...');
+                    // Refresh the list
+                    return database.ref(`users/${auth.currentUser.uid}/inviteCodes`).once('value');
+                });
+            }
+            
+            return snapshot;
+        })
+        .then(snapshot => {
+            if (!snapshot) return;
+            
+            const userCodes = snapshot.val();
+            if (!userCodes || Object.keys(userCodes).length === 0) {
                 return;
             }
             
@@ -452,10 +487,13 @@ window.showInviteCodes = function() {
                 
                 codesList.appendChild(codeItem);
             });
+            
+            console.log('[Invite] Codes displayed successfully');
         })
         .catch(error => {
-            console.error('Error loading invite codes:', error);
-            codesList.innerHTML = '<p style="text-align: center; color: var(--danger-color);">Error loading codes</p>';
+            console.error('[Invite] Error loading invite codes:', error);
+            codesList.innerHTML = `<p style="text-align: center; color: var(--danger-color);">Error loading codes: ${error.message}</p>`;
+            showSnackbar('Error loading invite codes', 'error');
         });
 };
 
