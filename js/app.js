@@ -528,11 +528,17 @@ function createYap(textarea) {
     postButton.disabled = true;
     postButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
     
-    // Get user data
-    database.ref(`users/${auth.currentUser.uid}`).once('value')
-        .then(snapshot => {
-            const userData = snapshot.val();
-            if (!userData) {
+    // Get user data - only read accessible fields
+    Promise.all([
+        database.ref(`users/${auth.currentUser.uid}/username`).once('value'),
+        database.ref(`users/${auth.currentUser.uid}/photoURL`).once('value')
+    ])
+        .then(([usernameSnap, photoSnap]) => {
+            const userData = {
+                username: usernameSnap.val(),
+                photoURL: photoSnap.val()
+            };
+            if (!userData.username) {
                 throw new Error('User profile not found');
             }
             // Handle media uploads first if any
