@@ -1353,8 +1353,12 @@ function performSearch(query) {
                 userIds.push(child.val());
             });
             
+            // Remove duplicates
+            const uniqueUserIds = [...new Set(userIds)];
+            console.log('[DEBUG] Search found users:', uniqueUserIds);
+            
             // Load user details - only read accessible fields
-            const promises = userIds.map(uid => {
+            const promises = uniqueUserIds.map(uid => {
                 return Promise.all([
                     database.ref(`users/${uid}/username`).once('value'),
                     database.ref(`users/${uid}/photoURL`).once('value'),
