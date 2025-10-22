@@ -422,6 +422,11 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
         showSnackbar('Yap details feature coming soon!');
     });
     
+    // Convert title attributes to data-tooltip for this element
+    if (typeof window.convertTitlesToTooltips === 'function') {
+        window.convertTitlesToTooltips(yapElement);
+    }
+    
     return yapElement;
 }
 

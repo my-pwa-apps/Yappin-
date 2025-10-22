@@ -57,7 +57,7 @@
                     <div class="online-indicator-badge"></div>
                 </div>
                 <div class="user-menu">
-                    <button id="userBtn" class="hidden" aria-label="User menu" title="User menu"><i class="fas fa-user"></i></button>
+                    <button id="userBtn" class="hidden" aria-label="User menu" title="User menu" data-tooltip="User menu"><i class="fas fa-user"></i></button>
                     <div id="userDropdown" class="dropdown hidden">
                         <a href="#" onclick="showProfile(); return false;">Profile</a>
                         <a href="#" id="logoutBtn">Logout</a>
@@ -132,10 +132,10 @@
                             <div class="attach-options">
                                 <label for="imageInput" class="visually-hidden">Attach images</label>
                                 <input type="file" id="imageInput" accept="image/*" multiple class="hidden-input">
-                                <button class="icon-btn" id="attachImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
-                                <button class="icon-btn" id="gifBtn" aria-label="Add GIF" title="Add GIF"><i class="fas fa-file-image"></i></button>
-                                <button class="icon-btn" id="stickerBtn" aria-label="Add sticker" title="Add sticker"><i class="far fa-grin-squint"></i></button>
-                                <button class="icon-btn" id="emojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
+                                <button class="icon-btn" id="attachImageBtn" aria-label="Attach image" title="Attach image" data-tooltip="Attach image"><i class="far fa-image"></i></button>
+                                <button class="icon-btn" id="gifBtn" aria-label="Add GIF" title="Add GIF" data-tooltip="Add GIF"><i class="fas fa-file-image"></i></button>
+                                <button class="icon-btn" id="stickerBtn" aria-label="Add sticker" title="Add sticker" data-tooltip="Add sticker"><i class="far fa-grin-squint"></i></button>
+                                <button class="icon-btn" id="emojiBtn" aria-label="Add emoji" title="Add emoji" data-tooltip="Add emoji"><i class="far fa-smile"></i></button>
                             </div>
                             <button id="postYapBtn" class="btn primary-btn">Yap</button>
                         </div>

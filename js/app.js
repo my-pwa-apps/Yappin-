@@ -1145,53 +1145,25 @@ function displaySearchResults(results) {
     }
 }
 
-// Initialize tooltips
+// Initialize tooltips - Convert title to data-tooltip for Material Design tooltips
 function initializeTooltips() {
-    // Convert title attributes to data-tooltip for better styling
-    document.querySelectorAll('[title]').forEach(element => {
-        // Only convert if it's an interactive element (button, link, etc.)
-        if (element.matches('button, a, .icon-btn, .action-btn, [role="button"]')) {
-            const title = element.getAttribute('title');
-            if (title) {
-                element.setAttribute('data-tooltip', title);
-                // Keep title for accessibility but it won't show native tooltip
-                // The CSS will handle showing the styled tooltip
-            }
+    convertTitlesToTooltips(document);
+}
+
+// Convert title attributes to data-tooltip
+function convertTitlesToTooltips(root = document) {
+    const elements = root.querySelectorAll('[title]:not([data-tooltip])');
+    elements.forEach(element => {
+        const title = element.getAttribute('title');
+        if (title && title.trim()) {
+            element.setAttribute('data-tooltip', title);
+            (window.PerformanceUtils?.Logger || console).log(`Added tooltip to ${element.tagName}: ${title}`);
         }
     });
-    
-    // Also re-run this for dynamically added elements
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-                if (node.nodeType === 1) { // Element node
-                    // Check the node itself
-                    if (node.hasAttribute && node.hasAttribute('title') && 
-                        node.matches('button, a, .icon-btn, .action-btn, [role="button"]')) {
-                        const title = node.getAttribute('title');
-                        if (title) {
-                            node.setAttribute('data-tooltip', title);
-                        }
-                    }
-                    // Check children
-                    node.querySelectorAll('[title]').forEach(element => {
-                        if (element.matches('button, a, .icon-btn, .action-btn, [role="button"]')) {
-                            const title = element.getAttribute('title');
-                            if (title) {
-                                element.setAttribute('data-tooltip', title);
-                            }
-                        }
-                    });
-                }
-            });
-        });
-    });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
 }
+
+// Make it globally available so it can be called after dynamic content loads
+window.convertTitlesToTooltips = convertTitlesToTooltips;
 
 // Show tooltip
 function showTooltip(e) {
