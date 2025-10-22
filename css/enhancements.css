@@ -6,7 +6,7 @@ html {
 }
 
 /* Improve focus visibility for keyboard navigation */
-*:focus-visible {
+*:focus-visible:not(label) {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
   border-radius: 4px;
@@ -15,6 +15,11 @@ html {
 /* Remove default focus outline for mouse users */
 *:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Ensure labels never show focus outline */
+label {
+  outline: none !important;
 }
 
 /* Loading skeleton animation */

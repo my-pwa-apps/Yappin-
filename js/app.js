@@ -1034,7 +1034,8 @@ function toggleReyap(yapId) {
         return Promise.reject('Not authenticated');
     }
     
-    const reyapRef = database.ref(`reyaps/${yapId}/${auth.currentUser.uid}`);
+    const currentUid = auth.currentUser.uid;
+    const reyapRef = database.ref(`reyaps/${yapId}/${currentUid}`);
     const yapRef = database.ref(`yaps/${yapId}`);
     
     return reyapRef.once('value')
@@ -1043,23 +1044,41 @@ function toggleReyap(yapId) {
             
             if (snapshot.exists()) {
                 // User already reyapped this, so undo it
-                updates[`reyaps/${yapId}/${auth.currentUser.uid}`] = null;
-                updates[`userReyaps/${auth.currentUser.uid}/${yapId}`] = null;
+                updates[`reyaps/${yapId}/${currentUid}`] = null;
+                updates[`userReyaps/${currentUid}/${yapId}`] = null;
                 
-                // Get current count and decrement
+                // Get current count and decrement in the original yap
                 return yapRef.once('value').then(yapSnapshot => {
-                    const currentCount = yapSnapshot.val()?.reyaps || 0;
+                    const yapData = yapSnapshot.val();
+                    const currentCount = yapData?.reyaps || 0;
                     updates[`yaps/${yapId}/reyaps`] = Math.max(0, currentCount - 1);
                     
-                    // Also remove from timeline if it exists
-                    updates[`userYaps/${auth.currentUser.uid}/${yapId}`] = null;
+                    // Also decrement in userYaps for the original author
+                    if (yapData && yapData.uid) {
+                        updates[`userYaps/${yapData.uid}/${yapId}/reyaps`] = Math.max(0, currentCount - 1);
+                    }
                     
-                    return database.ref().update(updates);
+                    // Remove reyap from user's own timeline
+                    updates[`userYaps/${currentUid}/${yapId}`] = null;
+                    
+                    return database.ref().update(updates).then(() => {
+                        showSnackbar('Reyap removed', 'success');
+                        
+                        // Reload timeline to reflect changes
+                        if (typeof loadTimeline === 'function') {
+                            loadTimeline();
+                        }
+                    });
                 });
             } else {
                 // User hasn't reyapped this, so check if reyapping is allowed
                 return yapRef.once('value').then(yapSnapshot => {
                     const yapData = yapSnapshot.val();
+                    
+                    // Prevent reyapping own posts
+                    if (yapData && yapData.uid === currentUid) {
+                        throw new Error('You cannot reyap your own posts');
+                    }
                     
                     // Check if the yap creator has disabled reyaps
                     if (yapData?.allowReyap === false) {
@@ -1067,27 +1086,39 @@ function toggleReyap(yapId) {
                     }
                     
                     // Add the reyap
-                    updates[`reyaps/${yapId}/${auth.currentUser.uid}`] = true;
-                    updates[`userReyaps/${auth.currentUser.uid}/${yapId}`] = true;
+                    updates[`reyaps/${yapId}/${currentUid}`] = true;
+                    updates[`userReyaps/${currentUid}/${yapId}`] = true;
                     
                     const currentCount = yapData?.reyaps || 0;
-                    updates[`yaps/${yapId}/reyaps`] = currentCount + 1;
+                    const newCount = currentCount + 1;
+                    updates[`yaps/${yapId}/reyaps`] = newCount;
+                    
+                    // Also update count in userYaps for the original author
+                    if (yapData && yapData.uid) {
+                        updates[`userYaps/${yapData.uid}/${yapId}/reyaps`] = newCount;
+                    }
                     
                     // Add reyapped yap to user's timeline so it shows up in their feed
-                    updates[`userYaps/${auth.currentUser.uid}/${yapId}`] = {
+                    updates[`userYaps/${currentUid}/${yapId}`] = {
                         ...yapData,
-                        reyappedBy: auth.currentUser.uid,
-                        reyappedAt: Date.now()
+                        reyappedBy: currentUid,
+                        reyappedAt: Date.now(),
+                        reyaps: newCount
                     };
                     
                     // Update database
                     return database.ref().update(updates).then(() => {
                         // Create notification if the yap is not from the current user
-                        if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyReyap === 'function') {
-                            notifyReyap(yapId, yapData.uid, auth.currentUser.uid);
+                        if (yapData && yapData.uid !== currentUid && typeof notifyReyap === 'function') {
+                            notifyReyap(yapId, yapData.uid, currentUid);
                         }
                         
                         showSnackbar('Reyapped successfully!', 'success');
+                        
+                        // Reload timeline to reflect changes
+                        if (typeof loadTimeline === 'function') {
+                            loadTimeline();
+                        }
                     });
                 });
             }
@@ -1095,6 +1126,7 @@ function toggleReyap(yapId) {
         .catch(error => {
             (window.PerformanceUtils?.Logger || console).error('Error toggling reyap:', error);
             showSnackbar(error.message || 'Failed to reyap', 'error');
+            throw error;
         });
 }
 

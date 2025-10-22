@@ -282,10 +282,17 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 <i class="far fa-comment"></i>
                 <span>${yapData.replies || 0}</span>
             </button>
+            ${!isOwnYap ? `
             <button class="action-btn reyap ${isReyapped ? 'reyapped' : ''}" aria-label="Reyap" ${yapData.allowReyap === false ? 'disabled title="Reyaps disabled by author"' : ''}>
                 <i class="fas fa-retweet"></i>
                 <span>${yapData.reyaps || 0}</span>
             </button>
+            ` : `
+            <button class="action-btn reyap disabled" aria-label="Cannot reyap own post" disabled title="Cannot reyap your own post">
+                <i class="fas fa-retweet"></i>
+                <span>${yapData.reyaps || 0}</span>
+            </button>
+            `}
             <button class="action-btn like ${isLiked ? 'liked' : ''}" aria-label="Like">
                 <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
                 <span>${yapData.likes || 0}</span>
@@ -334,26 +341,22 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
         });
     });
     
-    reyapBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleReyap(yapData.id).then(() => {
-            const reyapsCount = reyapBtn.querySelector('span');
-            const icon = reyapBtn.querySelector('i');
+    // Only add event listener if button is not disabled (not own post)
+    if (reyapBtn && !reyapBtn.disabled) {
+        reyapBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             
-            if (reyapBtn.classList.toggle('reyapped')) {
-                // Just reyapped
-                icon.classList.replace('far', 'fas');
-                reyapsCount.textContent = (parseInt(reyapsCount.textContent) + 1).toString();
-            } else {
-                // Just un-reyapped
-                icon.classList.replace('fas', 'far');
-                reyapsCount.textContent = (parseInt(reyapsCount.textContent) - 1).toString();
-            }
-        }).catch(error => {
-            (window.PerformanceUtils?.Logger || console).error('Reyap error:', error);
-            showSnackbar('Failed to update reyap', 'error');
+            // Double check it's not disabled
+            if (reyapBtn.disabled) return;
+            
+            toggleReyap(yapData.id).then(() => {
+                // Timeline will reload automatically from toggleReyap function
+            }).catch(error => {
+                (window.PerformanceUtils?.Logger || console).error('Reyap error:', error);
+                // Error already shown by toggleReyap
+            });
         });
-    });
+    }
     
     replyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
