@@ -51,9 +51,9 @@
         --text-secondary: #94a3b8; /* Slate lighter */
         --border-color: #334155; /* Slate dark */
         --hover-color: #1e293b; /* Slate darker */
-        --primary-light: rgba(16, 185, 129, 0.15);
-        --primary-color: #34d399; /* Lighter emerald for dark mode */
-        --primary-hover: #10b981;
+        --primary-light: rgba(132, 204, 22, 0.15);
+        --primary-color: #a3e635; /* Lighter lime green for dark mode */
+        --primary-hover: #84cc16;
         --accent-color: #60a5fa;
     }
     
@@ -580,7 +580,7 @@ main {
 .sidebar {
     position: sticky;
     top: 70px;
-    padding: 0 var(--space-md);
+    padding: 0;
 }
 
 .sidebar nav ul {
