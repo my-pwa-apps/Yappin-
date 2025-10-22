@@ -747,19 +747,24 @@ function createYap(textarea) {
             // Clear images
             clearImages();
             
-            // Clear reply context
-            if (window.replyContext) {
-                window.replyContext = null;
-                const replyIndicator = document.getElementById('replyIndicator');
-                if (replyIndicator) {
-                    replyIndicator.style.display = 'none';
+            // Clear reply context using ui-utils
+            if (window.uiUtils && window.uiUtils.clearReplyContext) {
+                window.uiUtils.clearReplyContext();
+            } else {
+                // Fallback
+                if (window.replyContext) {
+                    window.replyContext = null;
+                    const replyIndicator = document.getElementById('replyIndicator');
+                    if (replyIndicator) {
+                        replyIndicator.style.display = 'none';
+                    }
                 }
-            }
-            
-            if (textarea.dataset.replyTo) {
-                delete textarea.dataset.replyTo;
-                const replyInfo = textarea.parentElement.querySelector('.reply-info');
-                if (replyInfo) replyInfo.remove();
+                
+                if (textarea.dataset.replyTo) {
+                    delete textarea.dataset.replyTo;
+                    const replyInfo = textarea.parentElement.querySelector('.reply-info');
+                    if (replyInfo) replyInfo.remove();
+                }
             }
             
             // Update character count to show 0/280
@@ -771,7 +776,11 @@ function createYap(textarea) {
             
             if (textarea === modalYapText) {
                 // Close modal without asking to save (we already posted!)
-                toggleModal(createYapModal, false);
+                if (window.uiUtils && window.uiUtils.toggleModal) {
+                    window.uiUtils.toggleModal(createYapModal, false);
+                } else {
+                    toggleModal(createYapModal, false);
+                }
             }
             showSnackbar('Yap posted successfully!', 'success');
             

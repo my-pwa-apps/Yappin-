@@ -2949,10 +2949,16 @@ button:not(input[type="submit"]) {
 /* Remove floating effect from buttons */
 .btn:hover,
 .primary-btn:hover,
-.secondary-btn:hover,
+.secondary-btn:hover {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Icon buttons should have hover effect */
 .icon-btn:hover {
     box-shadow: none !important;
     transform: none !important;
+    background-color: var(--primary-light) !important;
 }
 
 /* Remove borders from sidebar navigation items */

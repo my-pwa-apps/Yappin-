@@ -987,66 +987,49 @@ function openReplyModal(replyToYapId, replyToUsername, replyToContent) {
     }
     
     const composeModal = document.getElementById('createYapModal');
-    const modalYapText = document.getElementById('modalYapText');
-    
-    if (!composeModal || !modalYapText) {
-        (window.PerformanceUtils?.Logger || console).error('Compose modal elements not found');
+    if (!composeModal) {
+        (window.PerformanceUtils?.Logger || console).error('Compose modal not found');
         return;
     }
     
-    // Store reply context
-    window.replyContext = {
-        yapId: replyToYapId,
-        username: replyToUsername
-    };
-    
-    // Pre-fill with @username mention
-    modalYapText.value = `@${replyToUsername} `;
-    
-    // Show modal
-    toggleModal(composeModal, true);
-    
-    // Focus text area at the end
-    modalYapText.focus();
-    modalYapText.setSelectionRange(modalYapText.value.length, modalYapText.value.length);
-    
-    // Update character count
-    if (typeof updateCharacterCount === 'function') {
-        updateCharacterCount();
+    // Open modal first
+    if (window.uiUtils && window.uiUtils.toggleModal) {
+        window.uiUtils.toggleModal(composeModal, true);
+    } else {
+        toggleModal(composeModal, true);
     }
     
-    // Add reply indicator
-    let replyIndicator = document.getElementById('replyIndicator');
-    if (!replyIndicator) {
-        replyIndicator = document.createElement('div');
-        replyIndicator.id = 'replyIndicator';
-        replyIndicator.style.cssText = 'padding: 8px 12px; margin-bottom: 8px; background: var(--bg-secondary); border-radius: 8px; font-size: 14px; color: var(--text-secondary);';
-        modalYapText.parentElement.insertBefore(replyIndicator, modalYapText);
+    // Setup reply context using ui-utils
+    if (window.uiUtils && window.uiUtils.setupReplyContext) {
+        window.uiUtils.setupReplyContext(replyToYapId, replyToUsername, replyToContent, 'modalYapText');
+    } else {
+        // Fallback if ui-utils not loaded yet
+        window.replyContext = { yapId: replyToYapId, username: replyToUsername };
+        const modalYapText = document.getElementById('modalYapText');
+        if (modalYapText) {
+            modalYapText.value = `@${replyToUsername} `;
+            modalYapText.focus();
+        }
     }
-    
-    const truncatedContent = replyToContent.length > 50 ? replyToContent.substring(0, 50) + '...' : replyToContent;
-    replyIndicator.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span>Replying to @${replyToUsername}: "${truncatedContent}"</span>
-            <button onclick="cancelReply()" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px;">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    `;
-    replyIndicator.style.display = 'block';
 }
 
+// Cancel reply function
 window.cancelReply = function() {
-    window.replyContext = null;
-    const replyIndicator = document.getElementById('replyIndicator');
-    if (replyIndicator) {
-        replyIndicator.style.display = 'none';
-    }
-    const modalYapText = document.getElementById('modalYapText');
-    if (modalYapText && modalYapText.value.startsWith('@')) {
-        modalYapText.value = '';
-        if (typeof updateCharacterCount === 'function') {
-            updateCharacterCount();
+    if (window.uiUtils && window.uiUtils.clearReplyContext) {
+        window.uiUtils.clearReplyContext();
+    } else {
+        // Fallback
+        window.replyContext = null;
+        const replyIndicator = document.getElementById('replyIndicator');
+        if (replyIndicator) {
+            replyIndicator.style.display = 'none';
+        }
+        const modalYapText = document.getElementById('modalYapText');
+        if (modalYapText && modalYapText.value.startsWith('@')) {
+            modalYapText.value = '';
+            if (typeof updateCharacterCount === 'function') {
+                updateCharacterCount();
+            }
         }
     }
 };
