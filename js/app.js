@@ -680,8 +680,12 @@ function createYap(textarea) {
             // Create update object
             const updates = {};
             updates[`yaps/${newYapKey}`] = yapData;
-            // Store the full yap object in userYaps for timeline consistency
-            updates[`userYaps/${auth.currentUser.uid}/${newYapKey}`] = yapData;
+            
+            // Only store in userYaps if it's NOT a reply (replies should only show under parent yap)
+            if (!replyToId) {
+                updates[`userYaps/${auth.currentUser.uid}/${newYapKey}`] = yapData;
+            }
+            
             // If this is a reply, add to the replies list and update reply count
             if (replyToId) {
                 updates[`yapReplies/${replyToId}/${newYapKey}`] = true;
