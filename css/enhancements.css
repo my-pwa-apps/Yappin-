@@ -329,16 +329,16 @@ body.dark-mode #connection-status {
 }
 
 #connection-status.online .connection-dot {
-  background-color: #4CAF50;
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+  background-color: #84cc16;
+  box-shadow: 0 0 8px rgba(132, 204, 22, 0.6);
 }
 
 #connection-status.online .connection-text {
-  color: #4CAF50;
+  display: none;
 }
 
 body.dark-mode #connection-status.online .connection-text {
-  color: #66BB6A;
+  display: none;
 }
 
 #connection-status.offline .connection-dot {
@@ -348,11 +348,11 @@ body.dark-mode #connection-status.online .connection-text {
 }
 
 #connection-status.offline .connection-text {
-  color: #f44336;
+  display: none;
 }
 
 body.dark-mode #connection-status.offline .connection-text {
-  color: #EF5350;
+  display: none;
 }
 
 @keyframes pulse-offline {

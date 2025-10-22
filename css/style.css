@@ -598,6 +598,7 @@ main {
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);
+    padding-top: var(--space-md);
 }
 
 .sidebar nav ul li a {
@@ -612,14 +613,14 @@ main {
 }
 
 .sidebar nav ul li a:hover {
-    background-color: rgba(29, 161, 242, 0.1);
+    background-color: rgba(132, 204, 22, 0.1);
     color: var(--primary-color);
     text-decoration: none;
     border-left: none !important;
 }
 
 body.dark-mode .sidebar nav ul li a:hover {
-    background-color: rgba(29, 161, 242, 0.15);
+    background-color: rgba(132, 204, 22, 0.15);
     border-left: none !important;
 }
 
