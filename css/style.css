@@ -2,9 +2,9 @@
 
 :root {
     /* Base colors - Modern Green Theme */
-    --primary-color: #10b981; /* Emerald green */
-    --primary-hover: #059669;
-    --primary-light: rgba(16, 185, 129, 0.1);
+    --primary-color: #84cc16; /* Lime green to match logo */
+    --primary-hover: #65a30d;
+    --primary-light: rgba(132, 204, 22, 0.1);
     --accent-color: #3b82f6; /* Blue accent */
     --secondary-color: #64748b; /* Slate gray */
     --light-gray: #cbd5e1; 
@@ -13,7 +13,7 @@
     --text-primary: #0f172a; /* Slate */
     --text-secondary: #475569; /* Slate */
     --danger-color: #ef4444; /* Red */
-    --success-color: #10b981; /* Emerald */
+    --success-color: #84cc16; /* Lime green to match logo */
     --warning-color: #f59e0b; /* Amber */
     
     /* Layout */
@@ -280,29 +280,6 @@ header {
     font-weight: 700;
     margin: 0;
     letter-spacing: -0.5px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* animation: shine 3s linear infinite; */ /* Remove animation */
-    position: relative;
-}
-
-/* Enhanced logo text effect */
-.logo h1::after {
-    content: attr(data-text);
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: -1;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: blur(8px);
-    opacity: 0.3;
 }
 
 /* Header Profile Container */
@@ -328,7 +305,7 @@ header {
 }
 
 .header-profile-avatar:hover {
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 4px 12px rgba(132, 204, 22, 0.3);
 }
 
 .header-profile-avatar img {
@@ -346,7 +323,7 @@ header {
     right: 0;
     width: 12px;
     height: 12px;
-    background-color: #4CAF50; /* Green for online */
+    background-color: var(--primary-color); /* Green for online - matches logo */
     border: 2px solid var(--bg-primary, #fff);
     border-radius: 50%;
     z-index: 4;
@@ -1381,7 +1358,7 @@ body.dark-mode .reply-yap {
 .modal-body textarea:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+    box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.1);
 }
 
 /* Modal body scrollbar styling */
@@ -1721,13 +1698,13 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
   align-items: center;
   justify-content: center;
   padding: 0 6px;
-  box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 2px 5px rgba(132, 204, 22, 0.3);
 }
 
 /* Elegant focus outline */
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.35);
+  box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.35);
   border-radius: 4px;
 }
 
@@ -2052,7 +2029,7 @@ body.dark-mode .follow-btn.following:hover {
 .loading-spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(76, 175, 80, 0.2);
+    border: 3px solid rgba(132, 204, 22, 0.2);
     border-top-color: #66BB6A;
     border-radius: 50%;
     animation: spin 1s linear infinite;
@@ -2066,7 +2043,7 @@ body.dark-mode .follow-btn.following:hover {
 
 /* Dark mode styles for follow suggestions */
 body.dark-mode .follow-suggestion-banner {
-    background-color: rgba(76, 175, 80, 0.1);
+    background-color: rgba(132, 204, 22, 0.1);
     border-color: #263238;
 }
 
@@ -2091,7 +2068,7 @@ body.dark-mode .loading-spinner {
     justify-content: center;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    box-shadow: 0 6px 20px rgba(132, 204, 22, 0.4);
     z-index: 999;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     border: none;
@@ -2101,7 +2078,7 @@ body.dark-mode .loading-spinner {
 .desktop-compose-btn:hover, 
 .desktop-compose-btn:focus {
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5);
+    box-shadow: 0 8px 25px rgba(132, 204, 22, 0.5);
     background-color: var(--primary-hover);
 }
 
@@ -3100,4 +3077,5 @@ body.dark-mode select {
     border: none !important;
     outline: none !important;
 }
+
 
