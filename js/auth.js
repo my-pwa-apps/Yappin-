@@ -709,7 +709,19 @@ window.uploadProfilePicture = function() {
                     // Clear file input
                     fileInput.value = '';
                     
-                    // Reload timeline to show updated avatar
+                    // Update userBtn avatar (desktop menu)
+                    const userBtn = document.getElementById('userBtn');
+                    if (userBtn) {
+                        userBtn.innerHTML = `<img src="${base64}" alt="User avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" onerror="this.src='./images/default-avatar.svg'">`;
+                    }
+                    
+                    // Update header profile avatar (mobile)
+                    const headerAvatarImg = document.getElementById('headerAvatarImg');
+                    if (headerAvatarImg) {
+                        headerAvatarImg.src = base64;
+                    }
+                    
+                    // Reload timeline to show updated avatar on existing posts
                     if (typeof loadTimeline === 'function') {
                         loadTimeline();
                     }

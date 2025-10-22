@@ -170,12 +170,55 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     
     // Defensive: fallback for missing data and escape HTML
     const username = (yapData.username || 'anonymous').replace(/[<>"']/g, '');
-    const displayName = yapData.displayName ? yapData.displayName.replace(/[<>"']/g, '') : null;
-    const displayText = displayName || `@${username}`;
     const content = yapData.text || yapData.content || '';  // Support both 'text' (new) and 'content' (legacy)
     const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
-    const avatar = (yapData.userPhotoURL || generateRandomAvatar(yapData.uid || username)).replace(/["'<>]/g, '');
     const isOwnYap = auth.currentUser && yapData.uid === auth.currentUser.uid;
+    
+    // Fetch fresh user data for displayName and photoURL if we have a uid
+    if (yapData.uid && database) {
+        Promise.all([
+            database.ref(`users/${yapData.uid}/displayName`).once('value'),
+            database.ref(`users/${yapData.uid}/photoURL`).once('value')
+        ]).then(([displayNameSnap, photoSnap]) => {
+            const freshDisplayName = displayNameSnap.val();
+            const freshPhotoURL = photoSnap.val();
+            
+            // Update display name if we got fresh data
+            const displayNameElement = yapElement.querySelector('.display-name');
+            if (displayNameElement && freshDisplayName) {
+                const escapedDisplayName = freshDisplayName.replace(/[<>"']/g, '');
+                displayNameElement.textContent = escapedDisplayName;
+                
+                // Update username to show as secondary
+                const userInfoDiv = yapElement.querySelector('.yap-user-info');
+                if (userInfoDiv) {
+                    const usernameSecondary = userInfoDiv.querySelector('.username-secondary');
+                    if (!usernameSecondary) {
+                        const timeSpan = userInfoDiv.querySelector('.time');
+                        const newUsernameSpan = document.createElement('span');
+                        newUsernameSpan.className = 'username-secondary';
+                        newUsernameSpan.textContent = `@${username}`;
+                        if (timeSpan) {
+                            userInfoDiv.insertBefore(newUsernameSpan, timeSpan);
+                        }
+                    }
+                }
+            }
+            
+            // Update avatar if we got fresh data
+            const avatarImg = yapElement.querySelector('.yap-avatar img');
+            if (avatarImg && freshPhotoURL) {
+                avatarImg.src = freshPhotoURL.replace(/["'<>]/g, '');
+            }
+        }).catch(error => {
+            (window.PerformanceUtils?.Logger || console).warn('Could not fetch fresh user data for yap:', error);
+        });
+    }
+    
+    // Use stored data as initial/fallback
+    const displayName = yapData.displayName ? yapData.displayName.replace(/[<>"']/g, '') : null;
+    const displayText = displayName || `@${username}`;
+    const avatar = (yapData.userPhotoURL || generateRandomAvatar(yapData.uid || username)).replace(/["'<>]/g, '');
     
     yapElement.innerHTML = `
         <div class="yap-header">
