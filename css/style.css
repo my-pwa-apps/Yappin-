@@ -144,6 +144,37 @@ button {
     transition: all var(--transition-fast);
 }
 
+/* Comprehensive cursor pointer for all interactive elements */
+button,
+a,
+.icon-btn,
+.action-btn,
+.close-btn,
+.btn,
+.yap-item,
+.trend-item,
+.user-item,
+.conversation-item,
+.yap-avatar,
+.header-profile-avatar,
+[role="button"],
+[onclick],
+input[type="checkbox"],
+input[type="radio"],
+label,
+select {
+    cursor: pointer;
+}
+
+/* Default cursor for text inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea {
+    cursor: text;
+}
+
 input, textarea {
     font-family: inherit;
     font-size: 16px;
