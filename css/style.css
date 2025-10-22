@@ -332,10 +332,10 @@ header {
 /* Online/Offline Indicator Dots */
 .online-indicator-badge {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 10px;
-    height: 10px;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
     background-color: #4CAF50; /* Green for online */
     border: 2px solid var(--bg-primary, #fff);
     border-radius: 50%;

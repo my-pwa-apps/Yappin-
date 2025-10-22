@@ -926,26 +926,11 @@ body.dark-mode header {
   overflow: hidden;
 }
 
-.sidebar nav ul li a::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: var(--primary-color);
-  transform: scaleY(0);
-  transition: transform var(--transition-fast);
-}
-
-.sidebar nav ul li a:hover::before,
-.sidebar nav ul li a.active::before {
-  transform: scaleY(1);
-}
+/* Removed left border indicator - keeping hover clean */
 
 .sidebar nav ul li a:hover {
   background-color: var(--primary-light);
-  transform: translateX(5px);
+  transform: none;
 }
 
 /* Trending section styling */
