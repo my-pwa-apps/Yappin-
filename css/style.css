@@ -299,7 +299,7 @@ header {
     min-width: 48px;
     min-height: 48px;
     border-radius: 50%;
-    overflow: hidden;
+    overflow: visible;
     cursor: pointer;
     transition: box-shadow 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -317,6 +317,7 @@ header {
     object-fit: cover;
     border-radius: 50%;
     display: block;
+    overflow: hidden;
 }
 
 /* Online/Offline Indicator Dots */
@@ -424,6 +425,7 @@ main {
 .form-group label {
     font-weight: 500;
     font-size: 14px;
+    outline: none !important;
 }
 
 .form-group input {
