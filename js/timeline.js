@@ -917,3 +917,4 @@ window.cancelReply = function() {
 // Export functions globally for use in other modules
 window.loadTimeline = loadTimeline;
 window.createYapElement = createYapElement;
+window.openReplyModal = openReplyModal;
