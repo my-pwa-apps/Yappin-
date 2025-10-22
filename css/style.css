@@ -156,7 +156,6 @@ a,
 .user-item,
 .conversation-item,
 .yap-avatar,
-.header-profile-avatar,
 [role="button"],
 [onclick],
 input[type="checkbox"],
@@ -300,7 +299,7 @@ header {
     min-width: 48px;
     min-height: 48px;
     border-radius: 50%;
-    overflow: visible;
+    overflow: hidden;
     cursor: pointer;
     transition: box-shadow 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -323,8 +322,8 @@ header {
 /* Online/Offline Indicator Dots */
 .online-indicator-badge {
     position: absolute;
-    bottom: -2px;
-    right: -2px;
+    bottom: -4px;
+    right: -4px;
     width: 12px;
     height: 12px;
     background-color: var(--primary-color); /* Green for online - matches logo */
