@@ -2840,16 +2840,32 @@ body.dark-mode .sticker-item:hover {
 }
 
 /* ========================================
-   REMOVE BORDERS AND BOXES FROM UI
+   CLEAN UI - REMOVE BOXES AND BORDERS
    ======================================== */
 
-/* Remove borders from buttons and interactive elements */
+/* Remove borders and shadows from buttons - blend into UI */
 .btn,
 .primary-btn,
 .secondary-btn,
 .icon-btn,
-button {
+button:not(input[type="submit"]) {
     border: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove floating effect from buttons */
+.btn:hover,
+.primary-btn:hover,
+.secondary-btn:hover,
+.icon-btn:hover {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Remove borders from sidebar navigation items */
+.sidebar nav ul li a {
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* Remove borders from cards and containers */
@@ -2858,37 +2874,53 @@ button {
 .group-card,
 .group-member,
 .join-request-item,
-.settings-section {
+.settings-section,
+.notification-item,
+.message-item,
+.user-item {
     border: none !important;
+    box-shadow: none !important;
 }
 
-/* Remove borders from input fields */
+/* KEEP borders on input fields */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="search"],
 textarea,
 select {
-    border: none !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: none !important;
 }
 
-/* Remove focus outlines but keep accessibility */
-*:focus {
+/* Focus styles for inputs only */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
     outline: none !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.1) !important;
 }
 
-*:focus-visible {
-    outline: 2px solid transparent !important;
-    box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2) !important;
-}
-
-/* Remove borders from avatars and images */
+/* Remove borders from avatars */
 .avatar,
 .profile-picture,
 .member-avatar,
 .profile-picture-preview,
-img {
+.yap-avatar,
+.yap-avatar img {
     border: none !important;
+    box-shadow: none !important;
+}
+
+/* Fix avatar container - remove background box */
+.yap-header {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* Remove borders from compose areas */
@@ -2896,10 +2928,19 @@ img {
 .compose-actions,
 .group-compose-section {
     border: none !important;
+    box-shadow: none !important;
 }
 
-/* Remove borders from modals */
-.modal,
+/* Remove borders from modals but keep subtle shadow */
+.modal {
+    border: none !important;
+}
+
+.modal-content {
+    border: none !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
 .modal-header,
 .modal-body {
     border: none !important;
@@ -2911,12 +2952,10 @@ img {
 .settings-tab,
 .groups-tab {
     border: none !important;
+    box-shadow: none !important;
 }
 
-/* Remove borders from lists and items */
-.notification-item,
-.message-item,
-.user-item,
+/* Remove borders from lists */
 li {
     border: none !important;
 }
@@ -2926,43 +2965,95 @@ li {
 .gif-picker,
 .sticker-picker {
     border: none !important;
-}
-
-/* Remove borders from forms */
-.form-group,
-.input-field,
-form {
-    border: none !important;
-}
-
-/* Keep only essential structural borders */
-header {
-    border-bottom: 1px solid rgba(var(--border-color-rgb, 220, 220, 220), 0.3) !important;
-}
-
-.sidebar {
-    border-right: 1px solid rgba(var(--border-color-rgb, 220, 220, 220), 0.3) !important;
-}
-
-/* Subtle shadows instead of borders for depth */
-.yap {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-}
-
-.modal-content {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-}
-
-.group-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Remove border from specific problematic elements */
-.group-details,
-.group-info,
-.group-compose-section,
-.group-yaps-section,
-.join-requests-section {
+/* Remove borders from form groups (but keep on inputs) */
+.form-group {
     border: none !important;
+}
+
+/* Keep minimal structural borders */
+header {
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5) !important;
+}
+
+.sidebar {
+    border-right: 1px solid rgba(229, 231, 235, 0.5) !important;
+}
+
+/* Dark mode adjustments */
+body.dark-mode header {
+    border-bottom-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+body.dark-mode .sidebar {
+    border-right-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+body.dark-mode input[type="text"],
+body.dark-mode input[type="email"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="search"],
+body.dark-mode textarea,
+body.dark-mode select {
+    border-color: var(--border-color) !important;
+}
+
+/* ========================================
+   AVATAR SIZE AND SPACING FIXES
+   ======================================== */
+
+/* Make avatars full size without background boxes */
+.yap-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.yap-avatar img {
+    width: 48px !important;
+    height: 48px !important;
+    display: block !important;
+    border-radius: 50% !important;
+}
+
+/* Remove transform effects on hover that might cause size issues */
+.yap-avatar:hover {
+    transform: none !important;
+}
+
+.yap-avatar img:hover {
+    transform: none !important;
+}
+
+/* Remove any extra padding or background from yap-item that might create boxes */
+.yap-item {
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: var(--space-md) !important;
+}
+
+.yap-item:hover {
+    background-color: var(--hover-color) !important;
+    transform: none !important;
+}
+
+/* Ensure yap-user doesn't add extra space */
+.yap-user {
+    gap: 12px !important;
+}
+
+/* Remove any borders from optimized.css that create boxes */
+.yap-item,
+.yap-avatar,
+.yap-avatar img,
+.user-avatar img {
+    border: none !important;
+    outline: none !important;
 }
 
