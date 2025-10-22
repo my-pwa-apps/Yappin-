@@ -338,6 +338,92 @@
           ".write": "auth != null"
         }
       }
+    },
+    
+    // Groups: Public and private topic-based groups
+    "groups": {
+      "$groupId": {
+        // Anyone can read public groups, only members can read private groups
+        ".read": "auth != null && (data.child('isPublic').val() === true || root.child('groupMembers').child($groupId).child(auth.uid).exists())",
+        // Only authenticated users can create, only creator/admins can update
+        ".write": "auth != null && (!data.exists() || data.child('createdBy').val() === auth.uid || root.child('groupMembers').child($groupId).child(auth.uid).child('role').val() === 'admin')",
+        ".validate": "newData.hasChildren(['name', 'description', 'topic', 'isPublic', 'createdBy', 'createdAt'])",
+        
+        "name": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 50"
+        },
+        "description": {
+          ".validate": "newData.isString() && newData.val().length >= 10 && newData.val().length <= 500"
+        },
+        "topic": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 50"
+        },
+        "imageURL": {
+          ".validate": "newData.isString()"
+        },
+        "isPublic": {
+          ".validate": "newData.isBoolean()"
+        },
+        "createdBy": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "memberCount": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    },
+    
+    // Group Members: Maps groups to their members
+    "groupMembers": {
+      "$groupId": {
+        ".read": "auth != null && (root.child('groups').child($groupId).child('isPublic').val() === true || root.child('groupMembers').child($groupId).child(auth.uid).exists())",
+        "$uid": {
+          // Users can join public groups freely, need approval for private
+          ".write": "auth != null && (auth.uid === $uid || root.child('groupMembers').child($groupId).child(auth.uid).child('role').val() === 'admin')",
+          ".validate": "newData.hasChildren(['joinedAt', 'role'])",
+          
+          "joinedAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "role": {
+            ".validate": "newData.val() === 'member' || newData.val() === 'admin'"
+          }
+        }
+      }
+    },
+    
+    // User Groups: Reverse index for user's group memberships
+    "userGroups": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$groupId": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    // Group Yaps: Yaps posted within a group
+    "groupYaps": {
+      "$groupId": {
+        ".read": "auth != null && (root.child('groups').child($groupId).child('isPublic').val() === true || root.child('groupMembers').child($groupId).child(auth.uid).exists())",
+        "$yapId": {
+          ".write": "auth != null && root.child('groupMembers').child($groupId).child(auth.uid).exists()"
+        }
+      }
+    },
+    
+    // Group Join Requests: Requests to join private groups
+    "groupJoinRequests": {
+      "$groupId": {
+        ".read": "auth != null && (root.child('groupMembers').child($groupId).child(auth.uid).child('role').val() === 'admin')",
+        "$uid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('groupMembers').child($groupId).child(auth.uid).child('role').val() === 'admin')",
+          ".validate": "newData.hasChildren(['requestedAt', 'username', 'displayName'])"
+        }
+      }
     }
   }
 }

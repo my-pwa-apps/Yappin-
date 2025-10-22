@@ -145,13 +145,569 @@ export function showMessages() {
     const messagesModal = document.getElementById('messagesModal');
     if (!messagesModal) return;
     
-    toggleModal(messagesModal, true);
-    
-    // Load messages (from messaging.js)
-    if (typeof window.loadMessages === 'function') {
-        window.loadMessages();
+    // Check if messaging module is loaded
+    if (typeof window.loadConversations === 'function') {
+        toggleModal(messagesModal, true);
+        window.loadConversations();
+    } else {
+        // Messaging feature not yet implemented
+        showSnackbar('Direct messages coming soon!', 'default', 3000);
     }
 }
+
+// Groups functions
+export function showGroups() {
+    const groupsModal = document.getElementById('groupsModal');
+    if (!groupsModal) return;
+    
+    toggleModal(groupsModal, true);
+    loadMyGroupsTab();
+}
+
+function loadMyGroupsTab() {
+    const container = document.getElementById('myGroupsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span></div>';
+    
+    if (typeof window.loadMyGroups === 'function') {
+        window.loadMyGroups().then(groups => {
+            if (groups.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>You haven\'t joined any groups yet.</p></div>';
+            } else {
+                container.innerHTML = groups.map(group => createGroupCard(group, true)).join('');
+            }
+        }).catch(error => {
+            console.error('Error loading groups:', error);
+            container.innerHTML = '<div class="error-state"><p>Error loading groups</p></div>';
+        });
+    }
+}
+
+function loadDiscoverGroupsTab() {
+    const container = document.getElementById('discoverGroupsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span></div>';
+    
+    if (typeof window.loadPublicGroups === 'function') {
+        window.loadPublicGroups().then(groups => {
+            if (groups.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No public groups available.</p></div>';
+            } else {
+                container.innerHTML = groups.map(group => createGroupCard(group, false)).join('');
+            }
+        }).catch(error => {
+            console.error('Error loading groups:', error);
+            container.innerHTML = '<div class="error-state"><p>Error loading groups</p></div>';
+        });
+    }
+}
+
+function createGroupCard(group, isMember) {
+    const imageHtml = group.imageURL ? `<img src="${group.imageURL}" alt="${group.name}">` : '<i class="fas fa-users"></i>';
+    return `
+        <div class="group-card" onclick="viewGroup('${group.id}')">
+            <div class="group-card-image">
+                ${imageHtml}
+            </div>
+            <div class="group-card-info">
+                <h4>${group.name}</h4>
+                <p class="group-card-topic">${group.topic}</p>
+                <p class="group-card-stats">
+                    <i class="fas fa-users"></i> ${group.memberCount || 0} members
+                    ${group.isPublic ? '<span class="group-badge public">Public</span>' : '<span class="group-badge private">Private</span>'}
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+export function closeGroupsModal() {
+    const groupsModal = document.getElementById('groupsModal');
+    if (groupsModal) toggleModal(groupsModal, false);
+}
+
+// Create Group Modal
+export function openCreateGroupModal() {
+    const createGroupModal = document.getElementById('createGroupModal');
+    if (!createGroupModal) return;
+    
+    toggleModal(createGroupModal, true);
+    
+    // Preview group image
+    const imageInput = document.getElementById('groupImageInput');
+    if (imageInput) {
+        imageInput.onchange = () => {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = document.getElementById('groupImagePreview');
+                    const img = preview.querySelector('img');
+                    img.src = e.target.result;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+    }
+}
+
+export function closeCreateGroupModal() {
+    const createGroupModal = document.getElementById('createGroupModal');
+    if (createGroupModal) {
+        toggleModal(createGroupModal, false);
+        document.getElementById('createGroupForm').reset();
+        document.getElementById('groupImagePreview').classList.add('hidden');
+    }
+}
+
+// Handle create group form submission
+window.handleCreateGroup = async function(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('groupNameInput').value;
+    const topic = document.getElementById('groupTopicInput').value;
+    const description = document.getElementById('groupDescriptionInput').value;
+    const isPublic = document.getElementById('groupIsPublicCheckbox').checked;
+    const imageInput = document.getElementById('groupImageInput');
+    const imageFile = imageInput.files[0] || null;
+    
+    try {
+        const groupId = await window.createGroup({
+            name,
+            topic,
+            description,
+            isPublic,
+            imageFile
+        });
+        
+        closeCreateGroupModal();
+        closeGroupsModal();
+        viewGroup(groupId);
+    } catch (error) {
+        console.error('Error creating group:', error);
+        showSnackbar(error.message || 'Error creating group', 'error');
+    }
+};
+
+// View Group Modal
+window.viewGroup = async function(groupId) {
+    const viewGroupModal = document.getElementById('viewGroupModal');
+    if (!viewGroupModal) return;
+    
+    try {
+        // Load group data
+        const groupSnapshot = await database.ref(`groups/${groupId}`).once('value');
+        if (!groupSnapshot.exists()) {
+            showSnackbar('Group not found', 'error');
+            return;
+        }
+        
+        const group = groupSnapshot.val();
+        
+        // Update modal content
+        document.getElementById('viewGroupName').textContent = group.name;
+        document.getElementById('viewGroupTopic').textContent = group.topic;
+        document.getElementById('viewGroupDescription').textContent = group.description;
+        document.getElementById('viewGroupMemberCount').textContent = group.memberCount || 0;
+        document.getElementById('viewGroupVisibility').textContent = group.isPublic ? '(Public)' : '(Private)';
+        
+        // Show/hide group image
+        const imageContainer = document.getElementById('viewGroupImage');
+        if (group.imageURL) {
+            imageContainer.querySelector('img').src = group.imageURL;
+            imageContainer.classList.remove('hidden');
+        } else {
+            imageContainer.classList.add('hidden');
+        }
+        
+        // Check if user is a member
+        const isMember = auth.currentUser ? await database.ref(`groupMembers/${groupId}/${auth.currentUser.uid}`).once('value').then(s => s.exists()) : false;
+        
+        // Check if user is admin
+        const isAdmin = isMember ? await database.ref(`groupMembers/${groupId}/${auth.currentUser.uid}/role`).once('value').then(s => s.val() === 'admin') : false;
+        
+        // Check for pending join request
+        const hasPendingRequest = auth.currentUser && !isMember ? await database.ref(`groupJoinRequests/${groupId}/${auth.currentUser.uid}`).once('value').then(s => s.exists()) : false;
+        
+        // Show appropriate buttons
+        const joinBtn = document.getElementById('joinGroupBtn');
+        const leaveBtn = document.getElementById('leaveGroupBtn');
+        const pendingBtn = document.getElementById('pendingJoinRequestBtn');
+        
+        joinBtn.classList.add('hidden');
+        leaveBtn.classList.add('hidden');
+        pendingBtn.classList.add('hidden');
+        
+        if (hasPendingRequest) {
+            pendingBtn.classList.remove('hidden');
+        } else if (isMember) {
+            leaveBtn.classList.remove('hidden');
+        } else {
+            joinBtn.classList.remove('hidden');
+            // For private groups, change to "Request to Join"
+            if (!group.isPublic) {
+                joinBtn.querySelector('span').textContent = 'Request to Join';
+                joinBtn.onclick = () => handleRequestJoin(groupId);
+            } else {
+                joinBtn.querySelector('span').textContent = window.t ? window.t('join') : 'Join Group';
+                joinBtn.onclick = () => handleJoinGroup(groupId);
+            }
+        }
+        
+        leaveBtn.onclick = () => handleLeaveGroup(groupId);
+        
+        // Show/hide compose section (members only)
+        const composeSection = document.getElementById('groupComposeSection');
+        const yapsSection = document.getElementById('groupYapsSection');
+        if (isMember) {
+            composeSection.classList.remove('hidden');
+            yapsSection.classList.remove('hidden');
+            setupGroupCompose(groupId);
+            loadGroupYapsDisplay(groupId);
+        } else {
+            composeSection.classList.add('hidden');
+            yapsSection.classList.add('hidden');
+        }
+        
+        // Show/hide join requests section (admins only)
+        const joinRequestsSection = document.getElementById('joinRequestsSection');
+        if (isAdmin && !group.isPublic) {
+            joinRequestsSection.classList.remove('hidden');
+            loadJoinRequestsDisplay(groupId);
+        } else {
+            joinRequestsSection.classList.add('hidden');
+        }
+        
+        // Load members
+        loadGroupMembersDisplay(groupId);
+        
+        toggleModal(viewGroupModal, true);
+    } catch (error) {
+        console.error('Error loading group:', error);
+        showSnackbar('Error loading group', 'error');
+    }
+};
+
+async function loadGroupMembersDisplay(groupId) {
+    const container = document.getElementById('groupMembersList');
+    if (!container) return;
+    
+    try {
+        const members = await window.loadGroupMembers(groupId);
+        
+        if (members.length === 0) {
+            container.innerHTML = '<p>No members yet</p>';
+        } else {
+            container.innerHTML = members.map(member => `
+                <div class="group-member">
+                    <img src="${member.photoURL || './images/default-avatar.png'}" alt="${member.username}" class="member-avatar">
+                    <div class="member-info">
+                        <p class="member-name">${member.displayName || member.username}</p>
+                        <p class="member-username">@${member.username}</p>
+                    </div>
+                    ${member.role === 'admin' ? '<span class="member-badge">Admin</span>' : ''}
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading members:', error);
+        container.innerHTML = '<p>Error loading members</p>';
+    }
+}
+
+window.handleJoinGroup = async function(groupId) {
+    try {
+        await window.joinGroup(groupId);
+        viewGroup(groupId); // Refresh
+    } catch (error) {
+        console.error('Error joining group:', error);
+        showSnackbar(error.message || 'Error joining group', 'error');
+    }
+};
+
+window.handleRequestJoin = async function(groupId) {
+    try {
+        await window.requestJoinGroup(groupId);
+        viewGroup(groupId); // Refresh
+    } catch (error) {
+        console.error('Error requesting to join group:', error);
+        showSnackbar(error.message || 'Error requesting to join', 'error');
+    }
+};
+
+window.handleLeaveGroup = async function(groupId) {
+    if (confirm('Are you sure you want to leave this group?')) {
+        try {
+            await window.leaveGroup(groupId);
+            closeViewGroupModal();
+        } catch (error) {
+            console.error('Error leaving group:', error);
+            showSnackbar(error.message || 'Error leaving group', 'error');
+        }
+    }
+};
+
+// Setup group compose functionality
+function setupGroupCompose(groupId) {
+    const textarea = document.getElementById('groupYapText');
+    const postBtn = document.getElementById('postGroupYapBtn');
+    const imageInput = document.getElementById('groupImageInput');
+    const attachBtn = document.getElementById('attachGroupImageBtn');
+    const previewContainer = document.getElementById('groupImagePreviewContainer');
+    
+    if (!textarea || !postBtn) return;
+    
+    // Clear previous content
+    textarea.value = '';
+    previewContainer.innerHTML = '';
+    previewContainer.classList.add('hidden');
+    
+    // Attach image button
+    if (attachBtn && imageInput) {
+        attachBtn.onclick = () => imageInput.click();
+        imageInput.onchange = () => {
+            const files = Array.from(imageInput.files);
+            if (files.length > 0) {
+                previewContainer.innerHTML = files.map((file, index) => {
+                    const url = URL.createObjectURL(file);
+                    return `
+                        <div class="image-preview-item">
+                            <img src="${url}" alt="Preview">
+                            <button class="remove-image-btn" onclick="removeGroupImage(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+                previewContainer.classList.remove('hidden');
+            }
+        };
+    }
+    
+    // Post button
+    postBtn.onclick = async () => {
+        const content = textarea.value.trim();
+        const files = imageInput ? Array.from(imageInput.files) : [];
+        
+        if (!content && files.length === 0) {
+            showSnackbar('Please add text or images', 'error');
+            return;
+        }
+        
+        postBtn.disabled = true;
+        postBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+        
+        try {
+            await window.postGroupYap(groupId, {
+                content,
+                mediaFiles: files
+            });
+            
+            // Clear form
+            textarea.value = '';
+            if (imageInput) imageInput.value = '';
+            previewContainer.innerHTML = '';
+            previewContainer.classList.add('hidden');
+            
+            // Reload yaps
+            loadGroupYapsDisplay(groupId);
+            
+        } catch (error) {
+            console.error('Error posting to group:', error);
+            showSnackbar(error.message || 'Error posting', 'error');
+        } finally {
+            postBtn.disabled = false;
+            postBtn.innerHTML = 'Yap';
+        }
+    };
+}
+
+// Load group yaps
+async function loadGroupYapsDisplay(groupId) {
+    const container = document.getElementById('groupYapsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    
+    try {
+        const yaps = await window.loadGroupYaps(groupId);
+        
+        if (yaps.length === 0) {
+            container.innerHTML = '<div class="empty-state"><p>No yaps yet. Be the first to post!</p></div>';
+        } else {
+            container.innerHTML = '';
+            for (const yap of yaps) {
+                // Check if user liked/reyapped
+                const userId = auth.currentUser ? auth.currentUser.uid : null;
+                const isLiked = userId ? await database.ref(`userLikes/${userId}/${yap.id}`).once('value').then(s => s.exists()) : false;
+                const isReyapped = userId ? await database.ref(`userReyaps/${userId}/${yap.id}`).once('value').then(s => s.exists()) : false;
+                
+                if (typeof window.createYapElement === 'function') {
+                    const yapElement = window.createYapElement(yap, isLiked, isReyapped);
+                    yapElement.classList.add('group-yap');
+                    container.appendChild(yapElement);
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error loading group yaps:', error);
+        container.innerHTML = '<div class="error-state"><p>Error loading yaps</p></div>';
+    }
+}
+
+// Load join requests
+async function loadJoinRequestsDisplay(groupId) {
+    const container = document.getElementById('joinRequestsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    
+    try {
+        const requests = await window.loadJoinRequests(groupId);
+        
+        if (requests.length === 0) {
+            container.innerHTML = '<div class="empty-state"><p>No pending join requests</p></div>';
+        } else {
+            container.innerHTML = requests.map(request => `
+                <div class="join-request-item">
+                    <img src="${request.photoURL || './images/default-avatar.png'}" alt="${request.username}" class="member-avatar">
+                    <div class="member-info">
+                        <p class="member-name">${request.displayName || request.username}</p>
+                        <p class="member-username">@${request.username}</p>
+                        <p class="request-time">${formatTimestamp(request.requestedAt)}</p>
+                    </div>
+                    <div class="request-actions">
+                        <button class="btn btn-sm primary-btn" onclick="approveRequest('${groupId}', '${request.userId}')">
+                            <i class="fas fa-check"></i> Approve
+                        </button>
+                        <button class="btn btn-sm secondary-btn" onclick="rejectRequest('${groupId}', '${request.userId}')">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading join requests:', error);
+        container.innerHTML = '<div class="error-state"><p>Error loading requests</p></div>';
+    }
+}
+
+window.approveRequest = async function(groupId, userId) {
+    try {
+        await window.approveJoinRequest(groupId, userId);
+        loadJoinRequestsDisplay(groupId);
+        viewGroup(groupId); // Refresh member count
+    } catch (error) {
+        console.error('Error approving request:', error);
+        showSnackbar(error.message || 'Error approving request', 'error');
+    }
+};
+
+window.rejectRequest = async function(groupId, userId) {
+    if (confirm('Are you sure you want to reject this join request?')) {
+        try {
+            await window.rejectJoinRequest(groupId, userId);
+            loadJoinRequestsDisplay(groupId);
+        } catch (error) {
+            console.error('Error rejecting request:', error);
+            showSnackbar(error.message || 'Error rejecting request', 'error');
+        }
+    }
+};
+
+// Search groups
+window.searchGroups = async function(query) {
+    const container = document.getElementById('discoverGroupsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
+    
+    try {
+        const groups = await window.searchGroups(query);
+        
+        if (groups.length === 0) {
+            container.innerHTML = '<div class="empty-state"><p>No groups found</p></div>';
+        } else {
+            container.innerHTML = groups.map(group => createGroupCard(group, false)).join('');
+        }
+    } catch (error) {
+        console.error('Error searching groups:', error);
+        container.innerHTML = '<div class="error-state"><p>Error searching groups</p></div>';
+    }
+};
+
+// Helper function to format timestamp
+function formatTimestamp(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+}
+
+window.removeGroupImage = function(index) {
+    const imageInput = document.getElementById('groupImageInput');
+    const previewContainer = document.getElementById('groupImagePreviewContainer');
+    
+    if (!imageInput) return;
+    
+    // Remove file from input
+    const dt = new DataTransfer();
+    const files = Array.from(imageInput.files);
+    files.splice(index, 1);
+    files.forEach(file => dt.items.add(file));
+    imageInput.files = dt.files;
+    
+    // Update preview
+    if (files.length === 0) {
+        previewContainer.innerHTML = '';
+        previewContainer.classList.add('hidden');
+    } else {
+        const remainingPreviews = Array.from(previewContainer.querySelectorAll('.image-preview-item'));
+        remainingPreviews[index].remove();
+    }
+};
+
+export function closeViewGroupModal() {
+    const viewGroupModal = document.getElementById('viewGroupModal');
+    if (viewGroupModal) toggleModal(viewGroupModal, false);
+}
+
+// Setup groups tabs
+document.addEventListener('DOMContentLoaded', () => {
+    const groupsTabs = document.querySelectorAll('.groups-tab');
+    groupsTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            
+            // Update active tab
+            groupsTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Show corresponding content
+            document.querySelectorAll('.groups-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            if (tabName === 'my-groups') {
+                document.getElementById('myGroupsTab').classList.remove('hidden');
+                loadMyGroupsTab();
+            } else if (tabName === 'discover-groups') {
+                document.getElementById('discoverGroupsTab').classList.remove('hidden');
+                loadDiscoverGroupsTab();
+            }
+        });
+    });
+});
 
 // GIF Picker
 export function closeGifPicker() {
@@ -178,5 +734,10 @@ window.showFollowing = showFollowing;
 window.closeFollowingModal = closeFollowingModal;
 window.showSearch = showSearch;
 window.showMessages = showMessages;
+window.showGroups = showGroups;
+window.closeGroupsModal = closeGroupsModal;
+window.openCreateGroupModal = openCreateGroupModal;
+window.closeCreateGroupModal = closeCreateGroupModal;
+window.closeViewGroupModal = closeViewGroupModal;
 window.closeGifPicker = closeGifPicker;
 window.closeStickerPicker = closeStickerPicker;

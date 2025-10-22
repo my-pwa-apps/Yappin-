@@ -626,6 +626,15 @@ function createYap(textarea) {
             if (mediaUrls && mediaUrls.length > 0) {
                 yapData.media = mediaUrls;
             }
+            
+            // Add privacy settings - check which form is being used
+            const allowReyapCheckbox = textarea === yapText 
+                ? document.getElementById('allowReyapCheckbox')
+                : document.getElementById('modalAllowReyapCheckbox');
+            
+            // Default to true if checkbox doesn't exist, otherwise use its checked state
+            yapData.allowReyap = allowReyapCheckbox ? allowReyapCheckbox.checked : true;
+            
             // Check if this is a reply to another yap
             const replyToId = window.replyContext?.yapId || textarea.dataset.replyTo;
             if (replyToId) {
@@ -1006,18 +1015,35 @@ function toggleReyap(yapId) {
                 return yapRef.once('value').then(yapSnapshot => {
                     const currentCount = yapSnapshot.val()?.reyaps || 0;
                     updates[`yaps/${yapId}/reyaps`] = Math.max(0, currentCount - 1);
+                    
+                    // Also remove from timeline if it exists
+                    updates[`userYaps/${auth.currentUser.uid}/${yapId}`] = null;
+                    
                     return database.ref().update(updates);
                 });
             } else {
-                // User hasn't reyapped this, so add the reyap
-                updates[`reyaps/${yapId}/${auth.currentUser.uid}`] = true;
-                updates[`userReyaps/${auth.currentUser.uid}/${yapId}`] = true;
-                
-                // Get yap info for notification and current count
+                // User hasn't reyapped this, so check if reyapping is allowed
                 return yapRef.once('value').then(yapSnapshot => {
                     const yapData = yapSnapshot.val();
+                    
+                    // Check if the yap creator has disabled reyaps
+                    if (yapData?.allowReyap === false) {
+                        throw new Error('The author has disabled reyapping for this post');
+                    }
+                    
+                    // Add the reyap
+                    updates[`reyaps/${yapId}/${auth.currentUser.uid}`] = true;
+                    updates[`userReyaps/${auth.currentUser.uid}/${yapId}`] = true;
+                    
                     const currentCount = yapData?.reyaps || 0;
                     updates[`yaps/${yapId}/reyaps`] = currentCount + 1;
+                    
+                    // Add reyapped yap to user's timeline so it shows up in their feed
+                    updates[`userYaps/${auth.currentUser.uid}/${yapId}`] = {
+                        ...yapData,
+                        reyappedBy: auth.currentUser.uid,
+                        reyappedAt: Date.now()
+                    };
                     
                     // Update database
                     return database.ref().update(updates).then(() => {
@@ -1025,13 +1051,15 @@ function toggleReyap(yapId) {
                         if (yapData && yapData.uid !== auth.currentUser.uid && typeof notifyReyap === 'function') {
                             notifyReyap(yapId, yapData.uid, auth.currentUser.uid);
                         }
+                        
+                        showSnackbar('Reyapped successfully!', 'success');
                     });
                 });
             }
         })
         .catch(error => {
             (window.PerformanceUtils?.Logger || console).error('Error toggling reyap:', error);
-            showSnackbar(`Error: ${error.message}`, 'error');
+            showSnackbar(error.message || 'Failed to reyap', 'error');
         });
 }
 
@@ -1716,11 +1744,14 @@ window.unfollowFromSearch = async function(targetUserId) {
 window.showMessages = function() {
     const messagesModal = document.getElementById('messagesModal');
     if (!messagesModal) return;
-    toggleModal(messagesModal, true);
     
-    // Load conversations (from messaging.js)
+    // Check if messaging module is loaded
     if (typeof loadConversations === 'function') {
+        toggleModal(messagesModal, true);
         loadConversations();
+    } else {
+        // Messaging feature not yet implemented
+        showSnackbar('Direct messages coming soon!', 'default', 3000);
     }
 };
 

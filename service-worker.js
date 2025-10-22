@@ -2,7 +2,7 @@
 
 // Detect base path from service worker location
 const BASE_PATH = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
-const CACHE_VERSION = 'v85';
+const CACHE_VERSION = 'v90';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
 const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
@@ -33,6 +33,8 @@ const STATIC_ASSETS = [
   `${BASE_PATH}/js/messaging.js`,
   `${BASE_PATH}/js/notifications.js`,
   `${BASE_PATH}/js/pwa-init.js`,
+  `${BASE_PATH}/js/translations.js`,
+  `${BASE_PATH}/js/groups.js`,
   // PWA assets
   `${BASE_PATH}/manifest.json`,
   `${BASE_PATH}/offline.html`,

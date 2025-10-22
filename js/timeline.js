@@ -168,6 +168,9 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     yapElement.className = 'yap-item';
     yapElement.dataset.yapId = yapData.id;
     
+    // Check if this is a reyap
+    const isReyap = yapData.reyappedBy && yapData.reyappedAt;
+    
     // Defensive: fallback for missing data and escape HTML
     const username = (yapData.username || 'anonymous').replace(/[<>"']/g, '');
     const content = yapData.text || yapData.content || '';  // Support both 'text' (new) and 'content' (legacy)
@@ -221,6 +224,12 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     const avatar = (yapData.userPhotoURL || generateRandomAvatar(yapData.uid || username)).replace(/["'<>]/g, '');
     
     yapElement.innerHTML = `
+        ${isReyap ? `
+            <div class="reyap-indicator">
+                <i class="fas fa-retweet"></i>
+                <span>You reyapped</span>
+            </div>
+        ` : ''}
         <div class="yap-header">
             <div class="yap-user">
                 <div class="yap-avatar">
@@ -259,7 +268,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 <i class="far fa-comment"></i>
                 <span>${yapData.replies || 0}</span>
             </button>
-            <button class="action-btn reyap ${isReyapped ? 'reyapped' : ''}" aria-label="Reyap">
+            <button class="action-btn reyap ${isReyapped ? 'reyapped' : ''}" aria-label="Reyap" ${yapData.allowReyap === false ? 'disabled title="Reyaps disabled by author"' : ''}>
                 <i class="fas fa-retweet"></i>
                 <span>${yapData.reyaps || 0}</span>
             </button>
@@ -414,6 +423,29 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 deleteYap(yapData.id, yapData.uid);
             }
         });
+    }
+    
+    // Add thread toggle if there are replies
+    if (yapData.replies && yapData.replies > 0) {
+        const threadContainer = document.createElement('div');
+        threadContainer.className = 'thread-container';
+        
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'thread-toggle-btn';
+        toggleBtn.innerHTML = `<i class="fas fa-chevron-down"></i> Show ${yapData.replies} ${yapData.replies === 1 ? 'reply' : 'replies'}`;
+        
+        const repliesContainer = document.createElement('div');
+        repliesContainer.className = 'replies-container';
+        repliesContainer.style.display = 'none';
+        
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleReplies(yapId, repliesContainer, toggleBtn);
+        });
+        
+        threadContainer.appendChild(toggleBtn);
+        threadContainer.appendChild(repliesContainer);
+        yapElement.appendChild(threadContainer);
     }
     
     // Open yap details on click
@@ -715,6 +747,85 @@ function loadModalSuggestedUsers() {
             (window.PerformanceUtils?.Logger || console).error('Error loading suggested users:', error);
             suggestionsContainer.innerHTML = '<p class="error">Error loading suggestions. Please try again.</p>';
         });
+}
+
+// Thread/Reply functionality
+function loadReplies(yapId, repliesContainer) {
+    if (!yapId || !repliesContainer) return;
+    
+    // Show loading state
+    repliesContainer.innerHTML = '<div class="loading-replies"><i class="fas fa-spinner fa-spin"></i> Loading replies...</div>';
+    
+    database.ref(`yapReplies/${yapId}`).once('value')
+        .then(snapshot => {
+            if (!snapshot.exists()) {
+                repliesContainer.innerHTML = '<div class="no-replies">No replies yet</div>';
+                return;
+            }
+            
+            const replyIds = Object.keys(snapshot.val());
+            const replyPromises = replyIds.map(replyId => 
+                database.ref(`yaps/${replyId}`).once('value')
+            );
+            
+            return Promise.all(replyPromises)
+                .then(snapshots => {
+                    repliesContainer.innerHTML = '';
+                    
+                    snapshots.forEach((replySnap, index) => {
+                        if (replySnap.exists()) {
+                            const replyData = replySnap.val();
+                            const replyId = replyIds[index];
+                            
+                            // Check if current user has liked/reyapped this reply
+                            const userId = auth.currentUser ? auth.currentUser.uid : null;
+                            const likePromise = userId 
+                                ? database.ref(`userLikes/${userId}/${replyId}`).once('value')
+                                : Promise.resolve({ exists: () => false });
+                            const reyapPromise = userId
+                                ? database.ref(`userReyaps/${userId}/${replyId}`).once('value')
+                                : Promise.resolve({ exists: () => false });
+                            
+                            Promise.all([likePromise, reyapPromise]).then(([likeSnap, reyapSnap]) => {
+                                const replyElement = createYapElement(
+                                    replyData, 
+                                    likeSnap.exists(), 
+                                    reyapSnap.exists()
+                                );
+                                replyElement.classList.add('reply-yap');
+                                replyElement.dataset.replyId = replyId;
+                                repliesContainer.appendChild(replyElement);
+                            });
+                        }
+                    });
+                });
+        })
+        .catch(error => {
+            (window.PerformanceUtils?.Logger || console).error('Error loading replies:', error);
+            repliesContainer.innerHTML = '<div class="error-replies">Error loading replies</div>';
+        });
+}
+
+function toggleReplies(yapId, repliesContainer, toggleBtn) {
+    if (!repliesContainer || !toggleBtn) return;
+    
+    const isExpanded = repliesContainer.style.display !== 'none' && repliesContainer.innerHTML !== '';
+    
+    if (isExpanded) {
+        // Collapse
+        repliesContainer.style.display = 'none';
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Show replies';
+        toggleBtn.classList.remove('expanded');
+    } else {
+        // Expand and load replies
+        repliesContainer.style.display = 'block';
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Hide replies';
+        toggleBtn.classList.add('expanded');
+        
+        if (repliesContainer.innerHTML === '') {
+            loadReplies(yapId, repliesContainer);
+        }
+    }
 }
 
 // Reply functionality

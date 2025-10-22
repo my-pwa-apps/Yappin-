@@ -156,10 +156,19 @@ function setupSocialTab() {
  * Setup App Tab event listeners
  */
 function setupAppTab() {
+    const languageSelect = document.getElementById('languageSelect');
     const darkModeCheckbox = document.getElementById('darkModeToggleCheckbox');
     const autoHideCheckbox = document.getElementById('autoHideCheckbox');
     const pushNotificationsCheckbox = document.getElementById('pushNotificationsCheckbox');
 
+    if (languageSelect) {
+        // Set current language
+        if (typeof window.getCurrentLanguage === 'function') {
+            languageSelect.value = window.getCurrentLanguage();
+        }
+        languageSelect.addEventListener('change', changeLanguage);
+    }
+    
     if (darkModeCheckbox) {
         darkModeCheckbox.addEventListener('change', toggleDarkMode);
     }
@@ -209,32 +218,41 @@ function loadUserData() {
     const user = auth.currentUser;
     const uid = user.uid;
     
-    // Load display name and username
-    database.ref(`users/${uid}`).once('value').then(snapshot => {
-        const userData = snapshot.val();
-        if (userData) {
-            const displayNameInput = document.getElementById('displayNameInput');
-            const usernameDisplay = document.getElementById('usernameDisplay');
-            const profilePicturePreview = document.getElementById('profilePicturePreview');
-            
-            if (displayNameInput) {
-                displayNameInput.value = userData.displayName || '';
-            }
-            
-            if (usernameDisplay) {
-                usernameDisplay.value = userData.username || '';
-            }
-            
-            if (profilePicturePreview && userData.photoURL) {
-                profilePicturePreview.src = userData.photoURL;
-            }
-            
-            // Load privacy settings
-            const requireApprovalCheckbox = document.getElementById('requireApprovalCheckbox');
-            if (requireApprovalCheckbox) {
-                requireApprovalCheckbox.checked = userData.requireApproval || false;
+    // Load display name, username, and photoURL separately to avoid permission issues
+    Promise.all([
+        database.ref(`users/${uid}/displayName`).once('value'),
+        database.ref(`users/${uid}/username`).once('value'),
+        database.ref(`users/${uid}/photoURL`).once('value'),
+        database.ref(`users/${uid}/requireApproval`).once('value')
+    ]).then(([displayNameSnap, usernameSnap, photoSnap, requireApprovalSnap]) => {
+        const displayNameInput = document.getElementById('displayNameInput');
+        const usernameDisplay = document.getElementById('usernameDisplay');
+        const profilePicturePreview = document.getElementById('profilePicturePreview');
+        const requireApprovalCheckbox = document.getElementById('requireApprovalCheckbox');
+        
+        if (displayNameInput) {
+            displayNameInput.value = displayNameSnap.val() || '';
+        }
+        
+        if (usernameDisplay) {
+            usernameDisplay.value = usernameSnap.val() || '';
+        }
+        
+        if (profilePicturePreview) {
+            const photoURL = photoSnap.val();
+            if (photoURL) {
+                profilePicturePreview.src = photoURL;
+            } else {
+                // Use default avatar or generate one
+                profilePicturePreview.src = './images/default-avatar.svg';
             }
         }
+        
+        if (requireApprovalCheckbox) {
+            requireApprovalCheckbox.checked = requireApprovalSnap.val() || false;
+        }
+    }).catch(error => {
+        console.error('[Settings] Error loading user data:', error);
     });
 }
 
@@ -287,6 +305,19 @@ function toggleAccountPrivacy() {
             showSnackbar('Failed to update privacy setting', 'error');
             checkbox.checked = !requireApproval;
         });
+}
+
+/**
+ * Change language
+ */
+function changeLanguage() {
+    const languageSelect = document.getElementById('languageSelect');
+    const selectedLang = languageSelect.value;
+    
+    if (typeof window.setLanguage === 'function') {
+        window.setLanguage(selectedLang);
+        showSnackbar(selectedLang === 'nl' ? 'Taal gewijzigd naar Nederlands' : 'Language changed to English', 'success');
+    }
 }
 
 /**

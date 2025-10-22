@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4CAF50">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#66BB6A">
-    <title>Yappin' - Share Your Thoughts</title>
+    <title>Yappin' - Keep yappin' man</title>
     
     <!-- Performance: DNS prefetch for external resources -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
@@ -136,11 +136,12 @@
                 <aside class="sidebar">
                     <nav>
                         <ul>
-                            <li><a href="#" class="active"><i class="fas fa-home"></i> <span>Home</span></a></li>
-                            <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span>Search</span></a></li>
-                            <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
-                            <li><a href="#" onclick="showMessages(); return false;"><i class="fas fa-envelope"></i> <span>Messages</span> <span class="badge hidden" id="messagesBadge">0</span></a></li>
-                            <li><a href="#" onclick="showProfile(); return false;"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+                            <li><a href="#" class="active"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a></li>
+                            <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span data-i18n="search">Search</span></a></li>
+                            <li><a href="#"><i class="fas fa-bell"></i> <span data-i18n="notifications">Notifications</span></a></li>
+                            <li><a href="#" onclick="showMessages(); return false;"><i class="fas fa-envelope"></i> <span data-i18n="messages">Messages</span> <span class="badge hidden" id="messagesBadge">0</span></a></li>
+                            <li><a href="#" onclick="showGroups(); return false;"><i class="fas fa-users"></i> <span data-i18n="groups">Groups</span></a></li>
+                            <li><a href="#" onclick="showProfile(); return false;"><i class="fas fa-user"></i> <span data-i18n="profile">Profile</span></a></li>
                         </ul>
                     </nav>
                 </aside>
@@ -149,6 +150,12 @@
                     <div class="compose-yap">
                         <textarea id="yapText" placeholder="Keep yappin' man!"></textarea>
                         <div id="imagePreviewContainer" class="image-preview-container hidden"></div>
+                        <div class="compose-privacy-options">
+                            <label class="privacy-toggle">
+                                <input type="checkbox" id="allowReyapCheckbox" checked>
+                                <span><i class="fas fa-retweet"></i> Allow others to reyap this post</span>
+                            </label>
+                        </div>
                         <div class="compose-actions">
                             <div class="attach-options">
                                 <label for="imageInput" class="visually-hidden">Attach images</label>
@@ -202,6 +209,12 @@
                     </div>
                     <div class="modal-body">
                         <textarea id="modalYapText" placeholder="Keep yappin' man!"></textarea>
+                        <div class="compose-privacy-options">
+                            <label class="privacy-toggle">
+                                <input type="checkbox" id="modalAllowReyapCheckbox" checked>
+                                <span><i class="fas fa-retweet"></i> Allow others to reyap this post</span>
+                            </label>
+                        </div>
                         <div class="compose-actions">
                             <div class="attach-options">
                                 <button class="icon-btn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
@@ -436,8 +449,21 @@
 
                         <!-- App Tab Content -->
                         <div id="appTab" class="settings-tab-content hidden">
-                            <!-- Appearance Settings -->
+                            <!-- Language Settings -->
                             <div class="settings-section">
+                                <h3 class="settings-section-title" data-i18n="language">Language</h3>
+                                <div class="form-group">
+                                    <label for="languageSelect">Choose your language</label>
+                                    <select id="languageSelect" class="input-field">
+                                        <option value="en">English</option>
+                                        <option value="nl">Nederlands (Dutch)</option>
+                                    </select>
+                                    <p class="input-hint">Change the app's display language. Yappin' and yap terms will always remain in English.</p>
+                                </div>
+                            </div>
+                        
+                            <!-- Appearance Settings -->
+                            <div class="settings-section privacy-divider">
                                 <h3 class="settings-section-title">Appearance</h3>
                                 <div class="privacy-setting">
                                     <div>
@@ -518,6 +544,177 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Groups Modal -->
+            <div id="groupsModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 data-i18n="groups">Groups</h2>
+                        <button class="close-btn" onclick="closeGroupsModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body modal-body-padding">
+                        <div class="groups-tabs">
+                            <button class="groups-tab active" data-tab="my-groups" data-i18n="myGroups">My Groups</button>
+                            <button class="groups-tab" data-tab="discover-groups" data-i18n="discoverGroups">Discover Groups</button>
+                        </div>
+                        
+                        <div id="myGroupsTab" class="groups-tab-content active">
+                            <button class="btn primary-btn full-width-btn" onclick="openCreateGroupModal()" style="margin-bottom: 16px;">
+                                <i class="fas fa-plus"></i> <span data-i18n="createGroup">Create Group</span>
+                            </button>
+                            <div id="myGroupsContainer" class="groups-container">
+                                <div class="loading-state">
+                                    <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="discoverGroupsTab" class="groups-tab-content hidden">
+                            <div class="form-group" style="margin-bottom: 16px;">
+                                <input type="text" id="groupSearchInput" class="input-field" placeholder="Search groups by name or topic..." onkeyup="searchGroups(this.value)">
+                            </div>
+                            <div id="discoverGroupsContainer" class="groups-container">
+                                <div class="loading-state">
+                                    <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Group Modal -->
+            <div id="createGroupModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 data-i18n="createGroup">Create Group</h2>
+                        <button class="close-btn" onclick="closeCreateGroupModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body modal-body-padding">
+                        <form id="createGroupForm" onsubmit="handleCreateGroup(event)">
+                            <div class="form-group">
+                                <label for="groupNameInput" data-i18n="groupName">Group Name</label>
+                                <input type="text" id="groupNameInput" class="input-field" required minlength="3" maxlength="50" data-i18n-placeholder="groupName">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="groupTopicInput" data-i18n="groupTopic">Group Topic</label>
+                                <input type="text" id="groupTopicInput" class="input-field" required minlength="3" maxlength="50" data-i18n-placeholder="groupTopic">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="groupDescriptionInput" data-i18n="groupDescription">Group Description</label>
+                                <textarea id="groupDescriptionInput" class="input-field" required minlength="10" maxlength="500" rows="4" data-i18n-placeholder="groupDescription"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="groupImageInput" data-i18n="groupImage">Group Image (Optional)</label>
+                                <input type="file" id="groupImageInput" accept="image/*" class="profile-picture-input">
+                                <div id="groupImagePreview" class="group-image-preview hidden">
+                                    <img src="" alt="Group preview">
+                                </div>
+                                <p class="input-hint">Max 5MB, JPG/PNG</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="privacy-toggle">
+                                    <input type="checkbox" id="groupIsPublicCheckbox" checked>
+                                    <span><i class="fas fa-globe"></i> <span data-i18n="publicGroup">Public Group</span></span>
+                                </label>
+                                <p class="input-hint">Public groups can be discovered and joined by anyone. Private groups require approval.</p>
+                            </div>
+                            
+                            <button type="submit" class="btn primary-btn full-width-btn">
+                                <i class="fas fa-check"></i> <span data-i18n="create">Create</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Group Modal -->
+            <div id="viewGroupModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="viewGroupName">Group</h2>
+                        <button class="close-btn" onclick="closeViewGroupModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body modal-body-padding">
+                        <div class="group-details">
+                            <div id="viewGroupImage" class="group-image-large hidden">
+                                <img src="" alt="Group image">
+                            </div>
+                            <div class="group-info">
+                                <p class="group-topic"><strong data-i18n="groupTopic">Topic:</strong> <span id="viewGroupTopic"></span></p>
+                                <p class="group-description" id="viewGroupDescription"></p>
+                                <p class="group-stats">
+                                    <i class="fas fa-users"></i> <span id="viewGroupMemberCount">0</span> <span data-i18n="members">members</span>
+                                    <span class="group-visibility" id="viewGroupVisibility"></span>
+                                </p>
+                            </div>
+                            
+                            <div class="group-actions">
+                                <button id="joinGroupBtn" class="btn primary-btn full-width-btn hidden" onclick="handleJoinGroup()">
+                                    <i class="fas fa-user-plus"></i> <span data-i18n="join">Join Group</span>
+                                </button>
+                                <button id="leaveGroupBtn" class="btn secondary-btn full-width-btn hidden" onclick="handleLeaveGroup()">
+                                    <i class="fas fa-sign-out-alt"></i> <span data-i18n="leaveGroup">Leave Group</span>
+                                </button>
+                                <button id="pendingJoinRequestBtn" class="btn secondary-btn full-width-btn hidden" disabled>
+                                    <i class="fas fa-clock"></i> <span>Request Pending</span>
+                                </button>
+                            </div>
+                            
+                            <!-- Group Yap Compose Section (Members Only) -->
+                            <div id="groupComposeSection" class="group-compose-section hidden">
+                                <h3>Post to Group</h3>
+                                <div class="compose-yap group-compose">
+                                    <textarea id="groupYapText" placeholder="Keep yappin' man!" maxlength="280"></textarea>
+                                    <div id="groupImagePreviewContainer" class="image-preview-container hidden"></div>
+                                    <div class="compose-actions">
+                                        <div class="attach-options">
+                                            <input type="file" id="groupImageInput" accept="image/*" multiple class="hidden-input">
+                                            <button class="icon-btn" id="attachGroupImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
+                                            <button class="icon-btn" id="groupGifBtn" aria-label="Add GIF" title="Add GIF"><i class="fas fa-file-image"></i></button>
+                                            <button class="icon-btn" id="groupEmojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
+                                        </div>
+                                        <button id="postGroupYapBtn" class="btn primary-btn">Yap</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Group Yaps Timeline -->
+                            <div id="groupYapsSection" class="group-yaps-section hidden">
+                                <h3>Group Yaps</h3>
+                                <div id="groupYapsContainer" class="yaps-container">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Join Requests Section (Admins Only) -->
+                            <div id="joinRequestsSection" class="join-requests-section hidden">
+                                <h3>Join Requests</h3>
+                                <div id="joinRequestsContainer" class="join-requests-container">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="group-members-section">
+                                <h3 data-i18n="members">Members</h3>
+                                <div id="groupMembersList" class="group-members-list">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <!-- Confirmation Modal -->
@@ -540,11 +737,11 @@
         <!-- Mobile Navigation -->
         <nav class="mobile-nav">
             <ul>
-                <li><a href="#" class="active"><i class="fas fa-home"></i> <span>Home</span></a></li>
-                <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span>Search</span></a></li>
-                <li><a href="#"><i class="fas fa-bell"></i> <span>Notifications</span></a></li>
-                <li><a href="#" onclick="showMessages(); return false;"><i class="fas fa-envelope"></i> <span>Messages</span></a></li>
-                <li><a href="#" onclick="showProfile(); return false;"><i class="fas fa-user"></i> <span>Profile</span></a></li>
+                <li><a href="#" class="active"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a></li>
+                <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span data-i18n="search">Search</span></a></li>
+                <li><a href="#" onclick="showGroups(); return false;"><i class="fas fa-users"></i> <span data-i18n="groups">Groups</span></a></li>
+                <li><a href="#"><i class="fas fa-bell"></i> <span data-i18n="notifications">Notifications</span></a></li>
+                <li><a href="#" onclick="showProfile(); return false;"><i class="fas fa-user"></i> <span data-i18n="profile">Profile</span></a></li>
             </ul>
         </nav>
     </div>
@@ -557,6 +754,7 @@
 
     <!-- App Scripts - Order matters! -->
     <script src="./js/performance.js"></script>
+    <script src="./js/translations.js"></script>
     <script src="./js/firebase-config.js"></script>
     <script src="./js/utils.js"></script>
     <script type="module" src="./js/ui.js"></script>
@@ -569,6 +767,7 @@
     <script src="./js/app.js"></script>
     <script src="./js/timeline.js"></script>
     <script src="./js/social.js"></script>
+    <script src="./js/groups.js"></script>
     <script src="./js/messaging.js"></script>
     <script src="./js/notifications.js"></script>
     <script src="./js/auth.js"></script> <!-- Load auth.js last so all functions are available -->

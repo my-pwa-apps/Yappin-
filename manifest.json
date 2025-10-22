@@ -1,7 +1,7 @@
 {
-  "name": "Yappin' - Share Your Thoughts",
+  "name": "Yappin' - Keep yappin' man",
   "short_name": "Yappin'",
-  "description": "Share your thoughts with the world in short Yaps! A modern social media PWA.",
+  "description": "Keep yappin' man! Share short Yaps with the world. A modern social media PWA.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
