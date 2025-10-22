@@ -849,7 +849,7 @@ function openReplyModal(replyToYapId, replyToUsername, replyToContent) {
         return;
     }
     
-    const composeModal = document.getElementById('composeModal');
+    const composeModal = document.getElementById('createYapModal');
     const modalYapText = document.getElementById('modalYapText');
     
     if (!composeModal || !modalYapText) {

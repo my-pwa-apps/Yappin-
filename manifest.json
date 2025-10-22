@@ -7,7 +7,7 @@
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
+  "theme_color": "#84cc16",
   "orientation": "portrait-primary",
   "categories": ["social", "lifestyle", "entertainment"],
   "lang": "en-US",
