@@ -399,17 +399,19 @@ body.dark-mode .online-indicator-badge {
 
 .user-btn-online-indicator {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
     background-color: var(--primary-color);
     border-radius: 50%;
-    border: 2px solid var(--bg-primary);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 body.dark-mode .user-btn-online-indicator {
     border-color: #0f172a;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.5);
 }
 
 .user-avatar {
@@ -622,16 +624,20 @@ main {
     background-color: rgba(132, 204, 22, 0.1);
     color: var(--primary-color);
     text-decoration: none;
-    border-left: none !important;
 }
 
 body.dark-mode .sidebar nav ul li a:hover {
     background-color: rgba(132, 204, 22, 0.15);
-    border-left: none !important;
 }
 
 .sidebar nav ul li a.active {
     font-weight: 700;
+    background-color: rgba(132, 204, 22, 0.1);
+    color: var(--primary-color);
+}
+
+body.dark-mode .sidebar nav ul li a.active {
+    background-color: rgba(132, 204, 22, 0.15);
 }
 
 .sidebar nav ul li a i {
@@ -1689,20 +1695,64 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
         display: none; /* Hide sidebar on smaller screens */
     }
 
+    /* Fix header on mobile to prevent bounce */
+    header {
+        position: fixed;
+        width: 100%;
+        top: 0;
+    }
+
+    /* Adjust main content to account for fixed header */
+    main {
+        padding-top: 60px; /* Height of header */
+        padding-bottom: 60px; /* Height of mobile nav */
+    }
+
     .mobile-nav {
         display: flex;
         justify-content: space-around;
         position: fixed;
         bottom: 0;
         width: 100%;
-        background-color: var(--primary-color);
+        background-color: var(--bg-primary);
+        border-top: 1px solid var(--border-color);
         padding: 10px 0;
         z-index: 100;
     }
 
-    .mobile-nav a {
-        color: white;
-        font-size: 14px;
+    .mobile-nav ul {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .mobile-nav ul li {
+        flex: 1;
+        text-align: center;
+    }
+
+    .mobile-nav ul li a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: var(--text-secondary);
+        font-size: 12px;
+        padding: 4px;
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+
+    .mobile-nav ul li a i {
+        font-size: 20px;
+    }
+
+    .mobile-nav ul li a.active,
+    .mobile-nav ul li a:hover {
+        color: var(--primary-color);
     }
     
     /* Mobile specific adjustments */

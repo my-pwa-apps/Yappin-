@@ -98,7 +98,15 @@ authBtns.forEach(btn => {
 
 // User dropdown toggle
 userBtn.addEventListener('click', () => {
-    userDropdown.classList.toggle('hidden');
+    // Open settings modal directly to Profile tab
+    if (typeof window.showSettings === 'function') {
+        window.showSettings('profile');
+    } else if (typeof showProfile === 'function') {
+        showProfile();
+    } else {
+        // Fallback to old user dropdown
+        userDropdown.classList.toggle('hidden');
+    }
 });
 
 // Header profile avatar click handler (mobile)
@@ -108,6 +116,8 @@ if (headerProfileAvatar) {
         // Open settings modal directly to Profile tab
         if (typeof window.showSettings === 'function') {
             window.showSettings('profile');
+        } else if (typeof showProfile === 'function') {
+            showProfile();
         } else {
             // Fallback to old user dropdown
             userDropdown.classList.toggle('hidden');
