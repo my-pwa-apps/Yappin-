@@ -263,6 +263,7 @@ header {
     box-shadow: none;
     padding: 0;
     margin: 0;
+    padding-top: 4px;
 }
 
 .logo h1 {
@@ -331,10 +332,10 @@ header {
 /* Online/Offline Indicator Dots */
 .online-indicator-badge {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
     background-color: #4CAF50; /* Green for online */
     border: 2px solid var(--bg-primary, #fff);
     border-radius: 50%;
@@ -623,10 +624,12 @@ main {
     background-color: rgba(29, 161, 242, 0.1);
     color: var(--primary-color);
     text-decoration: none;
+    border-left: none !important;
 }
 
 body.dark-mode .sidebar nav ul li a:hover {
     background-color: rgba(29, 161, 242, 0.15);
+    border-left: none !important;
 }
 
 .sidebar nav ul li a.active {

@@ -27,11 +27,19 @@ function loadConversations() {
 
 // Display conversations in the Messages modal
 function displayConversations(conversations) {
+    console.log('[DM] displayConversations called with:', conversations);
+    
     const messagesModal = document.getElementById('messagesModal');
-    if (!messagesModal) return;
+    if (!messagesModal) {
+        console.log('[DM] messagesModal not found');
+        return;
+    }
 
     const modalBody = messagesModal.querySelector('.modal-body');
-    if (!modalBody) return;
+    if (!modalBody) {
+        console.log('[DM] modal-body not found');
+        return;
+    }
 
     // Check if we're currently in an active conversation - don't reset the view
     const conversationView = document.getElementById('conversationView');
@@ -47,6 +55,7 @@ function displayConversations(conversations) {
 
     // Check if there are conversations
     const conversationIds = Object.keys(conversations);
+    console.log('[DM] conversationIds:', conversationIds);
     
     if (conversationIds.length === 0) {
         modalBody.innerHTML = `
@@ -102,6 +111,11 @@ function displayConversations(conversations) {
 
     const conversationsList = document.getElementById('conversationsList');
     updateConversationsList(conversationsList, conversations);
+    
+    // Setup DM attachments after conversation view is created
+    setTimeout(() => {
+        setupDmMediaButtons();
+    }, 100);
 }
 
 // Helper function to update conversations list
