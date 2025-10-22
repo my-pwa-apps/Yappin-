@@ -896,6 +896,7 @@ function loadReplies(yapId, repliesContainer) {
             return Promise.all(replyPromises)
                 .then(snapshots => {
                     repliesContainer.innerHTML = '';
+                    let hasVisibleReplies = false;
                     
                     snapshots.forEach((replySnap, index) => {
                         if (replySnap.exists()) {
@@ -907,10 +908,10 @@ function loadReplies(yapId, repliesContainer) {
                             // Check if current user has liked/reyapped this reply
                             const userId = auth.currentUser ? auth.currentUser.uid : null;
                             const likePromise = userId 
-                                ? database.ref(`userLikes/${userId}/${replyId}`).once('value')
+                                ? database.ref(`userLikes/${userId}/${replyId}`).once('value').catch(() => ({ exists: () => false }))
                                 : Promise.resolve({ exists: () => false });
                             const reyapPromise = userId
-                                ? database.ref(`userReyaps/${userId}/${replyId}`).once('value')
+                                ? database.ref(`userReyaps/${userId}/${replyId}`).once('value').catch(() => ({ exists: () => false }))
                                 : Promise.resolve({ exists: () => false });
                             
                             Promise.all([likePromise, reyapPromise]).then(([likeSnap, reyapSnap]) => {
@@ -922,14 +923,28 @@ function loadReplies(yapId, repliesContainer) {
                                 replyElement.classList.add('reply-yap');
                                 replyElement.dataset.replyId = replyId;
                                 repliesContainer.appendChild(replyElement);
+                                hasVisibleReplies = true;
+                            }).catch(err => {
+                                (window.PerformanceUtils?.Logger || console).warn('Could not render reply:', replyId, err);
                             });
                         }
                     });
+                    
+                    // If no replies were visible, show appropriate message
+                    setTimeout(() => {
+                        if (!hasVisibleReplies && repliesContainer.children.length === 0) {
+                            repliesContainer.innerHTML = '<div class="no-replies">No replies visible (privacy settings)</div>';
+                        }
+                    }, 1000);
                 });
         })
         .catch(error => {
             (window.PerformanceUtils?.Logger || console).error('Error loading replies:', error);
-            repliesContainer.innerHTML = '<div class="error-replies">Error loading replies</div>';
+            if (error.code === 'PERMISSION_DENIED') {
+                repliesContainer.innerHTML = '<div class="error-replies">Cannot load replies (permission denied)</div>';
+            } else {
+                repliesContainer.innerHTML = '<div class="error-replies">Error loading replies</div>';
+            }
         });
 }
 
@@ -941,9 +956,13 @@ function toggleReplies(yapId, repliesContainer, toggleBtn) {
     if (isExpanded) {
         // Collapse
         repliesContainer.classList.add('hidden');
-        const replyCount = toggleBtn.querySelector('span').textContent.match(/\d+/)[0];
-        const replyWord = parseInt(replyCount) === 1 ? 'reply' : 'replies';
-        toggleBtn.innerHTML = `<i class="fas fa-chevron-down"></i> <span>View ${replyCount} ${replyWord}</span>`;
+        const spanElement = toggleBtn.querySelector('span');
+        if (spanElement) {
+            const match = spanElement.textContent.match(/\d+/);
+            const replyCount = match ? match[0] : '0';
+            const replyWord = parseInt(replyCount) === 1 ? 'reply' : 'replies';
+            toggleBtn.innerHTML = `<i class="fas fa-chevron-down"></i> <span>View ${replyCount} ${replyWord}</span>`;
+        }
         toggleBtn.classList.remove('expanded');
     } else {
         // Expand and load replies
