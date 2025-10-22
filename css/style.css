@@ -347,11 +347,21 @@ body.dark-mode .online-indicator-badge {
     display: none !important;
 }
 
-/* Hide profile avatar on desktop, show on mobile */
-@media (max-width: 768px) {
-    /* Hide the userBtn on mobile since we show the headerProfileAvatar */
+/* Desktop: show avatar, hide userBtn */
+@media (min-width: 769px) {
     #userBtn {
         display: none !important;
+    }
+}
+
+/* Mobile: hide avatar, show userBtn */
+@media (max-width: 768px) {
+    .header-profile-avatar {
+        display: none !important;
+    }
+    
+    #userBtn {
+        display: flex !important;
     }
     
     .header-profile-container {
@@ -580,7 +590,7 @@ main {
 .sidebar {
     position: sticky;
     top: 70px;
-    padding: 0;
+    padding: 0 var(--space-sm) 0 0;
 }
 
 .sidebar nav ul {
