@@ -324,22 +324,26 @@ header {
     border-radius: 50%;
 }
 
+/* Online/Offline Indicator Dots */
 .online-indicator-badge {
     position: absolute;
-    bottom: -1px;
-    right: -1px;
+    bottom: 2px;
+    right: 2px;
     width: 12px;
     height: 12px;
-    background-color: #4CAF50;
-    border: 2px solid var(--background-color, #fff);
+    background-color: #4CAF50; /* Green for online */
+    border: 2px solid var(--bg-primary, #fff);
     border-radius: 50%;
-    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
     z-index: 3;
-    pointer-events: none; /* Don't interfere with avatar clicks */
+    pointer-events: none;
+}
+
+.online-indicator-badge.offline {
+    background-color: #f44336; /* Red for offline */
 }
 
 body.dark-mode .online-indicator-badge {
-    border-color: #1e293b;
+    border-color: var(--bg-primary, #1e293b);
 }
 
 .header-profile-avatar.hidden {
@@ -811,12 +815,15 @@ main {
 }
 
 .yap-avatar {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     border-radius: var(--border-radius-full);
     background-color: var(--light-gray);
     overflow: hidden;
     transition: transform var(--transition-fast);
+    position: relative;
 }
 
 .yap-avatar:hover {
@@ -2831,3 +2838,131 @@ body.dark-mode .gif-item,
 body.dark-mode .sticker-item:hover {
     background: var(--bg-secondary);
 }
+
+/* ========================================
+   REMOVE BORDERS AND BOXES FROM UI
+   ======================================== */
+
+/* Remove borders from buttons and interactive elements */
+.btn,
+.primary-btn,
+.secondary-btn,
+.icon-btn,
+button {
+    border: none !important;
+}
+
+/* Remove borders from cards and containers */
+.yap,
+.modal-content,
+.group-card,
+.group-member,
+.join-request-item,
+.settings-section {
+    border: none !important;
+}
+
+/* Remove borders from input fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+    border: none !important;
+}
+
+/* Remove focus outlines but keep accessibility */
+*:focus {
+    outline: none !important;
+}
+
+*:focus-visible {
+    outline: 2px solid transparent !important;
+    box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2) !important;
+}
+
+/* Remove borders from avatars and images */
+.avatar,
+.profile-picture,
+.member-avatar,
+.profile-picture-preview,
+img {
+    border: none !important;
+}
+
+/* Remove borders from compose areas */
+.compose-yap,
+.compose-actions,
+.group-compose-section {
+    border: none !important;
+}
+
+/* Remove borders from modals */
+.modal,
+.modal-header,
+.modal-body {
+    border: none !important;
+}
+
+/* Remove borders from tabs */
+.tabs,
+.tab,
+.settings-tab,
+.groups-tab {
+    border: none !important;
+}
+
+/* Remove borders from lists and items */
+.notification-item,
+.message-item,
+.user-item,
+li {
+    border: none !important;
+}
+
+/* Remove borders from pickers */
+.emoji-picker,
+.gif-picker,
+.sticker-picker {
+    border: none !important;
+}
+
+/* Remove borders from forms */
+.form-group,
+.input-field,
+form {
+    border: none !important;
+}
+
+/* Keep only essential structural borders */
+header {
+    border-bottom: 1px solid rgba(var(--border-color-rgb, 220, 220, 220), 0.3) !important;
+}
+
+.sidebar {
+    border-right: 1px solid rgba(var(--border-color-rgb, 220, 220, 220), 0.3) !important;
+}
+
+/* Subtle shadows instead of borders for depth */
+.yap {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.modal-content {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+.group-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Remove border from specific problematic elements */
+.group-details,
+.group-info,
+.group-compose-section,
+.group-yaps-section,
+.join-requests-section {
+    border: none !important;
+}
+

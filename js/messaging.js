@@ -713,20 +713,35 @@ function setupDmAttachments() {
 }
 
 function handleDmImageSelect(e) {
+    console.log('[DM] Image select triggered', e.target.files);
+    
+    if (!e.target.files || e.target.files.length === 0) {
+        console.log('[DM] No files selected');
+        return;
+    }
+    
     const files = Array.from(e.target.files);
+    console.log('[DM] Files to process:', files.length);
     
     files.forEach(file => {
         if (file.type.startsWith('image/')) {
+            console.log('[DM] Adding image:', file.name);
             dmSelectedImages.push({ file });
         }
     });
     
+    console.log('[DM] Total selected images:', dmSelectedImages.length);
     renderDmImagePreviews();
 }
 
 function renderDmImagePreviews() {
     const container = document.getElementById('dmImagePreviewContainer');
-    if (!container) return;
+    if (!container) {
+        console.log('[DM] Preview container not found');
+        return;
+    }
+    
+    console.log('[DM] Rendering previews for', dmSelectedImages.length, 'images');
     
     if (dmSelectedImages.length === 0 && !dmSelectedGifUrl) {
         container.classList.add('hidden');
@@ -747,6 +762,10 @@ function renderDmImagePreviews() {
                 <img src="${e.target.result}" alt="Preview">
                 <button class="remove-image" onclick="removeDmImage(${index})" aria-label="Remove image">×</button>
             `;
+            console.log('[DM] Preview rendered for image', index);
+        };
+        reader.onerror = (error) => {
+            console.error('[DM] Error reading file:', error);
         };
         reader.readAsDataURL(img.file);
         
