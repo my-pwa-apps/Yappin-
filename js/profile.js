@@ -130,13 +130,7 @@ export function uploadProfilePicture() {
                     // Clear file input
                     fileInput.value = '';
                     
-                    // Update userBtn avatar (desktop menu)
-                    const userBtn = document.getElementById('userBtn');
-                    if (userBtn) {
-                        userBtn.innerHTML = `<img src="${base64}" alt="User avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" onerror="this.src='./images/default-avatar.svg'">`;
-                    }
-                    
-                    // Update header profile avatar (mobile)
+                    // Update header profile avatar
                     const headerAvatarImg = document.getElementById('headerAvatarImg');
                     if (headerAvatarImg) {
                         headerAvatarImg.src = base64;

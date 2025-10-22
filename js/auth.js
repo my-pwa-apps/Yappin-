@@ -4,9 +4,6 @@
 // DOM Elements
 const authContainer = document.getElementById('authContainer');
 const contentContainer = document.getElementById('contentContainer');
-const userBtn = document.getElementById('userBtn');
-const userDropdown = document.getElementById('userDropdown');
-const profileLink = document.getElementById('profileLink');
 const logoutBtn = document.getElementById('logoutBtn');
 const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
@@ -24,16 +21,13 @@ auth.onAuthStateChanged(user => {
         // Update UI
         authContainer.classList.add('hidden');
         contentContainer.classList.remove('hidden');
-        userBtn.classList.remove('hidden');
         
-        // Load user avatar and update button
+        // Load user avatar and update header
         database.ref(`users/${user.uid}/photoURL`).once('value')
             .then(snapshot => {
                 const photoURL = snapshot.val() || generateRandomAvatar(user.uid);
-                // Replace the icon with avatar image
-                userBtn.innerHTML = `<img src="${photoURL}" alt="User avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" onerror="this.src='./images/default-avatar.svg'">`;
                 
-                // Update header profile avatar (mobile)
+                // Update header profile avatar
                 const headerProfileAvatar = document.getElementById('headerProfileAvatar');
                 const headerAvatarImg = document.getElementById('headerAvatarImg');
                 if (headerProfileAvatar && headerAvatarImg) {
@@ -67,8 +61,6 @@ auth.onAuthStateChanged(user => {
         // Update UI
         authContainer.classList.remove('hidden');
         contentContainer.classList.add('hidden');
-        userBtn.classList.add('hidden');
-        userDropdown.classList.add('hidden');
         
         // Hide header profile avatar
         const headerProfileAvatar = document.getElementById('headerProfileAvatar');
@@ -96,20 +88,7 @@ authBtns.forEach(btn => {
     });
 });
 
-// User dropdown toggle
-userBtn.addEventListener('click', () => {
-    // Open settings modal directly to Profile tab
-    if (typeof window.showSettings === 'function') {
-        window.showSettings('profile');
-    } else if (typeof showProfile === 'function') {
-        showProfile();
-    } else {
-        // Fallback to old user dropdown
-        userDropdown.classList.toggle('hidden');
-    }
-});
-
-// Header profile avatar click handler (mobile)
+// Header profile avatar click handler
 const headerProfileAvatar = document.getElementById('headerProfileAvatar');
 if (headerProfileAvatar) {
     headerProfileAvatar.addEventListener('click', () => {
@@ -118,22 +97,9 @@ if (headerProfileAvatar) {
             window.showSettings('profile');
         } else if (typeof showProfile === 'function') {
             showProfile();
-        } else {
-            // Fallback to old user dropdown
-            userDropdown.classList.toggle('hidden');
         }
     });
 }
-
-// Close dropdown when clicking elsewhere
-document.addEventListener('click', (e) => {
-    const headerAvatar = document.getElementById('headerProfileAvatar');
-    if (!userBtn.contains(e.target) && 
-        !userDropdown.contains(e.target) && 
-        (!headerAvatar || !headerAvatar.contains(e.target))) {
-        userDropdown.classList.add('hidden');
-    }
-});
 
 // Social Authentication Providers
 function signInWithGoogle() {
@@ -831,13 +797,7 @@ window.uploadProfilePicture = function() {
                     // Clear file input
                     fileInput.value = '';
                     
-                    // Update userBtn avatar (desktop menu)
-                    const userBtn = document.getElementById('userBtn');
-                    if (userBtn) {
-                        userBtn.innerHTML = `<img src="${base64}" alt="User avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" onerror="this.src='./images/default-avatar.svg'">`;
-                    }
-                    
-                    // Update header profile avatar (mobile)
+                    // Update header profile avatar
                     const headerAvatarImg = document.getElementById('headerAvatarImg');
                     if (headerAvatarImg) {
                         headerAvatarImg.src = base64;
