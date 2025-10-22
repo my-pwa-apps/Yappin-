@@ -581,13 +581,15 @@ function createYap(textarea) {
     Promise.all([
         database.ref(`users/${auth.currentUser.uid}/username`).once('value'),
         database.ref(`users/${auth.currentUser.uid}/displayName`).once('value'),
-        database.ref(`users/${auth.currentUser.uid}/photoURL`).once('value')
+        database.ref(`users/${auth.currentUser.uid}/photoURL`).once('value'),
+        database.ref(`users/${auth.currentUser.uid}/neverAllowReyaps`).once('value')
     ])
-        .then(([usernameSnap, displayNameSnap, photoSnap]) => {
+        .then(([usernameSnap, displayNameSnap, photoSnap, neverAllowReyapsSnap]) => {
             const userData = {
                 username: usernameSnap.val(),
                 displayName: displayNameSnap.val(),
-                photoURL: photoSnap.val()
+                photoURL: photoSnap.val(),
+                neverAllowReyaps: neverAllowReyapsSnap.val() || false
             };
             if (!userData.username) {
                 throw new Error('User profile not found');
@@ -632,8 +634,13 @@ function createYap(textarea) {
                 ? document.getElementById('allowReyapCheckbox')
                 : document.getElementById('modalAllowReyapCheckbox');
             
-            // Default to true if checkbox doesn't exist, otherwise use its checked state
-            yapData.allowReyap = allowReyapCheckbox ? allowReyapCheckbox.checked : true;
+            // Check global setting first, then fallback to checkbox
+            if (userData.neverAllowReyaps) {
+                yapData.allowReyap = false;
+            } else {
+                // Default to true if checkbox doesn't exist, otherwise use its checked state
+                yapData.allowReyap = allowReyapCheckbox ? allowReyapCheckbox.checked : true;
+            }
             
             // Check if this is a reply to another yap
             const replyToId = window.replyContext?.yapId || textarea.dataset.replyTo;

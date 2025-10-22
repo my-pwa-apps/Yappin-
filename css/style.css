@@ -245,20 +245,24 @@ header {
     gap: 10px;
     margin-left: 12px;
     text-decoration: none;
-    transition: transform var(--transition-fast);
+    border: none;
+    background: transparent;
+    padding: 0;
 }
 
 .logo-link:hover {
     text-decoration: none;
-    transform: scale(1.03);
 }
 
 /* Logo */
 .logo-img {
-    width: 42px; /* Increased from 36px */
-    height: 42px; /* Increased from 36px */
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    transition: transform var(--transition-fast);
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
 }
 
 .logo h1 {
@@ -612,12 +616,17 @@ main {
     border-radius: 30px;
     color: var(--text-primary);
     font-weight: 500;
-    transition: background-color var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .sidebar nav ul li a:hover {
-    background-color: var(--hover-color);
+    background-color: rgba(29, 161, 242, 0.1);
+    color: var(--primary-color);
     text-decoration: none;
+}
+
+body.dark-mode .sidebar nav ul li a:hover {
+    background-color: rgba(29, 161, 242, 0.15);
 }
 
 .sidebar nav ul li a.active {
@@ -731,36 +740,49 @@ main {
 
 .compose-privacy-options {
     margin-bottom: var(--space-sm);
-    padding: var(--space-xs) 0;
+    padding: 0;
 }
 
 .privacy-toggle {
     display: flex;
     align-items: center;
-    gap: var(--space-xs);
+    gap: 8px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-secondary);
+    padding: 6px 0;
+    border: none;
+    background: transparent;
+    transition: color var(--transition-fast);
 }
 
 .privacy-toggle input[type="checkbox"] {
     margin: 0;
     cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary-color);
 }
 
 .privacy-toggle span {
     display: flex;
     align-items: center;
     gap: 6px;
+    user-select: none;
 }
 
 .privacy-toggle i {
-    color: var(--success-color);
-    font-size: 14px;
+    color: var(--primary-color);
+    font-size: 15px;
 }
 
 .privacy-toggle:hover {
     color: var(--text-primary);
+}
+
+.privacy-toggle:hover i {
+    color: var(--primary-color);
+    opacity: 0.8;
 }
 
 .compose-actions {
@@ -1663,8 +1685,11 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
 /* Logo image size increase */
 .logo img {
   width: auto;
-  height: 2.5rem; /* Increase the logo image size */
+  height: 2.5rem;
   margin-right: 0.5rem;
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
 
 /* Modern pill badges */
@@ -1747,20 +1772,23 @@ input[type="radio"]:checked::before {
 /* Media upload button enhancement */
 .attach-options button {
   position: relative;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary-color);
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast);
   overflow: hidden;
 }
 
 .attach-options button:hover {
-  background-color: var(--primary-light);
-  transform: translateY(-2px);
+  background-color: rgba(29, 161, 242, 0.1);
+}
+
+.attach-options button i {
+  font-size: 18px;
 }
 
 /* Enhanced mobile experience */

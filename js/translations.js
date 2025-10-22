@@ -88,6 +88,8 @@ const translations = {
         theme: 'Theme',
         lightMode: 'Light Mode',
         darkMode: 'Dark Mode',
+        neverAllowReyaps: 'Never Allow Reyaps',
+        neverAllowReyapsDesc: 'Disable reyaps on all your posts by default',
         autoDetect: 'Auto Detect',
         
         // Auth
@@ -276,6 +278,8 @@ const translations = {
         language: 'Taal',
         theme: 'Thema',
         lightMode: 'Lichte modus',
+        neverAllowReyaps: 'Nooit reyaps toestaan',
+        neverAllowReyapsDesc: 'Schakel reyaps uit op al je berichten standaard',
         darkMode: 'Donkere modus',
         autoDetect: 'Automatisch detecteren',
         
@@ -380,7 +384,6 @@ const translations = {
         media: 'Media',
         likes: 'Vind-ik-leuks'
     }
-};
 };
 
 // Current language state

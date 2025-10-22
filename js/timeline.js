@@ -336,7 +336,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     
     replyBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        openReplyModal(yapId, username, content);
+        openReplyModal(yapData.id, username, content);
     });
     
     shareBtn.addEventListener('click', (e) => {

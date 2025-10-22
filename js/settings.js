@@ -84,6 +84,7 @@ function setupProfileTab() {
     const selectPictureBtn = document.getElementById('selectPictureBtn');
     const uploadPictureBtn = document.getElementById('uploadProfilePictureBtn');
     const requireApprovalCheckbox = document.getElementById('requireApprovalCheckbox');
+    const neverAllowReyapsCheckbox = document.getElementById('neverAllowReyapsCheckbox');
     const logoutBtn = document.getElementById('logoutBtn');
 
     if (saveDisplayNameBtn) {
@@ -100,6 +101,10 @@ function setupProfileTab() {
     
     if (requireApprovalCheckbox) {
         requireApprovalCheckbox.addEventListener('change', toggleAccountPrivacy);
+    }
+    
+    if (neverAllowReyapsCheckbox) {
+        neverAllowReyapsCheckbox.addEventListener('change', toggleReyapPermission);
     }
 
     if (logoutBtn) {
@@ -223,12 +228,14 @@ function loadUserData() {
         database.ref(`users/${uid}/displayName`).once('value'),
         database.ref(`users/${uid}/username`).once('value'),
         database.ref(`users/${uid}/photoURL`).once('value'),
-        database.ref(`users/${uid}/requireApproval`).once('value')
-    ]).then(([displayNameSnap, usernameSnap, photoSnap, requireApprovalSnap]) => {
+        database.ref(`users/${uid}/requireApproval`).once('value'),
+        database.ref(`users/${uid}/neverAllowReyaps`).once('value')
+    ]).then(([displayNameSnap, usernameSnap, photoSnap, requireApprovalSnap, neverAllowReyapsSnap]) => {
         const displayNameInput = document.getElementById('displayNameInput');
         const usernameDisplay = document.getElementById('usernameDisplay');
         const profilePicturePreview = document.getElementById('profilePicturePreview');
         const requireApprovalCheckbox = document.getElementById('requireApprovalCheckbox');
+        const neverAllowReyapsCheckbox = document.getElementById('neverAllowReyapsCheckbox');
         
         if (displayNameInput) {
             displayNameInput.value = displayNameSnap.val() || '';
@@ -250,6 +257,10 @@ function loadUserData() {
         
         if (requireApprovalCheckbox) {
             requireApprovalCheckbox.checked = requireApprovalSnap.val() || false;
+        }
+        
+        if (neverAllowReyapsCheckbox) {
+            neverAllowReyapsCheckbox.checked = neverAllowReyapsSnap.val() || false;
         }
     }).catch(error => {
         console.error('[Settings] Error loading user data:', error);
@@ -304,6 +315,27 @@ function toggleAccountPrivacy() {
             console.error('[Settings] Error updating privacy:', error);
             showSnackbar('Failed to update privacy setting', 'error');
             checkbox.checked = !requireApproval;
+        });
+}
+
+/**
+ * Toggle reyap permission
+ */
+function toggleReyapPermission() {
+    if (typeof auth === 'undefined' || !auth.currentUser) return;
+    
+    const checkbox = document.getElementById('neverAllowReyapsCheckbox');
+    const neverAllowReyaps = checkbox.checked;
+    const uid = auth.currentUser.uid;
+    
+    database.ref(`users/${uid}/neverAllowReyaps`).set(neverAllowReyaps)
+        .then(() => {
+            showSnackbar(neverAllowReyaps ? 'Reyaps disabled on your posts' : 'Reyaps enabled on your posts', 'success');
+        })
+        .catch(error => {
+            console.error('[Settings] Error updating reyap permission:', error);
+            showSnackbar('Failed to update reyap setting', 'error');
+            checkbox.checked = !neverAllowReyaps;
         });
 }
 
