@@ -18,9 +18,9 @@ auth.onAuthStateChanged(user => {
         // User is signed in
         currentUser = user;
         
-        // Update UI
-        authContainer.classList.add('hidden');
-        contentContainer.classList.remove('hidden');
+        // Update UI - with null checking
+        if (authContainer) authContainer.classList.add('hidden');
+        if (contentContainer) contentContainer.classList.remove('hidden');
         
         // Load user avatar and update header
         database.ref(`users/${user.uid}/photoURL`).once('value')
@@ -58,9 +58,9 @@ auth.onAuthStateChanged(user => {
             realtimeListeners = [];
         }
         
-        // Update UI
-        authContainer.classList.remove('hidden');
-        contentContainer.classList.add('hidden');
+        // Update UI - with null checking
+        if (authContainer) authContainer.classList.remove('hidden');
+        if (contentContainer) contentContainer.classList.add('hidden');
         
         // Hide header profile avatar
         const headerProfileAvatar = document.getElementById('headerProfileAvatar');
@@ -208,8 +208,9 @@ window.signInWithApple = signInWithApple;
 window.signInWithMicrosoft = signInWithMicrosoft;
 
 // Login form submit handler
-loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
     
     const emailOrUsername = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -295,10 +296,12 @@ loginForm.addEventListener('submit', (e) => {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
         });
-});
+    });
+}
 
 // Signup form submit handler
-signupForm.addEventListener('submit', (e) => {
+if (signupForm) {
+    signupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
     const username = document.getElementById('signupUsername').value.trim();
@@ -431,16 +434,19 @@ signupForm.addEventListener('submit', (e) => {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
         });
-});
+    });
+}
 
 // Logout handler
-logoutBtn.addEventListener('click', () => {
-    auth.signOut()
-        .catch(error => {
-            (window.PerformanceUtils?.Logger || console).error('Logout error:', error);
-            showSnackbar(`Error: ${error.message}`);
-        });
-});
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        auth.signOut()
+            .catch(error => {
+                (window.PerformanceUtils?.Logger || console).error('Logout error:', error);
+                showSnackbar(`Error: ${error.message}`);
+            });
+    });
+}
 
 // Validate invite code
 function validateInviteCode(code) {
