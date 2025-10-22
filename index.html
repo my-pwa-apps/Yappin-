@@ -58,7 +58,10 @@
                         <div class="online-indicator-badge"></div>
                     </div>
                     <div class="user-menu">
-                        <button id="userBtn" class="hidden" aria-label="User menu" title="User menu" data-tooltip="User menu"><i class="fas fa-user"></i></button>
+                        <button id="userBtn" class="hidden" aria-label="User menu" title="User menu" data-tooltip="User menu">
+                            <i class="fas fa-user"></i>
+                            <span class="user-btn-online-indicator"></span>
+                        </button>
                         <div id="userDropdown" class="dropdown hidden">
                             <a href="#" onclick="showProfile(); return false;">Profile</a>
                             <a href="#" id="logoutLink">Logout</a>
@@ -211,6 +214,7 @@
                     </div>
                     <div class="modal-body">
                         <textarea id="modalYapText" placeholder="Keep yappin' man!"></textarea>
+                        <div id="modalImagePreviewContainer" class="image-preview-container hidden"></div>
                         <div class="compose-privacy-options">
                             <label class="privacy-toggle">
                                 <input type="checkbox" id="modalAllowReyapCheckbox" checked>
@@ -219,9 +223,12 @@
                         </div>
                         <div class="compose-actions">
                             <div class="attach-options">
-                                <button class="icon-btn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
-                                <button class="icon-btn" aria-label="Create poll" title="Create poll"><i class="fas fa-poll"></i></button>
-                                <button class="icon-btn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
+                                <label for="modalImageInput" class="visually-hidden">Attach images</label>
+                                <input type="file" id="modalImageInput" accept="image/*" multiple class="hidden-input">
+                                <button class="icon-btn" id="modalAttachImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
+                                <button class="icon-btn" id="modalGifBtn" aria-label="Add GIF" title="Add GIF"><i class="fas fa-file-image"></i></button>
+                                <button class="icon-btn" id="modalStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="far fa-grin-squint"></i></button>
+                                <button class="icon-btn" id="modalEmojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
                             </div>
                             <button id="modalPostYapBtn" class="btn primary-btn">Yap</button>
                         </div>

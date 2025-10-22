@@ -390,10 +390,26 @@ body.dark-mode .online-indicator-badge {
     background-color: transparent;
     border: none;
     padding: 0;
+    position: relative;
 }
 
 .user-menu button:hover {
     background-color: transparent;
+}
+
+.user-btn-online-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+}
+
+body.dark-mode .user-btn-online-indicator {
+    border-color: #0f172a;
 }
 
 .user-avatar {
@@ -581,7 +597,7 @@ main {
 .sidebar {
     position: sticky;
     top: 70px;
-    padding: 0 var(--space-sm) 0 0;
+    padding: 0 var(--space-sm) 0 var(--space-sm);
 }
 
 .sidebar nav ul {
@@ -1092,6 +1108,77 @@ body.dark-mode .reply-yap {
 
 .action-count {
     font-size: 14px;
+}
+
+/* View Replies Button */
+.view-replies-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    margin: var(--space-sm) 0;
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.view-replies-btn:hover {
+    background-color: var(--primary-light);
+}
+
+.view-replies-btn.expanded i {
+    transform: rotate(180deg);
+}
+
+.view-replies-btn i {
+    font-size: 12px;
+    transition: transform var(--transition-fast);
+}
+
+/* Replies Container */
+.replies-container {
+    padding-left: var(--space-lg);
+    margin-top: var(--space-sm);
+    border-left: 2px solid var(--border-color);
+    transition: all var(--transition-normal);
+}
+
+.replies-container.hidden {
+    display: none;
+}
+
+.replies-container .yap-item {
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--space-sm);
+    border-bottom: none;
+}
+
+body.dark-mode .replies-container .yap-item {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.replies-container .yap-item:hover {
+    background-color: var(--hover-color);
+}
+
+.loading-replies,
+.no-replies,
+.error-replies {
+    padding: var(--space-md);
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.loading-replies i {
+    margin-right: var(--space-xs);
 }
 
 /* Trends Column */

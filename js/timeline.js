@@ -297,6 +297,13 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 <i class="far fa-envelope"></i>
             </button>
         </div>
+        ${(yapData.replies && yapData.replies > 0) ? `
+            <button class="view-replies-btn" data-yap-id="${yapData.id}">
+                <i class="fas fa-chevron-down"></i>
+                <span>View ${yapData.replies} ${yapData.replies === 1 ? 'reply' : 'replies'}</span>
+            </button>
+        ` : ''}
+        <div class="replies-container hidden" data-yap-id="${yapData.id}"></div>
     `;
     
     // Add event listeners
@@ -439,27 +446,14 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
         });
     }
     
-    // Add thread toggle if there are replies
-    if (yapData.replies && yapData.replies > 0) {
-        const threadContainer = document.createElement('div');
-        threadContainer.className = 'thread-container';
-        
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'thread-toggle-btn';
-        toggleBtn.innerHTML = `<i class="fas fa-chevron-down"></i> Show ${yapData.replies} ${yapData.replies === 1 ? 'reply' : 'replies'}`;
-        
-        const repliesContainer = document.createElement('div');
-        repliesContainer.className = 'replies-container';
-        repliesContainer.style.display = 'none';
-        
-        toggleBtn.addEventListener('click', (e) => {
+    // Add event listener for view replies button
+    const viewRepliesBtn = yapElement.querySelector('.view-replies-btn');
+    const repliesContainer = yapElement.querySelector('.replies-container');
+    if (viewRepliesBtn && repliesContainer) {
+        viewRepliesBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            toggleReplies(yapId, repliesContainer, toggleBtn);
+            toggleReplies(yapData.id, repliesContainer, viewRepliesBtn);
         });
-        
-        threadContainer.appendChild(toggleBtn);
-        threadContainer.appendChild(repliesContainer);
-        yapElement.appendChild(threadContainer);
     }
     
     // Open yap details on click
@@ -525,39 +519,54 @@ function deleteYap(yapId, yapUid) {
         return;
     }
     
-    // Fetch all related data first, then build updates object
-    Promise.all([
-        database.ref(`likes/${yapId}`).once('value'),
-        database.ref(`reyaps/${yapId}`).once('value')
-    ]).then(([likesSnapshot, reyapsSnapshot]) => {
-        const updates = {};
-        
-        // Remove from main yaps collection
-        updates[`yaps/${yapId}`] = null;
-        
-        // Remove from user's yaps
-        updates[`userYaps/${yapUid}/${yapId}`] = null;
-        
-        // Remove all likes for this yap
-        if (likesSnapshot.exists()) {
-            const likes = likesSnapshot.val();
-            Object.keys(likes).forEach(userId => {
-                updates[`likes/${yapId}/${userId}`] = null;
-                updates[`userLikes/${userId}/${yapId}`] = null;
-            });
+    // Check if this is a reply by checking if it exists in yapReplies
+    database.ref(`yaps/${yapId}`).once('value').then(yapSnapshot => {
+        if (!yapSnapshot.exists()) {
+            throw new Error('Yap not found');
         }
         
-        // Remove all reyaps for this yap
-        if (reyapsSnapshot.exists()) {
-            const reyaps = reyapsSnapshot.val();
-            Object.keys(reyaps).forEach(userId => {
-                updates[`reyaps/${yapId}/${userId}`] = null;
-                updates[`userReyaps/${userId}/${yapId}`] = null;
-            });
+        const yapData = yapSnapshot.val();
+        const parentYapId = yapData.replyTo;
+        
+        // If this is a reply, use deleteReply instead
+        if (parentYapId) {
+            return deleteReply(yapId, yapUid, parentYapId);
         }
         
-        // Apply all updates atomically
-        return database.ref().update(updates);
+        // Otherwise, proceed with normal yap deletion
+        return Promise.all([
+            database.ref(`likes/${yapId}`).once('value'),
+            database.ref(`reyaps/${yapId}`).once('value')
+        ]).then(([likesSnapshot, reyapsSnapshot]) => {
+            const updates = {};
+            
+            // Remove from main yaps collection
+            updates[`yaps/${yapId}`] = null;
+            
+            // Remove from user's yaps
+            updates[`userYaps/${yapUid}/${yapId}`] = null;
+            
+            // Remove all likes for this yap
+            if (likesSnapshot.exists()) {
+                const likes = likesSnapshot.val();
+                Object.keys(likes).forEach(userId => {
+                    updates[`likes/${yapId}/${userId}`] = null;
+                    updates[`userLikes/${userId}/${yapId}`] = null;
+                });
+            }
+            
+            // Remove all reyaps for this yap
+            if (reyapsSnapshot.exists()) {
+                const reyaps = reyapsSnapshot.val();
+                Object.keys(reyaps).forEach(userId => {
+                    updates[`reyaps/${yapId}/${userId}`] = null;
+                    updates[`userReyaps/${userId}/${yapId}`] = null;
+                });
+            }
+            
+            // Apply all updates atomically
+            return database.ref().update(updates);
+        });
     }).then(() => {
         // Remove the yap element from DOM with animation
         const yapElement = document.querySelector(`[data-yap-id="${yapId}"]`);
@@ -571,6 +580,108 @@ function deleteYap(yapId, yapUid) {
     }).catch(error => {
         (window.PerformanceUtils?.Logger || console).error('Error deleting yap:', error);
         showSnackbar('Error deleting yap: ' + error.message, 'error');
+    });
+}
+
+// Delete a reply
+function deleteReply(replyId, replyUid, parentYapId) {
+    if (!auth.currentUser) {
+        showSnackbar('You must be logged in to delete replies', 'error');
+        return Promise.reject(new Error('Not authenticated'));
+    }
+    
+    // Verify the user owns this reply
+    if (auth.currentUser.uid !== replyUid) {
+        showSnackbar('You can only delete your own replies', 'error');
+        return Promise.reject(new Error('Unauthorized'));
+    }
+    
+    // Fetch all related data first, then build updates object
+    return Promise.all([
+        database.ref(`likes/${replyId}`).once('value'),
+        database.ref(`reyaps/${replyId}`).once('value')
+    ]).then(([likesSnapshot, reyapsSnapshot]) => {
+        const updates = {};
+        
+        // Remove from main yaps collection
+        updates[`yaps/${replyId}`] = null;
+        
+        // Remove from user's yaps
+        updates[`userYaps/${replyUid}/${replyId}`] = null;
+        
+        // Remove from yapReplies
+        updates[`yapReplies/${parentYapId}/${replyId}`] = null;
+        
+        // Remove all likes for this reply
+        if (likesSnapshot.exists()) {
+            const likes = likesSnapshot.val();
+            Object.keys(likes).forEach(userId => {
+                updates[`likes/${replyId}/${userId}`] = null;
+                updates[`userLikes/${userId}/${replyId}`] = null;
+            });
+        }
+        
+        // Remove all reyaps for this reply
+        if (reyapsSnapshot.exists()) {
+            const reyaps = reyapsSnapshot.val();
+            Object.keys(reyaps).forEach(userId => {
+                updates[`reyaps/${replyId}/${userId}`] = null;
+                updates[`userReyaps/${userId}/${replyId}`] = null;
+            });
+        }
+        
+        // Decrement parent yap's reply count
+        return database.ref(`yaps/${parentYapId}/replies`).once('value').then(countSnapshot => {
+            const currentCount = countSnapshot.val() || 0;
+            if (currentCount > 0) {
+                updates[`yaps/${parentYapId}/replies`] = currentCount - 1;
+            }
+            
+            // Apply all updates atomically
+            return database.ref().update(updates);
+        });
+    }).then(() => {
+        // Remove the reply element from DOM with animation
+        const replyElement = document.querySelector(`[data-yap-id="${replyId}"]`);
+        if (replyElement) {
+            replyElement.style.transition = 'all 0.3s ease';
+            replyElement.style.opacity = '0';
+            replyElement.style.transform = 'translateX(-100%)';
+            setTimeout(() => replyElement.remove(), 300);
+        }
+        
+        // Update the view replies button text
+        const parentYapElement = document.querySelector(`[data-yap-id="${parentYapId}"]`);
+        if (parentYapElement) {
+            const viewRepliesBtn = parentYapElement.querySelector('.view-replies-btn');
+            const replyCountSpan = parentYapElement.querySelector('.action-btn.reply span');
+            if (viewRepliesBtn && replyCountSpan) {
+                const newCount = parseInt(replyCountSpan.textContent) - 1;
+                replyCountSpan.textContent = newCount.toString();
+                
+                if (newCount === 0) {
+                    viewRepliesBtn.remove();
+                    const repliesContainer = parentYapElement.querySelector('.replies-container');
+                    if (repliesContainer) {
+                        repliesContainer.remove();
+                    }
+                } else {
+                    const replyWord = newCount === 1 ? 'reply' : 'replies';
+                    const isExpanded = viewRepliesBtn.classList.contains('expanded');
+                    if (isExpanded) {
+                        viewRepliesBtn.innerHTML = `<i class="fas fa-chevron-up"></i> <span>Hide replies</span>`;
+                    } else {
+                        viewRepliesBtn.innerHTML = `<i class="fas fa-chevron-down"></i> <span>View ${newCount} ${replyWord}</span>`;
+                    }
+                }
+            }
+        }
+        
+        showSnackbar('Reply deleted successfully', 'success');
+    }).catch(error => {
+        (window.PerformanceUtils?.Logger || console).error('Error deleting reply:', error);
+        showSnackbar('Error deleting reply: ' + error.message, 'error');
+        throw error;
     });
 }
 
@@ -790,6 +901,8 @@ function loadReplies(yapId, repliesContainer) {
                         if (replySnap.exists()) {
                             const replyData = replySnap.val();
                             const replyId = replyIds[index];
+                            // Add the ID to replyData
+                            replyData.id = replyId;
                             
                             // Check if current user has liked/reyapped this reply
                             const userId = auth.currentUser ? auth.currentUser.uid : null;
@@ -823,17 +936,19 @@ function loadReplies(yapId, repliesContainer) {
 function toggleReplies(yapId, repliesContainer, toggleBtn) {
     if (!repliesContainer || !toggleBtn) return;
     
-    const isExpanded = repliesContainer.style.display !== 'none' && repliesContainer.innerHTML !== '';
+    const isExpanded = !repliesContainer.classList.contains('hidden');
     
     if (isExpanded) {
         // Collapse
-        repliesContainer.style.display = 'none';
-        toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Show replies';
+        repliesContainer.classList.add('hidden');
+        const replyCount = toggleBtn.querySelector('span').textContent.match(/\d+/)[0];
+        const replyWord = parseInt(replyCount) === 1 ? 'reply' : 'replies';
+        toggleBtn.innerHTML = `<i class="fas fa-chevron-down"></i> <span>View ${replyCount} ${replyWord}</span>`;
         toggleBtn.classList.remove('expanded');
     } else {
         // Expand and load replies
-        repliesContainer.style.display = 'block';
-        toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Hide replies';
+        repliesContainer.classList.remove('hidden');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> <span>Hide replies</span>';
         toggleBtn.classList.add('expanded');
         
         if (repliesContainer.innerHTML === '') {

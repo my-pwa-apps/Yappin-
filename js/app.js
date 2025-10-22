@@ -89,6 +89,34 @@ if (emojiBtn) {
     emojiBtn.addEventListener('click', toggleEmojiPicker);
 }
 
+// Modal media button handlers
+const modalAttachImageBtn = document.getElementById('modalAttachImageBtn');
+const modalImageInput = document.getElementById('modalImageInput');
+const modalGifBtn = document.getElementById('modalGifBtn');
+const modalStickerBtn = document.getElementById('modalStickerBtn');
+const modalEmojiBtn = document.getElementById('modalEmojiBtn');
+
+if (modalAttachImageBtn && modalImageInput) {
+    modalAttachImageBtn.addEventListener('click', () => modalImageInput.click());
+    modalImageInput.addEventListener('change', handleImageSelect);
+}
+
+if (modalGifBtn) {
+    modalGifBtn.addEventListener('click', () => {
+        toggleGifPicker();
+    });
+}
+
+if (modalStickerBtn) {
+    modalStickerBtn.addEventListener('click', () => {
+        toggleStickerPicker();
+    });
+}
+
+if (modalEmojiBtn) {
+    modalEmojiBtn.addEventListener('click', toggleEmojiPicker);
+}
+
 // Note: Search functionality is set up in DOMContentLoaded event listener below
 // which correctly uses performSearch() function with usernames index
 
