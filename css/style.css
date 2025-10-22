@@ -273,7 +273,7 @@ header {
     box-shadow: none;
     padding: 0;
     margin: 0;
-    padding-top: 4px;
+    padding-top: 8px;
 }
 
 .logo h1 {
@@ -290,6 +290,7 @@ header {
     display: flex;
     align-items: center;
     gap: 15px;
+    padding-top: 8px;
 }
 
 .header-profile-avatar {
