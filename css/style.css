@@ -118,6 +118,9 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
 }
 
 /* Focus styles for accessibility */
@@ -220,6 +223,9 @@ ul {
     min-height: 100vh;
     max-width: var(--container-max-width);
     margin: 0 auto;
+    width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 /* Header */
@@ -372,13 +378,15 @@ main {
 
 .content-container {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 260px 1fr 340px;
     gap: var(--space-lg);
     margin-top: var(--space-lg);
     padding: 0 var(--space-md);
     max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Auth Container */
@@ -498,6 +506,9 @@ main {
     position: sticky;
     top: 70px;
     padding: 0 var(--space-sm) 0 var(--space-sm);
+    max-width: 260px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .sidebar nav ul {
@@ -581,6 +592,9 @@ body.dark-mode .sidebar nav ul li a.active {
 .timeline {
     border-left: 1px solid var(--border-color);
     border-right: 1px solid var(--border-color);
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .timeline-tabs {
@@ -668,8 +682,8 @@ body.dark-mode .sidebar nav ul li a.active {
 .privacy-toggle input[type="checkbox"] {
     margin: 0;
     cursor: pointer;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     accent-color: var(--primary-color);
 }
 
@@ -682,7 +696,7 @@ body.dark-mode .sidebar nav ul li a.active {
 
 .privacy-toggle i {
     color: var(--primary-color);
-    font-size: 15px;
+    font-size: 13px;
 }
 
 .privacy-toggle:hover {
@@ -1089,6 +1103,9 @@ body.dark-mode .replies-container .yap-item {
 .trends {
     position: sticky;
     top: 70px;
+    max-width: 340px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .search-container {
@@ -1470,9 +1487,10 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
 }
 
 /* Responsive Design */
+/* Tablet and medium screens - hide trends sidebar */
 @media (max-width: 1200px) {
     .content-container {
-        grid-template-columns: 1fr 2fr;
+        grid-template-columns: 260px 1fr;
     }
     
     .trends {
@@ -1480,6 +1498,33 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
     }
 }
 
+/* Tablet - hide left sidebar, keep only timeline */
+@media (max-width: 992px) {
+    .content-container {
+        grid-template-columns: 1fr;
+        padding: 0 var(--space-sm);
+    }
+    
+    .sidebar {
+        display: none;
+    }
+    
+    .trends {
+        display: none;
+    }
+    
+    .timeline {
+        border-left: none;
+        border-right: none;
+    }
+    
+    /* Show mobile navigation */
+    .mobile-nav {
+        display: flex;
+    }
+}
+
+/* Mobile - full mobile layout */
 @media (max-width: 768px) {
     .content-container {
         grid-template-columns: 1fr;

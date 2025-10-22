@@ -549,10 +549,19 @@ function checkUserProfile(user) {
     // Only check username field (which is always readable for the owner)
     return database.ref(`users/${user.uid}/username`).once('value')
         .then(snapshot => {
-            if (!snapshot.exists() && user.email) {
-                // No profile exists, create a default one
-                const username = user.email.split('@')[0] + generateId().substring(0, 5);
-                return createUserProfile(user, username);
+            if (!snapshot.exists()) {
+                // No profile exists - this user needs to sign up properly with an invite code
+                console.warn('[Auth] User has no profile. They must sign up with an invite code.');
+                // Sign them out
+                auth.signOut();
+                showSnackbar('Please sign up with an invite code first', 'error');
+                // Redirect to sign up
+                setTimeout(() => {
+                    if (window.showSignUpModal) {
+                        window.showSignUpModal();
+                    }
+                }, 1000);
+                throw new Error('No user profile found');
             }
             return snapshot.val();
         })
