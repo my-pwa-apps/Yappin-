@@ -487,6 +487,12 @@ main {
     background-color: var(--primary-light);
 }
 
+.icon-btn .gif-text {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
 /* Sidebar */
 .sidebar {
     position: sticky;

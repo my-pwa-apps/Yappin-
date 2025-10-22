@@ -126,7 +126,7 @@
                 <aside class="sidebar">
                     <nav>
                         <ul>
-                            <li><a href="#" class="active"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a></li>
+                            <li><a href="#"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a></li>
                             <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span data-i18n="search">Search</span></a></li>
                             <li><a href="#"><i class="fas fa-bell"></i> <span data-i18n="notifications">Notifications</span></a></li>
                             <li><a href="#" onclick="showMessages(); return false;"><i class="fas fa-envelope"></i> <span data-i18n="messages">Messages</span> <span class="badge hidden" id="messagesBadge">0</span></a></li>
@@ -150,8 +150,8 @@
                                 <label for="imageInput" class="visually-hidden">Attach images</label>
                                 <input type="file" id="imageInput" accept="image/*" multiple class="hidden-input">
                                 <button class="icon-btn" id="attachImageBtn" aria-label="Attach image" title="Attach image" data-tooltip="Attach image"><i class="far fa-image"></i></button>
-                                <button class="icon-btn" id="gifBtn" aria-label="Add GIF" title="Add GIF" data-tooltip="Add GIF"><i class="fas fa-file-image"></i></button>
-                                <button class="icon-btn" id="stickerBtn" aria-label="Add sticker" title="Add sticker" data-tooltip="Add sticker"><i class="far fa-grin-squint"></i></button>
+                                <button class="icon-btn" id="gifBtn" aria-label="Add GIF" title="Add GIF" data-tooltip="Add GIF"><span class="gif-text">GIF</span></button>
+                                <button class="icon-btn" id="stickerBtn" aria-label="Add sticker" title="Add sticker" data-tooltip="Add sticker"><i class="fas fa-note-sticky"></i></button>
                                 <button class="icon-btn" id="emojiBtn" aria-label="Add emoji" title="Add emoji" data-tooltip="Add emoji"><i class="far fa-smile"></i></button>
                             </div>
                             <button id="postYapBtn" class="btn primary-btn">Yap</button>
@@ -210,8 +210,8 @@
                                 <label for="modalImageInput" class="visually-hidden">Attach images</label>
                                 <input type="file" id="modalImageInput" accept="image/*" multiple class="hidden-input">
                                 <button class="icon-btn" id="modalAttachImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
-                                <button class="icon-btn" id="modalGifBtn" aria-label="Add GIF" title="Add GIF"><i class="fas fa-file-image"></i></button>
-                                <button class="icon-btn" id="modalStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="far fa-grin-squint"></i></button>
+                                <button class="icon-btn" id="modalGifBtn" aria-label="Add GIF" title="Add GIF"><span class="gif-text">GIF</span></button>
+                                <button class="icon-btn" id="modalStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="fas fa-note-sticky"></i></button>
                                 <button class="icon-btn" id="modalEmojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
                             </div>
                             <button id="modalPostYapBtn" class="btn primary-btn">Yap</button>
@@ -679,7 +679,7 @@
                                         <div class="attach-options">
                                             <input type="file" id="groupImageInput" accept="image/*" multiple class="hidden-input">
                                             <button class="icon-btn" id="attachGroupImageBtn" data-i18n-title="attachImage" title="Attach image"><i class="far fa-image"></i></button>
-                                            <button class="icon-btn" id="groupGifBtn" data-i18n-title="addGif" title="Add GIF"><i class="fas fa-file-image"></i></button>
+                                            <button class="icon-btn" id="groupGifBtn" data-i18n-title="addGif" title="Add GIF"><span class="gif-text">GIF</span></button>
                                             <button class="icon-btn" id="groupEmojiBtn" data-i18n-title="addEmoji" title="Add emoji"><i class="far fa-smile"></i></button>
                                         </div>
                                         <button id="postGroupYapBtn" class="btn primary-btn" data-i18n="post">Yap</button>
@@ -741,7 +741,7 @@
         <!-- Mobile Navigation -->
         <nav class="mobile-nav">
             <ul>
-                <li><a href="#" class="active"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a></li>
+                <li><a href="#"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a></li>
                 <li><a href="#" onclick="showSearch(); return false;"><i class="fas fa-search"></i> <span data-i18n="search">Search</span></a></li>
                 <li><a href="#" onclick="showMessages(); return false;"><i class="fas fa-envelope"></i> <span data-i18n="messages">Messages</span></a></li>
                 <li><a href="#" onclick="showGroups(); return false;"><i class="fas fa-users"></i> <span data-i18n="groups">Groups</span></a></li>
