@@ -228,7 +228,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: calc(var(--space-sm) + 5px) var(--space-md) var(--space-sm) var(--space-md);
+    padding: calc(var(--space-sm) + 5px) calc((100vw - 1400px) / 2 + var(--space-md)) var(--space-sm) calc((100vw - 1400px) / 2 + var(--space-md));
     border-bottom: 1px solid var(--border-color);
     position: sticky;
     top: 0;
@@ -237,6 +237,13 @@ header {
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     background-color: rgba(255, 255, 255, 0.95);
+}
+
+@media (max-width: 1400px) {
+    header {
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+    }
 }
 
 .logo-link {
@@ -307,40 +314,44 @@ header {
 
 .header-profile-avatar {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     border-radius: 50%;
-    overflow: visible; /* Changed from hidden to allow badge to sit outside */
+    overflow: visible;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: box-shadow 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: none; /* Hidden by default, shown only on mobile */
+    flex-shrink: 0;
 }
 
 .header-profile-avatar:hover {
-    transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .header-profile-avatar img {
-    width: 100%;
-    height: 100%;
+    width: 48px;
+    height: 48px;
     object-fit: cover;
     border-radius: 50%;
+    display: block;
 }
 
 /* Online/Offline Indicator Dots */
 .online-indicator-badge {
     position: absolute;
-    bottom: -2px;
-    right: -2px;
+    bottom: 0;
+    right: 0;
     width: 12px;
     height: 12px;
     background-color: #4CAF50; /* Green for online */
     border: 2px solid var(--bg-primary, #fff);
     border-radius: 50%;
-    z-index: 3;
+    z-index: 4;
     pointer-events: none;
+    box-sizing: border-box;
 }
 
 .online-indicator-badge.offline {
@@ -485,10 +496,13 @@ main {
 
 .content-container {
     display: grid;
-    grid-template-columns: 240px 2fr 1fr;
+    grid-template-columns: 260px 1fr;
     gap: var(--space-lg);
     margin-top: var(--space-lg);
     padding: 0 var(--space-md);
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Auth Container */
@@ -600,7 +614,7 @@ main {
 .sidebar {
     position: sticky;
     top: 70px;
-    padding-right: var(--space-lg);
+    padding: 0 var(--space-md);
 }
 
 .sidebar nav ul {
@@ -613,7 +627,7 @@ main {
     display: flex;
     align-items: center;
     gap: var(--space-md);
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
     border-radius: 30px;
     color: var(--text-primary);
     font-weight: 500;
@@ -638,6 +652,9 @@ body.dark-mode .sidebar nav ul li a:hover {
 
 .sidebar nav ul li a i {
     font-size: 20px;
+    width: 24px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
 .sidebar .notification-badge {
@@ -1142,11 +1159,7 @@ body.dark-mode .reply-yap {
 }
 
 .trends-container, .who-to-follow {
-    background-color: var(--hover-color);
-    border-radius: var(--border-radius-lg);
-    padding: var(--space-md);
-    margin-bottom: var(--space-lg);
-    overflow: hidden;
+    display: none; /* Hidden to maximize timeline space */
 }
 
 .section-header {
