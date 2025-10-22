@@ -323,8 +323,8 @@ header {
 /* Online/Offline Indicator Dots */
 .online-indicator-badge {
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: -2px;
+    right: -2px;
     width: 12px;
     height: 12px;
     background-color: var(--primary-color); /* Green for online - matches logo */

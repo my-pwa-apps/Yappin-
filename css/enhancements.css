@@ -292,79 +292,6 @@ body.dark-mode .error {
   padding-right: env(titlebar-area-width, 0);
 }
 
-/* Connection status indicator */
-#connection-status {
-  position: fixed;
-  top: 10px;
-  right: 100px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  z-index: 9999;
-  transition: all 0.3s ease;
-}
-
-body.dark-mode #connection-status {
-  background-color: rgba(30, 30, 30, 0.9);
-}
-
-.connection-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.connection-text {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  transition: color 0.3s ease;
-}
-
-/* Adjust position on smaller screens - hidden on mobile as we use the badge on avatar */
-@media (max-width: 768px) {
-  #connection-status {
-    display: none;  /* Hidden on mobile, shown via badge on avatar */
-  }
-}
-
-#connection-status.online .connection-dot {
-  background-color: #84cc16;
-  box-shadow: 0 0 8px rgba(132, 204, 22, 0.6);
-}
-
-#connection-status.online .connection-text {
-  display: none;
-}
-
-body.dark-mode #connection-status.online .connection-text {
-  display: none;
-}
-
-#connection-status.offline .connection-dot {
-  background-color: #f44336;
-  box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
-  animation: pulse-offline 1s infinite;
-}
-
-#connection-status.offline .connection-text {
-  display: none;
-}
-
-body.dark-mode #connection-status.offline .connection-text {
-  display: none;
-}
-
-@keyframes pulse-offline {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
 /* Install banner styling */
 #install-banner {
   font-family: var(--font-primary);
@@ -439,8 +366,7 @@ header {
   .desktop-compose-btn,
   .compose-yap,
   .yap-actions,
-  #install-banner,
-  #connection-status {
+  #install-banner {
     display: none !important;
   }
   

@@ -352,10 +352,6 @@ if (isRunningAsPWA()) {
 
 // Handle online/offline status
 window.addEventListener('online', () => {
-    updateConnectionStatus();
-    if (typeof showSnackbar === 'function') {
-        showSnackbar('Connection restored', 'success', 2000);
-    }
     // Sync pending data if available
     if ('serviceWorker' in navigator && 'sync' in ServiceWorkerRegistration.prototype) {
         navigator.serviceWorker.ready.then(registration => {
@@ -365,42 +361,8 @@ window.addEventListener('online', () => {
 });
 
 window.addEventListener('offline', () => {
-    updateConnectionStatus();
-    if (typeof showSnackbar === 'function') {
-        showSnackbar('You are offline. Some features may be limited.', 'error', 5000);
-    }
+    // Connection lost - badge will show offline status
 });
-
-// Check and set initial connection status
-if (!navigator.onLine) {
-    window.addEventListener('load', () => {
-        updateConnectionStatus();
-        if (typeof showSnackbar === 'function') {
-            showSnackbar('You are currently offline', 'error', 3000);
-        }
-    });
-} else {
-    // Set initial status to online
-    window.addEventListener('DOMContentLoaded', updateConnectionStatus);
-}
-
-// Add connection status indicator
-function updateConnectionStatus() {
-    const statusIndicator = document.getElementById('connection-status');
-    const statusText = statusIndicator?.querySelector('.connection-text');
-    if (statusIndicator) {
-        if (navigator.onLine) {
-            statusIndicator.classList.remove('offline');
-            statusIndicator.classList.add('online');
-            if (statusText) statusText.textContent = 'Online';
-        } else {
-            statusIndicator.classList.remove('online');
-            statusIndicator.classList.add('offline');
-            if (statusText) statusText.textContent = 'Offline';
-        }
-    }
-}
 
 // Export utility functions
 window.isRunningAsPWA = isRunningAsPWA;
-window.updateConnectionStatus = updateConnectionStatus;
