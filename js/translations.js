@@ -146,7 +146,50 @@ const translations = {
         showMore: 'Show more',
         showLess: 'Show less',
         comingSoon: 'Coming soon!',
-        featureComingSoon: 'This feature is coming soon!'
+        featureComingSoon: 'This feature is coming soon!',
+        
+        // Additional UI elements
+        appSettings: 'App Settings',
+        appearance: 'Appearance',
+        about: 'About',
+        help: 'Help',
+        feedback: 'Feedback',
+        version: 'Version',
+        termsOfService: 'Terms of Service',
+        privacyPolicy: 'Privacy Policy',
+        logOut: 'Log Out',
+        confirm: 'Confirm',
+        areYouSure: 'Are you sure?',
+        yes: 'Yes',
+        no: 'No',
+        
+        // Group-specific
+        searchGroups: 'Search groups...',
+        noGroupsFound: 'No groups found',
+        loadingGroups: 'Loading groups...',
+        requestToJoin: 'Request to Join',
+        pendingRequest: 'Request Pending',
+        joinRequests: 'Join Requests',
+        approve: 'Approve',
+        reject: 'Reject',
+        noJoinRequests: 'No pending join requests',
+        postInGroup: 'Post in group',
+        noYapsYet: 'No yaps yet. Be the first to post!',
+        admin: 'Admin',
+        member: 'Member',
+        
+        // Media
+        addPhoto: 'Add photo',
+        addGif: 'Add GIF',
+        addEmoji: 'Add emoji',
+        attachImage: 'Attach image',
+        removeImage: 'Remove image',
+        
+        // Profile tabs
+        yaps: 'Yaps',
+        replies: 'Replies',
+        media: 'Media',
+        likes: 'Likes'
     },
     
     nl: {
@@ -292,8 +335,52 @@ const translations = {
         showMore: 'Meer tonen',
         showLess: 'Minder tonen',
         comingSoon: 'Komt binnenkort!',
-        featureComingSoon: 'Deze functie komt binnenkort!'
+        featureComingSoon: 'Deze functie komt binnenkort!',
+        
+        // Additional UI elements
+        appSettings: 'App-instellingen',
+        appearance: 'Uiterlijk',
+        about: 'Over',
+        help: 'Hulp',
+        feedback: 'Feedback',
+        version: 'Versie',
+        termsOfService: 'Servicevoorwaarden',
+        privacyPolicy: 'Privacybeleid',
+        logOut: 'Uitloggen',
+        confirm: 'Bevestigen',
+        areYouSure: 'Weet je het zeker?',
+        yes: 'Ja',
+        no: 'Nee',
+        
+        // Group-specific
+        searchGroups: 'Groepen zoeken...',
+        noGroupsFound: 'Geen groepen gevonden',
+        loadingGroups: 'Groepen laden...',
+        requestToJoin: 'Verzoek om toe te treden',
+        pendingRequest: 'Verzoek in behandeling',
+        joinRequests: 'Deelnameaanvragen',
+        approve: 'Goedkeuren',
+        reject: 'Afwijzen',
+        noJoinRequests: 'Geen hangende aanvragen',
+        postInGroup: 'Plaatsen in groep',
+        noYapsYet: 'Nog geen yaps. Wees de eerste om te posten!',
+        admin: 'Beheerder',
+        member: 'Lid',
+        
+        // Media
+        addPhoto: 'Foto toevoegen',
+        addGif: 'GIF toevoegen',
+        addEmoji: 'Emoji toevoegen',
+        attachImage: 'Afbeelding bijvoegen',
+        removeImage: 'Afbeelding verwijderen',
+        
+        // Profile tabs
+        yaps: 'Yaps',
+        replies: 'Reacties',
+        media: 'Media',
+        likes: 'Vind-ik-leuks'
     }
+};
 };
 
 // Current language state

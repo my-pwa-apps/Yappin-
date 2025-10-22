@@ -342,9 +342,10 @@
     
     // Groups: Public and private topic-based groups
     "groups": {
+      ".read": "auth != null",
       "$groupId": {
-        // Anyone can read public groups, only members can read private groups
-        ".read": "auth != null && (data.child('isPublic').val() === true || root.child('groupMembers').child($groupId).child(auth.uid).exists())",
+        // Anyone authenticated can read to discover groups
+        ".read": "auth != null",
         // Only authenticated users can create, only creator/admins can update
         ".write": "auth != null && (!data.exists() || data.child('createdBy').val() === auth.uid || root.child('groupMembers').child($groupId).child(auth.uid).child('role').val() === 'admin')",
         ".validate": "newData.hasChildren(['name', 'description', 'topic', 'isPublic', 'createdBy', 'createdAt'])",

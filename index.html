@@ -355,7 +355,7 @@
                         </button>
                         <button class="settings-tab" data-tab="app" data-tooltip="App settings">
                             <i class="fas fa-cog"></i>
-                            <span>App</span>
+                            <span data-i18n="appSettings">App Settings</span>
                         </button>
                     </div>
                     
@@ -364,27 +364,27 @@
                         <div id="profileTab" class="settings-tab-content active">
                             <!-- Profile Info Section -->
                             <div class="settings-section">
-                                <h3 class="settings-section-title">Profile Information</h3>
+                                <h3 class="settings-section-title" data-i18n="profile">Profile</h3>
                                 <div class="profile-info-form">
                                     <div class="form-group">
-                                        <label for="displayNameInput">Display Name</label>
+                                        <label for="displayNameInput" data-i18n="displayName">Display Name</label>
                                         <input type="text" id="displayNameInput" class="input-field" placeholder="Your display name" maxlength="50">
                                         <p class="input-hint">This is how your name appears to others. If not set, your username is shown.</p>
                                     </div>
                                     <div class="form-group">
-                                        <label for="usernameDisplay">Username</label>
+                                        <label for="usernameDisplay" data-i18n="username">Username</label>
                                         <input type="text" id="usernameDisplay" class="input-field" disabled readonly>
                                         <p class="input-hint">Your unique @username cannot be changed.</p>
                                     </div>
                                     <button id="saveDisplayNameBtn" class="btn primary-btn full-width-btn">
-                                        <i class="fas fa-save"></i> Save Changes
+                                        <i class="fas fa-save"></i> <span data-i18n="save">Save Changes</span>
                                     </button>
                                 </div>
                             </div>
                             
                             <!-- Profile Picture Section -->
                             <div class="settings-section privacy-divider">
-                                <h3 class="settings-section-title">Profile Picture</h3>
+                                <h3 class="settings-section-title" data-i18n="profilePicture">Profile Picture</h3>
                                 <div class="profile-picture-container">
                                     <img id="profilePicturePreview" src="./images/default-avatar.png" alt="Profile" class="profile-picture-preview">
                                     <div class="profile-picture-controls">
@@ -403,10 +403,10 @@
                             
                             <!-- Privacy Settings Section -->
                             <div class="settings-section privacy-divider">
-                                <h3 class="settings-section-title">Privacy</h3>
+                                <h3 class="settings-section-title" data-i18n="privacySettings">Privacy</h3>
                                 <div class="privacy-setting">
                                     <div>
-                                        <h4 class="privacy-setting-title">Private Account</h4>
+                                        <h4 class="privacy-setting-title" data-i18n="privateGroup">Private Account</h4>
                                         <p class="privacy-setting-description">Require approval for new followers</p>
                                     </div>
                                     <label class="switch">
@@ -419,7 +419,7 @@
                             <!-- Account Actions -->
                             <div class="settings-section privacy-divider">
                                 <button id="logoutBtn" class="btn full-width-btn btn-logout">
-                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                    <i class="fas fa-sign-out-alt"></i> <span data-i18n="logOut">Logout</span>
                                 </button>
                             </div>
                         </div>
@@ -660,32 +660,32 @@
                                 <button id="leaveGroupBtn" class="btn secondary-btn full-width-btn hidden" onclick="handleLeaveGroup()">
                                     <i class="fas fa-sign-out-alt"></i> <span data-i18n="leaveGroup">Leave Group</span>
                                 </button>
-                                <button id="pendingJoinRequestBtn" class="btn secondary-btn full-width-btn hidden" disabled>
-                                    <i class="fas fa-clock"></i> <span>Request Pending</span>
+                                <button id="pendingJoinRequestBtn" class="btn pending-request-btn full-width-btn hidden" disabled>
+                                    <i class="fas fa-clock"></i> <span data-i18n="pendingRequest">Request Pending</span>
                                 </button>
                             </div>
                             
                             <!-- Group Yap Compose Section (Members Only) -->
                             <div id="groupComposeSection" class="group-compose-section hidden">
-                                <h3>Post to Group</h3>
+                                <h3 data-i18n="postInGroup">Post to Group</h3>
                                 <div class="compose-yap group-compose">
                                     <textarea id="groupYapText" placeholder="Keep yappin' man!" maxlength="280"></textarea>
                                     <div id="groupImagePreviewContainer" class="image-preview-container hidden"></div>
                                     <div class="compose-actions">
                                         <div class="attach-options">
                                             <input type="file" id="groupImageInput" accept="image/*" multiple class="hidden-input">
-                                            <button class="icon-btn" id="attachGroupImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
-                                            <button class="icon-btn" id="groupGifBtn" aria-label="Add GIF" title="Add GIF"><i class="fas fa-file-image"></i></button>
-                                            <button class="icon-btn" id="groupEmojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
+                                            <button class="icon-btn" id="attachGroupImageBtn" data-i18n-title="attachImage" title="Attach image"><i class="far fa-image"></i></button>
+                                            <button class="icon-btn" id="groupGifBtn" data-i18n-title="addGif" title="Add GIF"><i class="fas fa-file-image"></i></button>
+                                            <button class="icon-btn" id="groupEmojiBtn" data-i18n-title="addEmoji" title="Add emoji"><i class="far fa-smile"></i></button>
                                         </div>
-                                        <button id="postGroupYapBtn" class="btn primary-btn">Yap</button>
+                                        <button id="postGroupYapBtn" class="btn primary-btn" data-i18n="post">Yap</button>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Group Yaps Timeline -->
                             <div id="groupYapsSection" class="group-yaps-section hidden">
-                                <h3>Group Yaps</h3>
+                                <h3 data-i18n="yaps">Group Yaps</h3>
                                 <div id="groupYapsContainer" class="yaps-container">
                                     <div class="loading-state">
                                         <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
@@ -695,7 +695,7 @@
                             
                             <!-- Join Requests Section (Admins Only) -->
                             <div id="joinRequestsSection" class="join-requests-section hidden">
-                                <h3>Join Requests</h3>
+                                <h3 data-i18n="joinRequests">Join Requests</h3>
                                 <div id="joinRequestsContainer" class="join-requests-container">
                                     <div class="loading-state">
                                         <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
