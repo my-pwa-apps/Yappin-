@@ -299,15 +299,16 @@ header {
 
 .online-indicator-badge {
     position: absolute;
-    bottom: -2px;
-    right: -2px;
+    bottom: 0;
+    right: 0;
     width: 12px;
     height: 12px;
     background-color: #4CAF50;
-    border: 2px solid #fff;
+    border: 2px solid var(--background-color, #fff);
     border-radius: 50%;
     box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-    z-index: 2;
+    z-index: 3;
+    pointer-events: none; /* Don't interfere with avatar clicks */
 }
 
 body.dark-mode .online-indicator-badge {

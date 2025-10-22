@@ -558,11 +558,13 @@ function createYap(textarea) {
     
     // Validate content - must have either text or media
     if (!content && (!mediaFiles || mediaFiles.length === 0)) {
-        showSnackbar('Yap must have text or images', 'error');
+        showSnackbar('Please add text or images to your yap', 'error');
         return;
     }
-    if (content.length > MAX_YAP_LENGTH) {
-        showSnackbar(`Yap must be ${MAX_YAP_LENGTH} characters or less`, 'error');
+    
+    // Validate text length only if text is provided
+    if (content && content.length > MAX_YAP_LENGTH) {
+        showSnackbar(`Yap text must be ${MAX_YAP_LENGTH} characters or less`, 'error');
         return;
     }
     if (!auth.currentUser) {

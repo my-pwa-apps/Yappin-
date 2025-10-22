@@ -83,31 +83,52 @@
                         <input type="password" id="loginPassword" autocomplete="current-password" required>
                     </div>
                     <button type="submit" class="btn primary-btn">Login</button>
+                    
+                    <div class="auth-divider">
+                        <span>or continue with</span>
+                    </div>
+                    
+                    <div class="social-auth-buttons single-provider">
+                        <button type="button" class="btn social-btn google-btn full-width" onclick="signInWithGoogle()">
+                            <i class="fab fa-google"></i> Sign in with Google
+                        </button>
+                    </div>
                 </form>
                 
                 <form id="signupForm" class="auth-form hidden">
-                    <div class="form-group">
-                        <label for="signupInviteCode">Invite Code</label>
-                        <input type="text" id="signupInviteCode" placeholder="Enter your invite code" required>
-                        <small class="invite-hint">Yappin' is invite-only. Ask a friend for an invite code!</small>
+                    <div class="invite-notice">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Yappin' is invite-only. Use the invite link sent by a friend to create your account.</p>
                     </div>
+                    
                     <div class="form-group">
                         <label for="signupUsername">Username</label>
-                        <input type="text" id="signupUsername" autocomplete="username" required>
+                        <input type="text" id="signupUsername" autocomplete="username" placeholder="Choose a unique username" required>
                     </div>
                     <div class="form-group">
                         <label for="signupEmail">Email</label>
-                        <input type="email" id="signupEmail" autocomplete="email" required>
+                        <input type="email" id="signupEmail" autocomplete="email" placeholder="your@email.com" required>
+                        <small class="email-hint">Use the email from your invite link</small>
                     </div>
                     <div class="form-group">
                         <label for="signupPassword">Password</label>
-                        <input type="password" id="signupPassword" autocomplete="new-password" minlength="6" required>
+                        <input type="password" id="signupPassword" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required>
                     </div>
                     <div class="form-group">
                         <label for="signupConfirmPassword">Confirm Password</label>
-                        <input type="password" id="signupConfirmPassword" autocomplete="new-password" minlength="6" required>
+                        <input type="password" id="signupConfirmPassword" autocomplete="new-password" minlength="6" placeholder="Re-enter password" required>
                     </div>
-                    <button type="submit" class="btn primary-btn">Sign Up</button>
+                    <button type="submit" class="btn primary-btn">Create Account</button>
+                    
+                    <div class="auth-divider">
+                        <span>or sign up with</span>
+                    </div>
+                    
+                    <div class="social-auth-buttons single-provider">
+                        <button type="button" class="btn social-btn google-btn full-width" onclick="signInWithGoogle()">
+                            <i class="fab fa-google"></i> Sign up with Google
+                        </button>
+                    </div>
                 </form>
             </div>
 
@@ -197,15 +218,44 @@
             <div id="inviteCodesModal" class="modal hidden">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2>Your Invite Codes</h2>
+                        <h2><i class="fas fa-envelope-open-text"></i> Send Invites</h2>
                         <button class="close-btn" onclick="closeInviteModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="modal-body">
-                        <p class="invite-codes-description">Share these codes with friends to invite them to Yappin'!</p>
-                        <div id="inviteCodesList" class="invite-codes-list">
-                            <!-- Invite codes will be loaded here -->
+                        <div class="invite-section">
+                            <p class="invite-codes-description">
+                                <i class="fas fa-info-circle"></i> Invite friends to join Yappin' by entering their email addresses below. 
+                                We'll send them a personalized invite link.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label for="inviteEmailInput">
+                                    <i class="fas fa-users"></i> Email Addresses (max 10 per account)
+                                </label>
+                                <textarea 
+                                    id="inviteEmailInput" 
+                                    class="input-field invite-email-textarea" 
+                                    placeholder="Enter email addresses separated by commas or new lines&#10;Example:&#10;friend@example.com&#10;another@gmail.com"
+                                    rows="5"
+                                ></textarea>
+                                <small class="input-help">
+                                    <i class="fas fa-lightbulb"></i> Tip: You can paste multiple emails separated by commas or new lines
+                                </small>
+                            </div>
+                            
+                            <button id="sendInvitesBtn" class="btn primary-btn full-width">
+                                <i class="fas fa-paper-plane"></i> Send Invites
+                            </button>
                         </div>
-                        <button onclick="generateNewInviteCode()" class="btn primary-btn generate-invite-btn">Generate New Invite Code</button>
+                        
+                        <hr class="section-divider">
+                        
+                        <div class="invite-history-section">
+                            <h3><i class="fas fa-history"></i> Sent Invites</h3>
+                            <div id="inviteCodesList" class="invite-codes-list">
+                                <!-- Sent invites will be loaded here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

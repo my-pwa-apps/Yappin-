@@ -125,6 +125,112 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Social Authentication Providers
+function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            console.log('[Auth] Google sign-in successful:', user.email);
+            
+            // Check if user profile exists, create if needed
+            checkUserProfile(user);
+            showSnackbar('Signed in with Google!', 'success');
+        })
+        .catch((error) => {
+            console.error('[Auth] Google sign-in error:', error);
+            handleAuthError(error);
+        });
+}
+
+function signInWithFacebook() {
+    const provider = new firebase.auth.FacebookAuthProvider();
+    provider.setCustomParameters({ display: 'popup' });
+    
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            console.log('[Auth] Facebook sign-in successful:', user.email);
+            
+            checkUserProfile(user);
+            showSnackbar('Signed in with Facebook!', 'success');
+        })
+        .catch((error) => {
+            console.error('[Auth] Facebook sign-in error:', error);
+            handleAuthError(error);
+        });
+}
+
+function signInWithApple() {
+    const provider = new firebase.auth.OAuthProvider('apple.com');
+    provider.addScope('email');
+    provider.addScope('name');
+    
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            console.log('[Auth] Apple sign-in successful:', user.email);
+            
+            checkUserProfile(user);
+            showSnackbar('Signed in with Apple!', 'success');
+        })
+        .catch((error) => {
+            console.error('[Auth] Apple sign-in error:', error);
+            handleAuthError(error);
+        });
+}
+
+function signInWithMicrosoft() {
+    const provider = new firebase.auth.OAuthProvider('microsoft.com');
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            console.log('[Auth] Microsoft sign-in successful:', user.email);
+            
+            checkUserProfile(user);
+            showSnackbar('Signed in with Microsoft!', 'success');
+        })
+        .catch((error) => {
+            console.error('[Auth] Microsoft sign-in error:', error);
+            handleAuthError(error);
+        });
+}
+
+function handleAuthError(error) {
+    let message = 'Authentication failed. Please try again.';
+    
+    switch (error.code) {
+        case 'auth/popup-closed-by-user':
+            message = 'Sign-in cancelled';
+            break;
+        case 'auth/popup-blocked':
+            message = 'Please allow popups for this site';
+            break;
+        case 'auth/account-exists-with-different-credential':
+            message = 'An account already exists with this email using a different sign-in method';
+            break;
+        case 'auth/cancelled-popup-request':
+            return; // Don't show error for duplicate popup requests
+        case 'auth/network-request-failed':
+            message = 'Network error. Please check your connection.';
+            break;
+    }
+    
+    if (message !== 'Sign-in cancelled') {
+        showSnackbar(message, 'error');
+    }
+}
+
+// Expose social auth functions globally
+window.signInWithGoogle = signInWithGoogle;
+window.signInWithFacebook = signInWithFacebook;
+window.signInWithApple = signInWithApple;
+window.signInWithMicrosoft = signInWithMicrosoft;
+
 // Login form submit handler
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -219,15 +325,15 @@ loginForm.addEventListener('submit', (e) => {
 signupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    const inviteCode = document.getElementById('signupInviteCode').value.trim();
     const username = document.getElementById('signupUsername').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = document.getElementById('signupConfirmPassword').value;
     
-    // Validate invite code
-    if (!inviteCode) {
-        showSnackbar('Please enter an invite code', 'error');
+    // Check for invite token from URL
+    const inviteToken = sessionStorage.getItem('inviteToken');
+    if (!inviteToken) {
+        showSnackbar('You need an invite to sign up. Please use an invite link from a friend.', 'error');
         return;
     }
     
@@ -267,30 +373,36 @@ signupForm.addEventListener('submit', (e) => {
     const submitBtn = signupForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Loading...';
+    submitBtn.textContent = 'Creating account...';
     
-    // Validate invite code first
-    validateInviteCode(inviteCode)
-        .then(isValid => {
-            if (!isValid) {
-                throw new Error('Invalid or expired invite code. Please ask a friend for a valid invite.');
+    // Validate invite token first
+    (window.validateInviteToken ? window.validateInviteToken(inviteToken) : Promise.resolve({ valid: true, token: inviteToken }))
+        .then(result => {
+            if (!result.valid) {
+                throw new Error(result.error || 'Invalid or expired invite link');
             }
             
             // Check if username is available
-            return checkUsernameAvailability(username);
+            return checkUsernameAvailability(username).then(isAvailable => {
+                if (!isAvailable) {
+                    throw new Error('Username is already taken');
+                }
+                return result;
+            });
         })
-        .then(isAvailable => {
-            if (!isAvailable) {
-                throw new Error('Username is already taken');
-            }
-            
+        .then(result => {
             // Create user with email and password
-            return auth.createUserWithEmailAndPassword(email, password);
+            return auth.createUserWithEmailAndPassword(email, password).then(userCredential => ({
+                userCredential,
+                inviteToken: result.token
+            }));
         })
-        .then(userCredential => {
-            // Mark invite code as used
-            return markInviteCodeAsUsed(inviteCode, userCredential.user.uid)
-                .then(() => userCredential);
+        .then(({ userCredential, inviteToken }) => {
+            // Mark invite as used
+            if (window.markInviteAsUsed) {
+                return window.markInviteAsUsed(inviteToken, username).then(() => userCredential);
+            }
+            return userCredential;
         })
         .then(userCredential => {
             // Create user profile
@@ -298,18 +410,12 @@ signupForm.addEventListener('submit', (e) => {
                 .then(() => userCredential);
         })
         .then(userCredential => {
-            // Generate 3 invite codes for the new user
-            const invitePromises = [
-                generateInviteCode(userCredential.user.uid),
-                generateInviteCode(userCredential.user.uid),
-                generateInviteCode(userCredential.user.uid)
-            ];
-            return Promise.all(invitePromises);
-        })
-        .then(codes => {
+            // Clear invite token from session
+            sessionStorage.removeItem('inviteToken');
+            
             // Clear form
             signupForm.reset();
-            showSnackbar('Account created successfully! Check your profile for invite codes to share.', 'success', 5000);
+            showSnackbar('Account created successfully! Welcome to Yappin\'!', 'success', 5000);
         })
         .catch(error => {
             // Handle errors with user-friendly messages

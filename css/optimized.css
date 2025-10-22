@@ -36,6 +36,218 @@
   --radius-full: 9999px;
 }
 
+/* Social Authentication Buttons */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.auth-divider span {
+  padding: 0 12px;
+  font-weight: 500;
+}
+
+.social-auth-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.social-auth-buttons.single-provider {
+  grid-template-columns: 1fr;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--background-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.social-btn i {
+  font-size: 18px;
+}
+
+.google-btn {
+  border-color: #4285F4;
+  color: #4285F4;
+}
+
+.google-btn:hover {
+  background: rgba(66, 133, 244, 0.05);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2);
+}
+
+.microsoft-btn:hover {
+  border-color: #00A4EF;
+  color: #00A4EF;
+  background: rgba(0, 164, 239, 0.05);
+}
+
+.facebook-btn:hover {
+  border-color: #1877F2;
+  color: #1877F2;
+  background: rgba(24, 119, 242, 0.05);
+}
+
+.apple-btn:hover {
+  border-color: #000000;
+  color: #000000;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.dark-mode .apple-btn:hover {
+  border-color: #ffffff;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Invite Notice */
+.invite-notice {
+  background: var(--primary-light);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.invite-notice i {
+  color: var(--primary-color);
+  font-size: 20px;
+  margin-top: 2px;
+}
+
+.invite-notice p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.email-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Invite Email Textarea */
+.invite-email-textarea {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.input-help {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.input-help i {
+  color: var(--primary-color);
+  margin-right: 4px;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 32px 0;
+}
+
+.invite-history-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.invite-history-section h3 i {
+  color: var(--primary-color);
+  font-size: 20px;
+}
+
+.invites-summary {
+  background: var(--hover-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.invites-summary strong {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.text-success {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.invite-email {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.invite-email i {
+  color: var(--primary-color);
+}
+
+.invite-code-status.pending {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+body.dark-mode .invite-code-status.pending {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
 /* Dark mode variables - these apply when .dark-mode class is applied to body */
 body.dark-mode {
   --text-primary: #f1f5f9; 

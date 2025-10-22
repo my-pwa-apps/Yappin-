@@ -10,6 +10,8 @@
     "users": {
       ".indexOn": ["privacy"],
       "$uid": {
+        // Allow users to read their own profile completely
+        ".read": "auth != null && auth.uid === $uid",
         ".write": "auth != null && auth.uid === $uid",
         ".validate": "newData.hasChildren(['username', 'createdAt'])",
         
@@ -211,7 +213,7 @@
       }
     },
     
-    // Invite Codes: Public read for validation during signup
+    // Invite Codes (Legacy - kept for backward compatibility)
     "inviteCodes": {
       ".indexOn": ["createdBy", "used"],
       "$code": {
@@ -227,6 +229,62 @@
         // Used flag validation
         "used": {
           ".validate": "newData.isBoolean()"
+        }
+      }
+    },
+    
+    // Invites: New email-based invite system
+    "invites": {
+      ".indexOn": ["createdBy", "email", "used"],
+      "$token": {
+        // Public read for validation during signup
+        ".read": true,
+        ".write": "auth != null",
+        ".validate": "newData.hasChildren(['token', 'email', 'createdBy', 'createdAt'])",
+        
+        // Token validation (32 character hex string)
+        "token": {
+          ".validate": "newData.isString() && newData.val().length === 32"
+        },
+        
+        // Email validation
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/)"
+        },
+        
+        // Creator validation
+        "createdBy": {
+          ".validate": "newData.isString()"
+        },
+        
+        // Used flag validation
+        "used": {
+          ".validate": "newData.isBoolean()"
+        },
+        
+        // Timestamp validation
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        
+        // Invite URL (optional)
+        "inviteUrl": {
+          ".validate": "newData.isString()"
+        },
+        
+        // Who used it (optional)
+        "usedBy": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
+        
+        // When used (optional)
+        "usedAt": {
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        
+        // Inviter name (optional)
+        "inviterName": {
+          ".validate": "!newData.exists() || newData.isString()"
         }
       }
     },
