@@ -703,22 +703,8 @@ function createYap(textarea) {
             }
             showSnackbar('Yap posted successfully!', 'success');
             
-            // Add the yap immediately to the timeline without reloading
-            if (typeof createYapElement === 'function' && yapsContainer) {
-                yapData.id = yapId;
-                const yapElement = createYapElement(yapData, false, false);
-                
-                // Insert at the top of the timeline
-                const firstYap = yapsContainer.querySelector('.yap-item');
-                if (firstYap) {
-                    yapsContainer.insertBefore(yapElement, firstYap);
-                } else {
-                    // Remove any empty state messages
-                    const emptyState = yapsContainer.querySelector('.empty-state');
-                    if (emptyState) emptyState.remove();
-                    yapsContainer.appendChild(yapElement);
-                }
-            }
+            // The real-time listener in timeline.js will automatically add the new yap
+            // No need to manually insert it here to avoid duplication
         })
         .catch(error => {
             (window.PerformanceUtils?.Logger || console).error('Error posting yap:', error);

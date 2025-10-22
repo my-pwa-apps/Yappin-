@@ -32,6 +32,15 @@ auth.onAuthStateChanged(user => {
                 const photoURL = snapshot.val() || generateRandomAvatar(user.uid);
                 // Replace the icon with avatar image
                 userBtn.innerHTML = `<img src="${photoURL}" alt="User avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" onerror="this.src='./images/default-avatar.svg'">`;
+                
+                // Update header profile avatar (mobile)
+                const headerProfileAvatar = document.getElementById('headerProfileAvatar');
+                const headerAvatarImg = document.getElementById('headerAvatarImg');
+                if (headerProfileAvatar && headerAvatarImg) {
+                    headerAvatarImg.src = photoURL;
+                    headerAvatarImg.onerror = () => { headerAvatarImg.src = './images/default-avatar.svg'; };
+                    headerProfileAvatar.classList.remove('hidden');
+                }
             })
             .catch(() => {
                 // Keep default icon on error
@@ -60,6 +69,12 @@ auth.onAuthStateChanged(user => {
         contentContainer.classList.add('hidden');
         userBtn.classList.add('hidden');
         userDropdown.classList.add('hidden');
+        
+        // Hide header profile avatar
+        const headerProfileAvatar = document.getElementById('headerProfileAvatar');
+        if (headerProfileAvatar) {
+            headerProfileAvatar.classList.add('hidden');
+        }
     }
 });
 
@@ -86,9 +101,20 @@ userBtn.addEventListener('click', () => {
     userDropdown.classList.toggle('hidden');
 });
 
+// Header profile avatar click handler (mobile)
+const headerProfileAvatar = document.getElementById('headerProfileAvatar');
+if (headerProfileAvatar) {
+    headerProfileAvatar.addEventListener('click', () => {
+        userDropdown.classList.toggle('hidden');
+    });
+}
+
 // Close dropdown when clicking elsewhere
 document.addEventListener('click', (e) => {
-    if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+    const headerAvatar = document.getElementById('headerProfileAvatar');
+    if (!userBtn.contains(e.target) && 
+        !userDropdown.contains(e.target) && 
+        (!headerAvatar || !headerAvatar.contains(e.target))) {
         userDropdown.classList.add('hidden');
     }
 });

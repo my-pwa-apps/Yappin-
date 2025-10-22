@@ -321,22 +321,10 @@ body.dark-mode #connection-status {
   transition: color 0.3s ease;
 }
 
-/* Adjust position on smaller screens */
+/* Adjust position on smaller screens - hidden on mobile as we use the badge on avatar */
 @media (max-width: 768px) {
   #connection-status {
-    top: 70px;  /* Move below header to avoid avatar overlap */
-    right: 10px;
-    font-size: 11px;
-    padding: 4px 8px;
-  }
-  
-  .connection-text {
-    font-size: 10px;
-  }
-  
-  .connection-dot {
-    width: 6px;
-    height: 6px;
+    display: none;  /* Hidden on mobile, shown via badge on avatar */
   }
 }
 

@@ -235,6 +235,71 @@ header {
     opacity: 0.3;
 }
 
+/* Header Profile Container */
+.header-profile-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-profile-avatar {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-profile-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.header-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.online-indicator-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background-color: #4CAF50;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+    z-index: 1;
+}
+
+body.dark-mode .online-indicator-badge {
+    border-color: #1e293b;
+}
+
+.header-profile-avatar.hidden {
+    display: none;
+}
+
+/* Hide profile avatar on desktop, show on mobile */
+.header-profile-avatar {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .header-profile-avatar {
+        display: block;
+    }
+    
+    .header-profile-container {
+        gap: 10px;
+    }
+}
+
 @media (max-width: 480px) {
     .logo h1 {
         font-size: 20px;
@@ -2111,6 +2176,19 @@ body.dark-mode input:checked + .slider {
         max-height: 300px;
         left: 50%;
         transform: translateX(-50%);
+        /* Position above the buttons instead of below to avoid falling offscreen */
+        top: auto;
+        bottom: 100%;
+        margin-top: 0;
+        margin-bottom: 8px;
+    }
+    
+    .emoji-picker {
+        /* Position above the buttons instead of below to avoid falling offscreen */
+        top: auto !important;
+        bottom: 100% !important;
+        margin-top: 0 !important;
+        margin-bottom: 8px !important;
     }
     
     #gifResults {

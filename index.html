@@ -51,11 +51,17 @@
                     <h1 data-text="Yappin'">Yappin'</h1>
                 </a>
             </div>
-            <div class="user-menu">
-                <button id="userBtn" class="hidden" aria-label="User menu" title="User menu"><i class="fas fa-user"></i></button>
-                <div id="userDropdown" class="dropdown hidden">
-                    <a href="#" onclick="showProfile(); return false;">Profile</a>
-                    <a href="#" id="logoutBtn">Logout</a>
+            <div class="header-profile-container">
+                <div class="header-profile-avatar hidden" id="headerProfileAvatar">
+                    <img src="./images/default-avatar.svg" alt="Profile" id="headerAvatarImg">
+                    <div class="online-indicator-badge"></div>
+                </div>
+                <div class="user-menu">
+                    <button id="userBtn" class="hidden" aria-label="User menu" title="User menu"><i class="fas fa-user"></i></button>
+                    <div id="userDropdown" class="dropdown hidden">
+                        <a href="#" onclick="showProfile(); return false;">Profile</a>
+                        <a href="#" id="logoutBtn">Logout</a>
+                    </div>
                 </div>
             </div>
         </header>
