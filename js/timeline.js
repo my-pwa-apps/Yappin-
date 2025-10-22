@@ -120,24 +120,38 @@ function loadTimeline(loadMore = false) {
             if (yaps.length === 0 && !loadMore) {
                 yapsContainer.innerHTML += '<p class="empty-state">No yaps to show yet. Start following people or create your first yap!</p>';
             } else {
-                const fragment = document.createDocumentFragment();
-                yaps.forEach(yapData => {
-                    const yapElement = createYapElement(yapData);
-                    fragment.appendChild(yapElement);
+                // Check like and reyap status for each yap
+                Promise.all(yaps.map(yapData => {
+                    return Promise.all([
+                        database.ref(`likes/${yapData.id}/${currentUserId}`).once('value'),
+                        database.ref(`reyaps/${yapData.id}/${currentUserId}`).once('value')
+                    ]).then(([likeSnapshot, reyapSnapshot]) => {
+                        return {
+                            yapData,
+                            isLiked: likeSnapshot.exists(),
+                            isReyapped: reyapSnapshot.exists()
+                        };
+                    });
+                })).then(yapsWithStatus => {
+                    const fragment = document.createDocumentFragment();
+                    yapsWithStatus.forEach(({ yapData, isLiked, isReyapped }) => {
+                        const yapElement = createYapElement(yapData, isLiked, isReyapped);
+                        fragment.appendChild(yapElement);
+                    });
+                    yapsContainer.appendChild(fragment);
+                    
+                    // Add "Load More" button if we got a full page
+                    if (yaps.length >= TIMELINE_PAGE_SIZE) {
+                        const loadMoreBtn = document.createElement('button');
+                        loadMoreBtn.className = 'load-more-btn';
+                        loadMoreBtn.textContent = 'Load More';
+                        loadMoreBtn.onclick = () => {
+                            loadMoreBtn.remove();
+                            loadTimeline(true);
+                        };
+                        yapsContainer.appendChild(loadMoreBtn);
+                    }
                 });
-                yapsContainer.appendChild(fragment);
-                
-                // Add "Load More" button if we got a full page
-                if (yaps.length >= TIMELINE_PAGE_SIZE) {
-                    const loadMoreBtn = document.createElement('button');
-                    loadMoreBtn.className = 'load-more-btn';
-                    loadMoreBtn.textContent = 'Load More';
-                    loadMoreBtn.onclick = () => {
-                        loadMoreBtn.remove();
-                        loadTimeline(true);
-                    };
-                    yapsContainer.appendChild(loadMoreBtn);
-                }
             }
             
             isLoadingMore = false;

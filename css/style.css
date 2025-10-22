@@ -347,26 +347,14 @@ body.dark-mode .online-indicator-badge {
     display: none !important;
 }
 
-/* Desktop: show avatar, hide userBtn */
-@media (min-width: 769px) {
-    #userBtn {
-        display: none !important;
-    }
+/* Always hide avatar in header */
+.header-profile-avatar {
+    display: none !important;
 }
 
-/* Mobile: hide avatar, show userBtn */
-@media (max-width: 768px) {
-    .header-profile-avatar {
-        display: none !important;
-    }
-    
-    #userBtn {
-        display: flex !important;
-    }
-    
-    .header-profile-container {
-        gap: 10px;
-    }
+/* Always show userBtn */
+#userBtn {
+    display: flex !important;
 }
 
 @media (max-width: 480px) {
@@ -399,10 +387,13 @@ body.dark-mode .online-indicator-badge {
     align-items: center;
     justify-content: center;
     transition: background-color var(--transition-fast);
+    background-color: transparent;
+    border: none;
+    padding: 0;
 }
 
 .user-menu button:hover {
-    background-color: var(--hover-color);
+    background-color: transparent;
 }
 
 .user-avatar {
