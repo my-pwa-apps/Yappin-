@@ -2,7 +2,7 @@
 
 // Detect base path from service worker location
 const BASE_PATH = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
-const CACHE_VERSION = 'v77';
+const CACHE_VERSION = 'v83';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
 const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
@@ -10,22 +10,33 @@ const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 const STATIC_ASSETS = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
+  // CSS files
   `${BASE_PATH}/css/style.css`,
   `${BASE_PATH}/css/optimized.css`,
   `${BASE_PATH}/css/enhancements.css`,
   `${BASE_PATH}/css/material-design.css`,
+  // JavaScript modules
   `${BASE_PATH}/js/performance.js`,
+  `${BASE_PATH}/js/firebase-config.js`,
+  `${BASE_PATH}/js/utils.js`,
+  `${BASE_PATH}/js/ui.js`,
+  `${BASE_PATH}/js/modals.js`,
+  `${BASE_PATH}/js/profile.js`,
+  `${BASE_PATH}/js/settings.js`,
+  `${BASE_PATH}/js/media.js`,
+  `${BASE_PATH}/js/invites.js`,
+  `${BASE_PATH}/js/event-handlers.js`,
   `${BASE_PATH}/js/app.js`,
   `${BASE_PATH}/js/auth.js`,
-  `${BASE_PATH}/js/firebase-config.js`,
   `${BASE_PATH}/js/timeline.js`,
   `${BASE_PATH}/js/social.js`,
-  `${BASE_PATH}/js/pwa-init.js`,
-  `${BASE_PATH}/js/utils.js`,
   `${BASE_PATH}/js/messaging.js`,
   `${BASE_PATH}/js/notifications.js`,
+  `${BASE_PATH}/js/pwa-init.js`,
+  // PWA assets
   `${BASE_PATH}/manifest.json`,
   `${BASE_PATH}/offline.html`,
+  // Images
   `${BASE_PATH}/images/icons/icon-192x192.png`,
   `${BASE_PATH}/images/icons/logo.svg`,
   `${BASE_PATH}/images/icons/favicon.svg`,

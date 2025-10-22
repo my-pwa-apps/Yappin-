@@ -278,10 +278,11 @@ header {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to allow badge to sit outside */
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: none; /* Hidden by default, shown only on mobile */
 }
 
 .header-profile-avatar:hover {
@@ -293,19 +294,20 @@ header {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
 }
 
 .online-indicator-badge {
     position: absolute;
-    bottom: 2px;
-    right: 2px;
+    bottom: -2px;
+    right: -2px;
     width: 12px;
     height: 12px;
     background-color: #4CAF50;
     border: 2px solid #fff;
     border-radius: 50%;
     box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-    z-index: 1;
+    z-index: 2;
 }
 
 body.dark-mode .online-indicator-badge {
@@ -313,7 +315,7 @@ body.dark-mode .online-indicator-badge {
 }
 
 .header-profile-avatar.hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Hide profile avatar on desktop, show on mobile */
@@ -323,7 +325,12 @@ body.dark-mode .online-indicator-badge {
 
 @media (max-width: 768px) {
     .header-profile-avatar {
-        display: block;
+        display: block !important;
+    }
+    
+    /* Hide the userBtn on mobile since we show the headerProfileAvatar */
+    #userBtn {
+        display: none !important;
     }
     
     .header-profile-container {

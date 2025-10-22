@@ -105,7 +105,13 @@ userBtn.addEventListener('click', () => {
 const headerProfileAvatar = document.getElementById('headerProfileAvatar');
 if (headerProfileAvatar) {
     headerProfileAvatar.addEventListener('click', () => {
-        userDropdown.classList.toggle('hidden');
+        // Open settings modal directly to Profile tab
+        if (typeof window.showSettings === 'function') {
+            window.showSettings('profile');
+        } else {
+            // Fallback to old user dropdown
+            userDropdown.classList.toggle('hidden');
+        }
     });
 }
 

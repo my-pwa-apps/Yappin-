@@ -171,10 +171,32 @@ window.addEventListener('keydown', (e) => {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Load saved draft if it exists
-    loadDraft();
+    if (typeof window.loadDraft === 'function') {
+        window.loadDraft();
+    }
     
     // Initialize tooltips
     initializeTooltips();
+    
+    // Initialize all event listeners (removes inline onclick handlers)
+    if (typeof window.initializeEventListeners === 'function') {
+        window.initializeEventListeners();
+    }
+    
+    // Initialize settings modal
+    if (typeof window.initializeSettings === 'function') {
+        window.initializeSettings();
+    }
+    
+    // Initialize media module
+    if (typeof window.initializeMedia === 'function') {
+        window.initializeMedia();
+    }
+    
+    // Initialize invites module
+    if (typeof window.initializeInvites === 'function') {
+        window.initializeInvites();
+    }
     
     // Show new features notification for returning users
     showNewFeaturesNotification();
@@ -1157,7 +1179,6 @@ function convertTitlesToTooltips(root = document) {
         const title = element.getAttribute('title');
         if (title && title.trim()) {
             element.setAttribute('data-tooltip', title);
-            (window.PerformanceUtils?.Logger || console).log(`Added tooltip to ${element.tagName}: ${title}`);
         }
     });
 }
