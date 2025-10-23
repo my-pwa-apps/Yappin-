@@ -383,7 +383,7 @@ main {
 
 .content-container {
     display: grid;
-    grid-template-columns: 260px 1fr 340px;
+    grid-template-columns: 260px 1fr;
     gap: var(--space-lg);
     margin-top: var(--space-lg);
     padding: 0;
