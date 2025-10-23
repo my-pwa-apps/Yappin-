@@ -136,7 +136,7 @@
                 </aside>
 
                 <section class="timeline">
-                    <div class="compose-yap">
+                    <div class="compose-yap" id="composeYapArea">
                         <textarea id="yapText" placeholder="Keep yappin' man!"></textarea>
                         <div id="imagePreviewContainer" class="image-preview-container hidden"></div>
                         <div class="compose-privacy-options">
@@ -179,6 +179,11 @@
                     <div class="yaps-container" id="yapsContainer">
                         <!-- Yaps will be loaded here dynamically -->
                     </div>
+                    
+                    <!-- Floating compose button for mobile (hidden by default, shown only on mobile when needed) -->
+                    <button class="floating-compose-btn hidden" id="floatingComposeBtn" aria-label="Compose new yap" title="New Yap">
+                        <i class="fas fa-feather-alt"></i>
+                    </button>
                 </section>
 
                 <aside class="trends">

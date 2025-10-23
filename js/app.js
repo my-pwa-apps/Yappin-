@@ -672,8 +672,10 @@ function createYap(textarea) {
             
             // Check if this is a reply to another yap
             const replyToId = window.replyContext?.yapId || textarea.dataset.replyTo;
+            console.log('[Yap] Creating yap. Reply context:', window.replyContext, 'Reply ID:', replyToId);
             if (replyToId) {
                 yapData.replyTo = replyToId;
+                console.log('[Yap] This is a reply to:', replyToId);
             }
             // Generate a new key for the yap
             const newYapKey = database.ref('yaps').push().key;
@@ -2162,3 +2164,86 @@ function getMediaAttachments() {
     
     return attachments;
 }
+
+// Mobile floating compose button functionality
+function initFloatingComposeButton() {
+    const floatingBtn = document.getElementById('floatingComposeBtn');
+    const composeArea = document.getElementById('composeYapArea');
+    
+    if (!floatingBtn || !composeArea) return;
+    
+    // Show floating button only on mobile
+    function updateFloatingButtonVisibility() {
+        if (window.innerWidth <= 768) {
+            floatingBtn.classList.remove('hidden');
+        } else {
+            floatingBtn.classList.add('hidden');
+        }
+    }
+    
+    // Toggle compose area when floating button is clicked
+    floatingBtn.addEventListener('click', () => {
+        composeArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const yapTextArea = document.getElementById('yapText');
+        if (yapTextArea) {
+            setTimeout(() => {
+                yapTextArea.focus();
+            }, 300);
+        }
+    });
+    
+    // Update visibility on resize
+    window.addEventListener('resize', updateFloatingButtonVisibility);
+    updateFloatingButtonVisibility();
+    
+    // Make floating button draggable on mobile
+    let isDragging = false;
+    let currentX, currentY, initialX, initialY;
+    
+    floatingBtn.addEventListener('touchstart', (e) => {
+        initialX = e.touches[0].clientX - floatingBtn.offsetLeft;
+        initialY = e.touches[0].clientY - floatingBtn.offsetTop;
+        isDragging = false;
+    });
+    
+    floatingBtn.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        isDragging = true;
+        currentX = e.touches[0].clientX - initialX;
+        currentY = e.touches[0].clientY - initialY;
+        
+        // Keep button within screen bounds
+        const maxX = window.innerWidth - floatingBtn.offsetWidth;
+        const maxY = window.innerHeight - floatingBtn.offsetHeight - 60; // Account for mobile nav
+        
+        currentX = Math.max(0, Math.min(currentX, maxX));
+        currentY = Math.max(70, Math.min(currentY, maxY)); // Account for header
+        
+        floatingBtn.style.right = 'auto';
+        floatingBtn.style.bottom = 'auto';
+        floatingBtn.style.left = currentX + 'px';
+        floatingBtn.style.top = currentY + 'px';
+    });
+    
+    floatingBtn.addEventListener('touchend', (e) => {
+        if (!isDragging) {
+            // If not dragged, it's a tap - scroll to compose
+            composeArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const yapTextArea = document.getElementById('yapText');
+            if (yapTextArea) {
+                setTimeout(() => {
+                    yapTextArea.focus();
+                }, 300);
+            }
+        }
+        isDragging = false;
+    });
+}
+
+// Initialize floating button when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFloatingComposeButton);
+} else {
+    initFloatingComposeButton();
+}
+

@@ -986,6 +986,8 @@ function openReplyModal(replyToYapId, replyToUsername, replyToContent) {
         return;
     }
     
+    console.log('[Reply] Opening reply modal for yap:', replyToYapId, 'by @' + replyToUsername);
+    
     const composeModal = document.getElementById('createYapModal');
     if (!composeModal) {
         (window.PerformanceUtils?.Logger || console).error('Compose modal not found');
@@ -1002,6 +1004,7 @@ function openReplyModal(replyToYapId, replyToUsername, replyToContent) {
     // Setup reply context using ui-utils
     if (window.uiUtils && window.uiUtils.setupReplyContext) {
         window.uiUtils.setupReplyContext(replyToYapId, replyToUsername, replyToContent, 'modalYapText');
+        console.log('[Reply] Reply context set:', window.replyContext);
     } else {
         // Fallback if ui-utils not loaded yet
         window.replyContext = { yapId: replyToYapId, username: replyToUsername };
@@ -1010,6 +1013,7 @@ function openReplyModal(replyToYapId, replyToUsername, replyToContent) {
             modalYapText.value = `@${replyToUsername} `;
             modalYapText.focus();
         }
+        console.log('[Reply] Reply context set (fallback):', window.replyContext);
     }
 }
 

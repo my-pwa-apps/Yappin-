@@ -387,6 +387,8 @@ main {
     margin-right: auto;
     width: 100%;
     box-sizing: border-box;
+    height: calc(100vh - 70px); /* Full height minus header */
+    overflow: hidden; /* Prevent main container scrolling */
 }
 
 /* Auth Container */
@@ -509,6 +511,8 @@ main {
     max-width: 260px;
     min-width: 0;
     overflow: hidden;
+    height: calc(100vh - 70px); /* Match container height */
+    overflow-y: auto; /* Allow sidebar to scroll if needed */
 }
 
 .sidebar nav ul {
@@ -595,6 +599,9 @@ body.dark-mode .sidebar nav ul li a.active {
     max-width: 100%;
     min-width: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Take full height of grid cell */
 }
 
 .timeline-tabs {
@@ -633,6 +640,7 @@ body.dark-mode .sidebar nav ul li a.active {
     position: relative;  /* Added for emoji picker positioning */
     padding: var(--space-md);
     border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* Don't shrink - stay at natural height */
 }
 
 .compose-header {
@@ -733,6 +741,13 @@ body.dark-mode .sidebar nav ul li a.active {
 
 .character-count.danger {
     color: var(--danger-color);
+}
+
+/* Yaps Container - Scrollable area for yaps */
+.yaps-container {
+    flex: 1; /* Take remaining space after compose area */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Yap Posts */
@@ -1106,6 +1121,8 @@ body.dark-mode .replies-container .yap-item {
     max-width: 340px;
     min-width: 0;
     overflow: hidden;
+    height: calc(100vh - 70px); /* Match container height */
+    overflow-y: auto; /* Allow trends to scroll if needed */
 }
 
 .search-container {
@@ -1503,6 +1520,7 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
     .content-container {
         grid-template-columns: 1fr;
         padding: 0 var(--space-sm);
+        height: calc(100vh - 70px); /* Maintain fixed height */
     }
     
     .sidebar {
@@ -1516,6 +1534,7 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
     .timeline {
         border-left: none;
         border-right: none;
+        height: 100%; /* Take full container height */
     }
     
     /* Show mobile navigation */
@@ -1529,8 +1548,29 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
     .content-container {
         grid-template-columns: 1fr;
         gap: 0;
-        margin-top: 0;
+        margin-top: 70px; /* Add space for fixed header */
         padding: 0;
+    }
+    
+    /* Make timeline scrollable but keep compose area fixed */
+    .timeline {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 70px - 60px); /* Viewport height minus header and mobile nav */
+    }
+    
+    .compose-yap {
+        position: sticky;
+        top: 70px; /* Below the fixed header */
+        background-color: var(--bg-primary, #fff);
+        z-index: 50;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .yaps-container {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .sidebar {
@@ -1558,36 +1598,58 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
     .sidebar nav ul li a span {
         font-size: 12px;
     }
-      /* Ensure the floating action button displays properly */
-    .create-yap-btn, .mobile-compose-btn {
+      /* Floating compose button for mobile */
+    .floating-compose-btn {
         position: fixed;
-        bottom: 70px;
+        bottom: 80px;
         right: 20px;
-        width: 60px;
-        height: 60px;
+        width: 56px;
+        height: 56px;
         border-radius: 50%;
-        margin: 0;
-        box-shadow: var(--shadow-md);
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         display: flex;
         align-items: center;
         justify-content: center;
         background-color: var(--primary-color);
         color: white;
-        z-index: 99;
+        z-index: 85;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        touch-action: none; /* Prevent scrolling while dragging */
     }
     
-    .create-yap-btn span, .mobile-compose-btn span {
+    .floating-compose-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .floating-compose-btn:active {
+        transform: scale(0.95);
+    }
+    
+    .floating-compose-btn i {
+        font-size: 24px;
+    }
+    
+    /* Hide floating button when compose area is visible */
+    .compose-yap:not(.minimized) ~ .floating-compose-btn {
         display: none;
     }
     
-    /* Hide mobile compose button on all devices */
-    .mobile-compose-btn {
-        display: none !important;
+    /* Minimized compose area */
+    .compose-yap.minimized {
+        display: none;
     }
 
     body.dark-mode {
         background-color: #121a1f;
         color: #ECEFF1;
+    }
+    
+    body.dark-mode .compose-yap {
+        background-color: #1a252b;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .mobile-nav {
@@ -1604,10 +1666,10 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
         color: var(--primary-color);
     }
 
-    .mobile-compose-btn {
+    .floating-compose-btn {
         background-color: var(--primary-color);
         color: white;
-        box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 }
 
