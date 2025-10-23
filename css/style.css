@@ -1567,12 +1567,14 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
         background-color: var(--bg-primary, #fff);
         z-index: 50;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        flex-shrink: 0; /* Prevent shrinking */
     }
     
     .yaps-container {
         flex: 1;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        padding-top: var(--space-md); /* Add space so first yap isn't hidden under compose area */
     }
     
     .sidebar {
