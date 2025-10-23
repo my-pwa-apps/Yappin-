@@ -157,13 +157,18 @@ a,
 .yap-item,
 .trend-item,
 .user-item,
+/* Cursor pointer for interactive elements */
 .conversation-item,
 .yap-avatar,
 [role="button"],
 [onclick],
 input[type="checkbox"],
 input[type="radio"],
-label,
+label {
+    cursor: pointer;
+}
+
+/* Form element styling - applies to select only */
 select {
     cursor: pointer;
     background-color: var(--bg-primary);
