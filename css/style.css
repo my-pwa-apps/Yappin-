@@ -508,7 +508,7 @@ main {
 /* Sidebar */
 .sidebar {
     position: sticky;
-    top: 70px;
+    top: 0;
     padding: 0 var(--space-sm) 0 var(--space-sm);
     max-width: 260px;
     min-width: 0;
@@ -1563,7 +1563,7 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
     
     .compose-yap {
         position: sticky;
-        top: 70px; /* Below the fixed header */
+        top: 0; /* Stick to top of timeline container */
         background-color: var(--bg-primary, #fff);
         z-index: 50;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -1574,7 +1574,6 @@ body.dark-mode .modal-body::-webkit-scrollbar-thumb:hover,
         flex: 1;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        padding-top: var(--space-md); /* Add space so first yap isn't hidden under compose area */
     }
     
     .sidebar {
