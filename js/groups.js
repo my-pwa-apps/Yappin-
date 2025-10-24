@@ -370,8 +370,10 @@ async function postGroupYap(groupId, yapData) {
     // Handle media - either use provided URLs or upload files
     let mediaUrls = [];
     if (providedMediaUrls && providedMediaUrls.length > 0) {
-        // Media already uploaded (from media.js)
-        mediaUrls = providedMediaUrls;
+        // Media already uploaded (from media.js) - can be {type, url} objects or just URL strings
+        mediaUrls = providedMediaUrls.map(item => 
+            typeof item === 'string' ? item : item.url
+        );
     } else if (mediaFiles && mediaFiles.length > 0) {
         // Upload files directly (legacy path)
         const uploadPromises = mediaFiles.map(file => {
