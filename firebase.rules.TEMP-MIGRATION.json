@@ -1,0 +1,70 @@
+{
+  "rules": {
+    ".write": "auth != null",
+    
+    "users": {
+      ".indexOn": ["privacy"],
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['username', 'createdAt'])",
+        "username": { ".read": "auth != null" },
+        "displayName": { ".read": "auth != null" },
+        "photoURL": { ".read": "auth != null" },
+        "privacy": { ".read": "auth != null" },
+        "followersCount": { ".read": "auth != null" },
+        "followingCount": { ".read": "auth != null" }
+      }
+    },
+    
+    "usernames": {
+      ".read": true,
+      "$username": {
+        ".write": "auth != null"
+      }
+    },
+    
+    // TEMPORARILY OPEN FOR MIGRATION - All authenticated users can read all yaps
+    "yaps": {
+      "$yapId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)"
+      }
+    },
+    
+    "userYaps": {
+      "$uid": {
+        ".read": "auth != null",
+        "$yapId": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    "yapReplies": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    
+    "likes": { ".read": "auth != null", ".write": "auth != null" },
+    "userLikes": { ".read": "auth != null", ".write": "auth != null" },
+    "reyaps": { ".read": "auth != null", ".write": "auth != null" },
+    "userReyaps": { ".read": "auth != null", ".write": "auth != null" },
+    "following": { ".read": "auth != null", ".write": "auth != null" },
+    "followers": { ".read": "auth != null", ".write": "auth != null" },
+    "notifications": { ".read": "auth != null", ".write": "auth != null" },
+    "hashtags": { ".read": "auth != null", ".write": "auth != null" },
+    "trending": { ".read": "auth != null", ".write": "auth != null" },
+    "userBookmarks": { ".read": "auth != null", ".write": "auth != null" },
+    "inviteCodes": { ".read": true, ".write": "auth != null" },
+    "invites": { ".read": true, ".write": "auth != null" },
+    "followRequests": { ".read": "auth != null", ".write": "auth != null" },
+    "conversations": { ".read": "auth != null", ".write": "auth != null" },
+    "messages": { ".read": "auth != null", ".write": "auth != null" },
+    "groups": { ".read": "auth != null", ".write": "auth != null" },
+    "groupMembers": { ".read": "auth != null", ".write": "auth != null" },
+    "userGroups": { ".read": "auth != null", ".write": "auth != null" },
+    "groupYaps": { ".read": "auth != null", ".write": "auth != null" },
+    "groupJoinRequests": { ".read": "auth != null", ".write": "auth != null" }
+  }
+}

@@ -1,18 +1,41 @@
 // Browser-based migration script to add replyTo field to existing replies
 // Run this in the browser console while logged into Yappin'
 
+async function waitForFirebase() {
+  let attempts = 0;
+  while (attempts < 100) {
+    try {
+      // Check if Firebase is initialized and has auth
+      if (firebase && firebase.auth && firebase.database) {
+        const auth = firebase.auth();
+        if (auth && auth.currentUser) {
+          return { auth, database: firebase.database() };
+        }
+      }
+    } catch (e) {
+      // Firebase not ready yet
+    }
+    await new Promise(resolve => setTimeout(resolve, 100));
+    attempts++;
+  }
+  return null;
+}
+
 async function migrateRepliesInBrowser() {
   console.log('🔄 Starting reply migration...');
+  console.log('⏳ Waiting for Firebase to initialize...');
   
-  if (!window.database || !window.auth) {
-    console.error('❌ Firebase not initialized. Make sure you are on Yappin\' and logged in.');
+  const fb = await waitForFirebase();
+  
+  if (!fb) {
+    console.error('❌ Firebase not initialized after 10 seconds. Make sure you are on Yappin\' and logged in.');
     return;
   }
   
-  if (!auth.currentUser) {
-    console.error('❌ Not authenticated. Please log in first.');
-    return;
-  }
+  const { auth, database } = fb;
+  
+  console.log('✅ Firebase ready!');
+  console.log(`👤 Logged in as: ${auth.currentUser.email || auth.currentUser.uid}`);
   
   try {
     // Get all yapReplies
