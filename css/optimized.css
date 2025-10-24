@@ -1985,15 +1985,15 @@ body.dark-mode .delete-yap:hover {
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 16px;
   box-shadow: var(--shadow-xl);
   z-index: 2000;
-  width: 90vw;
-  max-width: 420px;
+  width: 85vw;
+  max-width: 360px;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 8px;
-  max-height: 60vh;
+  gap: 6px;
+  max-height: 50vh;
   overflow-y: auto;
 }
 
@@ -2004,10 +2004,10 @@ body.dark-mode .delete-yap:hover {
 .emoji-btn-item {
   background: none;
   border: none;
-  font-size: 32px;
+  font-size: 28px;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 6px;
+  border-radius: 6px;
   transition: var(--transition-fast);
   aspect-ratio: 1;
   display: flex;
