@@ -693,12 +693,17 @@ function createYap(textarea) {
                 updates[`yapReplies/${replyToId}/${newYapKey}`] = true;
                 // Get current reply count and increment
                 return database.ref(`yaps/${replyToId}`).once('value').then(parentSnap => {
-                    const currentReplies = parentSnap.val()?.replies || 0;
+                    const parentYap = parentSnap.val();
+                    const currentReplies = parentYap?.replies || 0;
+                    console.log('[Yap] Parent yap data:', parentYap);
+                    console.log('[Yap] Current replies count:', currentReplies, 'incrementing to:', currentReplies + 1);
                     updates[`yaps/${replyToId}/replies`] = currentReplies + 1;
                     
+                    console.log('[Yap] Committing updates:', updates);
                     // Commit updates
                     return database.ref().update(updates);
                 }).then(() => {
+                    console.log('[Yap] Database updates committed successfully');
                     return { replyToId, newYapKey, yapData };
                 });
             }
