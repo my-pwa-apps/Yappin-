@@ -1042,3 +1042,5 @@ window.cancelReply = function() {
 window.loadTimeline = loadTimeline;
 window.createYapElement = createYapElement;
 window.openReplyModal = openReplyModal;
+window.loadReplies = loadReplies;
+window.toggleReplies = toggleReplies;

@@ -788,6 +788,11 @@ function createYap(textarea) {
             
             // The real-time listener in timeline.js will automatically add the new yap
             // No need to manually insert it here to avoid duplication
+            
+            // If this was a reply, update the parent yap's reply count and button in the UI
+            if (replyToId) {
+                updateParentYapReplyUI(replyToId);
+            }
         })
         .catch(error => {
             (window.PerformanceUtils?.Logger || console).error('Error posting yap:', error);
@@ -796,6 +801,73 @@ function createYap(textarea) {
         .finally(() => {
             postButton.disabled = false;
             postButton.innerHTML = originalText;
+        });
+}
+
+// Update parent yap's reply count and UI after a reply is added
+function updateParentYapReplyUI(parentYapId) {
+    // Find the parent yap element in the DOM
+    const parentYapElement = document.querySelector(`[data-yap-id="${parentYapId}"]`);
+    if (!parentYapElement) {
+        console.log('[Reply UI] Parent yap not found in DOM:', parentYapId);
+        return;
+    }
+    
+    // Get the updated reply count from the database
+    database.ref(`yaps/${parentYapId}/replies`).once('value')
+        .then(snapshot => {
+            const replyCount = snapshot.val() || 0;
+            console.log('[Reply UI] Updated reply count for parent yap:', parentYapId, '=', replyCount);
+            
+            // Update the reply button count
+            const replyBtn = parentYapElement.querySelector('.action-btn.reply span');
+            if (replyBtn) {
+                replyBtn.textContent = replyCount;
+            }
+            
+            // Check if view replies button exists
+            let viewRepliesBtn = parentYapElement.querySelector('.view-replies-btn');
+            const repliesContainer = parentYapElement.querySelector('.replies-container');
+            
+            if (replyCount > 0) {
+                if (!viewRepliesBtn && repliesContainer) {
+                    // Create the view replies button if it doesn't exist
+                    viewRepliesBtn = document.createElement('button');
+                    viewRepliesBtn.className = 'view-replies-btn';
+                    viewRepliesBtn.dataset.yapId = parentYapId;
+                    viewRepliesBtn.innerHTML = `
+                        <i class="fas fa-chevron-down"></i>
+                        <span>View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}</span>
+                    `;
+                    
+                    // Insert before replies container
+                    repliesContainer.parentNode.insertBefore(viewRepliesBtn, repliesContainer);
+                    
+                    // Add event listener
+                    viewRepliesBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (typeof window.toggleReplies === 'function') {
+                            window.toggleReplies(parentYapId, repliesContainer, viewRepliesBtn);
+                        }
+                    });
+                } else if (viewRepliesBtn) {
+                    // Update existing button text
+                    const spanElement = viewRepliesBtn.querySelector('span');
+                    if (spanElement) {
+                        spanElement.textContent = `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`;
+                    }
+                }
+                
+                // If replies are currently expanded, reload them to show the new reply
+                if (repliesContainer && !repliesContainer.classList.contains('hidden')) {
+                    if (typeof window.loadReplies === 'function') {
+                        window.loadReplies(parentYapId, repliesContainer);
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('[Reply UI] Error updating parent yap UI:', error);
         });
 }
 
