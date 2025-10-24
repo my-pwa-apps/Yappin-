@@ -3026,62 +3026,136 @@ body.dark-mode .group-member {
     backdrop-filter: blur(2px);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Responsive adjustments for different screen sizes */
+
+/* Large tablets and small desktops (1200px and below) */
+@media (max-width: 1200px) {
     .gif-picker,
     .sticker-picker {
-        width: calc(100vw - 40px);
-        max-width: calc(100vw - 40px);
-        max-height: 300px;
-        left: 50%;
-        transform: translateX(-50%);
-        /* Position above the buttons instead of below to avoid falling offscreen */
-        top: auto;
-        bottom: 100%;
-        margin-top: 0;
-        margin-bottom: 8px;
-    }
-    
-    /* Make pickers responsive on mobile */
-    .gif-picker,
-    .sticker-picker {
-        position: fixed !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 90vw !important;
-        max-width: 350px !important;
-        max-height: 70vh !important;
-        margin: 0 !important;
-        z-index: 2000 !important;
+        width: 92vw;
+        max-width: 650px;
     }
     
     .emoji-picker {
-        /* Center on screen on mobile */
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
+        width: 85vw;
+        max-width: 350px;
+    }
+}
+
+/* Tablet and smaller (1024px and below) */
+@media (max-width: 1024px) {
+    .gif-picker,
+    .sticker-picker {
+        width: 90vw;
+        max-width: 600px;
+        max-height: 75vh;
+    }
+    
+    .emoji-picker {
+        width: 80vw;
+        max-width: 340px;
+        max-height: 55vh;
+    }
+    
+    #gifResults {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 14px;
+    }
+    
+    #stickerGrid {
+        grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+        gap: 10px;
+    }
+}
+
+/* Mobile landscape and smaller tablets (768px and below) */
+@media (max-width: 768px) {
+    .gif-picker,
+    .sticker-picker {
+        width: 92vw !important;
+        max-width: 92vw !important;
+        max-height: 70vh !important;
+    }
+    
+    .emoji-picker {
         width: 85vw !important;
         max-width: 85vw !important;
         max-height: 50vh !important;
     }
     
     #gifResults {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+        padding: 16px;
         max-height: calc(70vh - 120px);
     }
     
     #stickerGrid {
-        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-        max-height: calc(70vh - 120px);
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 10px;
+        padding: 16px;
+        max-height: calc(70vh - 100px);
     }
     
     .sticker-item {
-        font-size: 28px;
+        font-size: 36px;
+        padding: 8px;
     }
     
-    /* Backdrop already defined globally above */
+    .emoji-btn-item {
+        font-size: 26px;
+        padding: 5px;
+    }
+}
+
+/* Mobile portrait (480px and below) */
+@media (max-width: 480px) {
+    .gif-picker,
+    .sticker-picker {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        max-height: 75vh !important;
+    }
+    
+    .emoji-picker {
+        width: 90vw !important;
+        max-width: 90vw !important;
+        max-height: 60vh !important;
+    }
+    
+    #gifResults {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        padding: 12px;
+        max-height: calc(75vh - 110px);
+    }
+    
+    #stickerGrid {
+        grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+        gap: 8px;
+        padding: 12px;
+        max-height: calc(75vh - 90px);
+    }
+    
+    .sticker-item {
+        font-size: 32px;
+        padding: 6px;
+    }
+    
+    .emoji-btn-item {
+        font-size: 24px;
+        padding: 4px;
+    }
+    
+    .gif-picker-header,
+    .sticker-picker-header {
+        padding: 10px;
+    }
+    
+    .gif-picker-header h3,
+    .sticker-picker-header h3 {
+        font-size: 14px;
+    }
 }
 
 /* Dark mode overrides */

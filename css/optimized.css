@@ -2033,3 +2033,48 @@ body.dark-mode .delete-yap:hover {
   border-width: 0;
 }
 
+/* Responsive emoji picker adjustments */
+@media (max-width: 1200px) {
+  .emoji-picker {
+    width: 85vw;
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .emoji-picker {
+    width: 80vw;
+    max-width: 340px;
+    max-height: 55vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .emoji-picker {
+    width: 85vw !important;
+    max-width: 85vw !important;
+    max-height: 50vh !important;
+    padding: 14px;
+  }
+  
+  .emoji-btn-item {
+    font-size: 26px;
+    padding: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emoji-picker {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    max-height: 60vh !important;
+    padding: 12px;
+    gap: 4px;
+  }
+  
+  .emoji-btn-item {
+    font-size: 24px;
+    padding: 4px;
+  }
+}
+

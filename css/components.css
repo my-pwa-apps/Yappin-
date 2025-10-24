@@ -1,0 +1,23 @@
+/**
+ * COMPONENTS.CSS
+ * All UI Components - Consolidated from style.css, optimized.css, material-design.css
+ * 
+ * Components included:
+ * - Forms & Inputs
+ * - Buttons
+ * - Cards & Yap Items
+ * - Navigation
+ * - Modals
+ * - Compose Area
+ * - Media Pickers (GIF, Sticker, Emoji)
+ * - Profile Components
+ * - Search & Trends
+ * - Notifications
+ */
+
+/* This file will be populated by copying component styles from existing CSS files */
+/* Run the consolidation script or manually copy sections */
+
+/* Temporary: Load original files until consolidation is complete */
+@import url('style.css');
+@import url('optimized.css');

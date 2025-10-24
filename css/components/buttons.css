@@ -1,0 +1,246 @@
+/**
+ * BUTTONS.CSS
+ * All button styles and button-related components
+ */
+
+/* ========================================
+   BASE BUTTON STYLES
+   ======================================== */
+
+button, .btn {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+button:disabled, .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   BUTTON VARIANTS
+   ======================================== */
+
+.primary-btn {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.primary-btn:hover:not(:disabled) {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-md);
+}
+
+.secondary-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.secondary-btn:hover:not(:disabled) {
+    background: var(--hover-color);
+    border-color: var(--primary-color);
+}
+
+.danger-btn {
+    background: var(--danger-color);
+    color: white;
+}
+
+.danger-btn:hover:not(:disabled) {
+    background: #dc2626;
+}
+
+.success-btn {
+    background: var(--success-color);
+    color: white;
+}
+
+.success-btn:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+/* ========================================
+   ICON BUTTONS
+   ======================================== */
+
+.icon-btn {
+    padding: 10px;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background: var(--hover-color);
+    color: var(--text-primary);
+}
+
+.icon-btn.active {
+    color: var(--primary-color);
+}
+
+/* ========================================
+   BUTTON SIZES
+   ======================================== */
+
+.btn-sm {
+    font-size: 0.875rem;
+    padding: 6px 12px;
+}
+
+.btn-lg {
+    font-size: 1.125rem;
+    padding: 14px 28px;
+}
+
+.btn-block {
+    width: 100%;
+    display: flex;
+}
+
+/* ========================================
+   SPECIAL BUTTONS
+   ======================================== */
+
+/* Follow/Unfollow button */
+.follow-btn {
+    min-width: 100px;
+    background: var(--primary-color);
+    color: white;
+}
+
+.follow-btn.following {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.follow-btn.following:hover {
+    background: #fee2e2;
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+.follow-btn.following:hover::after {
+    content: 'Unfollow';
+}
+
+.follow-btn.following span {
+    display: inline;
+}
+
+.follow-btn.following:hover span {
+    display: none;
+}
+
+/* Close button (for modals) */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+    transition: color var(--transition-fast);
+}
+
+.close-btn:hover {
+    color: var(--text-primary);
+}
+
+/* Yap button (floating action button) */
+.yap-btn {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+}
+
+.yap-btn:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ========================================
+   BUTTON GROUPS
+   ======================================== */
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-group.btn-group-vertical {
+    flex-direction: column;
+}
+
+/* ========================================
+   LOADING BUTTON STATE
+   ======================================== */
+
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE BUTTONS
+   ======================================== */
+
+@media (max-width: 480px) {
+    button, .btn {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+    
+    .btn-lg {
+        font-size: 1rem;
+        padding: 12px 24px;
+    }
+    
+    .icon-btn {
+        width: 36px;
+        height: 36px;
+        padding: 8px;
+    }
+}
