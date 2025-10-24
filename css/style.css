@@ -2423,7 +2423,7 @@ body.dark-mode input:checked + .slider {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-xl);
-    z-index: 2000;
+    z-index: 10000 !important; /* Higher than modals to show on top */
     max-height: 80vh;
     display: flex;
     flex-direction: column;
@@ -2431,7 +2431,13 @@ body.dark-mode input:checked + .slider {
 
 .gif-picker.hidden,
 .sticker-picker.hidden {
-    display: none;
+    display: none !important;
+}
+
+/* Ensure pickers are visible when not hidden */
+.gif-picker:not(.hidden),
+.sticker-picker:not(.hidden) {
+    display: flex !important;
 }
 
 /* GIF Picker Styles */

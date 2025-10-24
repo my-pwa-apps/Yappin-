@@ -1987,7 +1987,7 @@ body.dark-mode .delete-yap:hover {
   border-radius: var(--radius-md);
   padding: 16px;
   box-shadow: var(--shadow-xl);
-  z-index: 2000;
+  z-index: 10000 !important; /* Higher than modals to show on top */
   width: 85vw;
   max-width: 360px;
   display: grid;
@@ -1998,7 +1998,12 @@ body.dark-mode .delete-yap:hover {
 }
 
 .emoji-picker.hidden {
-  display: none;
+  display: none !important;
+}
+
+/* Ensure emoji picker is visible when not hidden */
+.emoji-picker:not(.hidden) {
+  display: grid !important;
 }
 
 .emoji-btn-item {
