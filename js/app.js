@@ -56,7 +56,7 @@ const modalAllowReyapCheckbox = document.getElementById('modalAllowReyapCheckbox
 
 // Constants
 const MAX_YAP_LENGTH = 280;
-const DRAFTS_STORAGE_KEY = 'yappin_drafts';
+// DRAFTS_STORAGE_KEY now defined in media.js
 // Image attachments now managed by media.js
 
 // Event Listeners
@@ -967,6 +967,7 @@ function formatRelativeTime(timestamp) {
 }
 
 // Make formatRelativeTime globally available
+window.formatRelativeTime = formatRelativeTime;
 window.formatRelativeTime = formatRelativeTime;
 
 // Handle like/unlike yap
