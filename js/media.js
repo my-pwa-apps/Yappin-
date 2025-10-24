@@ -3,8 +3,14 @@
  * Handles GIF picker, sticker picker, emoji picker, image uploads, and draft management
  */
 
-// Use global showSnackbar function (from ui-utils.js or ui.js)
-const showSnackbar = window.showSnackbar || console.log;
+// Helper function to show snackbar (uses global window.showSnackbar when available)
+function showSnackbar(message, type = 'default', duration = 3000) {
+    if (window.showSnackbar) {
+        window.showSnackbar(message, type, duration);
+    } else {
+        console.log(`[Snackbar] ${type}: ${message}`);
+    }
+}
 
 // Constants
 // Using Giphy API (more reliable than Tenor)
