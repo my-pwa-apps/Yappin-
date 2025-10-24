@@ -736,10 +736,10 @@ function createYap(textarea) {
                 processHashtags(hashtags, newYapKey);
             }
             
-            // Return the yap data with ID for immediate display
-            return { yapId: newYapKey, yapData };
+            // Return the yap data with ID for immediate display (include replyToId for UI update)
+            return { yapId: newYapKey, yapData, replyToId };
         })
-        .then(({ yapId, yapData }) => {
+        .then(({ yapId, yapData, replyToId }) => {
             // Clear draft FIRST to prevent it from being reloaded
             clearDraft();
             
