@@ -38,15 +38,17 @@ function setActiveTextarea(textarea) {
 
 /**
  * Get the active textarea (either explicitly set, focused, or default)
- * @returns {HTMLTextAreaElement|null}
+ * @returns {HTMLTextAreaElement|HTMLInputElement|null}
  */
 function getActiveTextarea() {
     // If explicitly set, use that
     if (activeTextarea) return activeTextarea;
     
-    // Check for focused textarea
+    // Check for focused textarea or text input
     const focused = document.activeElement;
-    if (focused && focused.tagName === 'TEXTAREA') return focused;
+    if (focused && (focused.tagName === 'TEXTAREA' || (focused.tagName === 'INPUT' && focused.type === 'text'))) {
+        return focused;
+    }
     
     // Default to main compose areas
     const yapText = document.getElementById('yapText');
@@ -475,9 +477,13 @@ function insertEmoji(emoji) {
  */
 function toggleGifPicker() {
     const gifPicker = document.getElementById('gifPicker');
-    if (!gifPicker) return;
+    if (!gifPicker) {
+        console.error('[Media] GIF picker element not found');
+        return;
+    }
     
     const isHidden = gifPicker.classList.contains('hidden');
+    console.log('[Media] Toggle GIF picker - currently hidden:', isHidden);
     
     // Close other pickers
     closeStickerPicker();
@@ -485,11 +491,13 @@ function toggleGifPicker() {
     
     if (isHidden) {
         gifPicker.classList.remove('hidden');
+        console.log('[Media] GIF picker opened, classes:', gifPicker.className);
         loadTrendingGifs();
         const gifSearch = document.getElementById('gifSearch');
         if (gifSearch) gifSearch.focus();
     } else {
         gifPicker.classList.add('hidden');
+        console.log('[Media] GIF picker closed');
     }
 }
 

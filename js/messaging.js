@@ -79,8 +79,8 @@ function displayConversations(conversations) {
                 <div class="conversation-input-actions">
                     <input type="file" id="dmImageInput" accept="image/*" multiple class="hidden-input">
                     <button class="icon-btn" id="dmAttachImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
-                    <button class="icon-btn" id="dmGifBtn" aria-label="Add GIF" title="Add GIF"><i class="fas fa-file-image"></i></button>
-                    <button class="icon-btn" id="dmStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="far fa-grin-squint"></i></button>
+                    <button class="icon-btn" id="dmGifBtn" aria-label="Add GIF" title="Add GIF"><span class="gif-text">GIF</span></button>
+                    <button class="icon-btn" id="dmStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="fas fa-note-sticky"></i></button>
                     <button class="icon-btn" id="dmEmojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
                 </div>
                 <div class="conversation-input">
@@ -492,8 +492,8 @@ window.startConversation = function(otherUserId) {
                         <div class="conversation-input-actions">
                             <input type="file" id="dmImageInput" accept="image/*" multiple class="hidden-input">
                             <button class="icon-btn" id="dmAttachImageBtn" aria-label="Attach image" title="Attach image"><i class="far fa-image"></i></button>
-                            <button class="icon-btn" id="dmGifBtn" aria-label="Add GIF" title="Add GIF"><i class="fas fa-file-image"></i></button>
-                            <button class="icon-btn" id="dmStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="far fa-grin-squint"></i></button>
+                            <button class="icon-btn" id="dmGifBtn" aria-label="Add GIF" title="Add GIF"><span class="gif-text">GIF</span></button>
+                            <button class="icon-btn" id="dmStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="fas fa-note-sticky"></i></button>
                             <button class="icon-btn" id="dmEmojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
                         </div>
                         <div class="conversation-input">
