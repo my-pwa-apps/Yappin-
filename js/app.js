@@ -80,19 +80,21 @@ yapText.addEventListener('input', debounce(() => saveDraft(yapText.value), 500))
 modalYapText.addEventListener('input', debounce(() => saveDraft(modalYapText.value), 500));
 
 // Image attachment functionality
+// NOTE: These handlers are now managed by media.js
+// Keeping these for backward compatibility, but they call global functions
 if (attachImageBtn && imageInput) {
     attachImageBtn.addEventListener('click', () => imageInput.click());
-    imageInput.addEventListener('change', handleImageSelect);
+    imageInput.addEventListener('change', (e) => window.handleImageSelect ? window.handleImageSelect(e) : handleImageSelect(e));
 }
 
 // Paste image functionality
 if (yapText) {
-    yapText.addEventListener('paste', handlePaste);
+    yapText.addEventListener('paste', (e) => window.handlePaste ? window.handlePaste(e) : handlePaste(e));
 }
 
 // Emoji picker functionality
 if (emojiBtn) {
-    emojiBtn.addEventListener('click', toggleEmojiPicker);
+    emojiBtn.addEventListener('click', () => window.toggleEmojiPicker ? window.toggleEmojiPicker() : toggleEmojiPicker());
 }
 
 // Modal media button handlers
@@ -104,23 +106,25 @@ const modalEmojiBtn = document.getElementById('modalEmojiBtn');
 
 if (modalAttachImageBtn && modalImageInput) {
     modalAttachImageBtn.addEventListener('click', () => modalImageInput.click());
-    modalImageInput.addEventListener('change', handleImageSelect);
+    modalImageInput.addEventListener('change', (e) => window.handleImageSelect ? window.handleImageSelect(e) : handleImageSelect(e));
 }
 
 if (modalGifBtn) {
     modalGifBtn.addEventListener('click', () => {
-        toggleGifPicker();
+        if (window.toggleGifPicker) window.toggleGifPicker();
+        else toggleGifPicker();
     });
 }
 
 if (modalStickerBtn) {
     modalStickerBtn.addEventListener('click', () => {
-        toggleStickerPicker();
+        if (window.toggleStickerPicker) window.toggleStickerPicker();
+        else toggleStickerPicker();
     });
 }
 
 if (modalEmojiBtn) {
-    modalEmojiBtn.addEventListener('click', toggleEmojiPicker);
+    modalEmojiBtn.addEventListener('click', () => window.toggleEmojiPicker ? window.toggleEmojiPicker() : toggleEmojiPicker());
 }
 
 // Reyap toggle functionality
@@ -632,8 +636,8 @@ function createYap(textarea) {
     // Get the text content
     const content = textarea.value.trim();
     
-    // Check for media attachments
-    const mediaFiles = getMediaAttachments();
+    // Check for media attachments (use global function from media.js)
+    const mediaFiles = window.getMediaAttachments ? window.getMediaAttachments() : getMediaAttachments();
     
     // Validate content - must have either text or media
     if (!content && (!mediaFiles || mediaFiles.length === 0)) {

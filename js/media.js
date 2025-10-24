@@ -174,7 +174,7 @@ function addImagesToYap(files) {
 /**
  * Render image previews
  */
-function renderImagePreviews() {
+export function renderImagePreviews() {
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     if (!imagePreviewContainer) return;
     
@@ -467,14 +467,19 @@ export function loadTrendingGifs() {
     
     gifResults.innerHTML = '<div class="loading-text">Loading trending GIFs...</div>';
     
-    fetch(`${TENOR_API_URL}/featured?key=${TENOR_API_KEY}&client_key=yappin&limit=20`)
-        .then(response => response.json())
+    fetch(`${TENOR_API_URL}/featured?key=${TENOR_API_KEY}&contentfilter=medium&limit=20`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
             displayGifs(data.results);
         })
         .catch(error => {
             console.error('[Media] Failed to load GIFs:', error);
-            gifResults.innerHTML = '<div class="error-text">Failed to load GIFs</div>';
+            gifResults.innerHTML = '<div class="error-text">Failed to load GIFs. Please try again.</div>';
         });
 }
 
@@ -487,14 +492,19 @@ export function searchGifs(query) {
     
     gifResults.innerHTML = '<div class="loading-text">Searching...</div>';
     
-    fetch(`${TENOR_API_URL}/search?q=${encodeURIComponent(query)}&key=${TENOR_API_KEY}&client_key=yappin&limit=20`)
-        .then(response => response.json())
+    fetch(`${TENOR_API_URL}/search?q=${encodeURIComponent(query)}&key=${TENOR_API_KEY}&contentfilter=medium&limit=20`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
             displayGifs(data.results);
         })
         .catch(error => {
             console.error('[Media] Failed to search GIFs:', error);
-            gifResults.innerHTML = '<div class="error-text">Search failed</div>';
+            gifResults.innerHTML = '<div class="error-text">Search failed. Please try again.</div>';
         });
 }
 
@@ -686,6 +696,7 @@ window.removeGif = removeGif;
 window.clearImages = clearImages;
 window.uploadMediaFiles = uploadMediaFiles;
 window.getMediaAttachments = getMediaAttachments;
+window.renderImagePreviews = renderImagePreviews;
 window.toggleEmojiPicker = toggleEmojiPicker;
 window.insertEmoji = insertEmoji;
 window.toggleGifPicker = toggleGifPicker;
