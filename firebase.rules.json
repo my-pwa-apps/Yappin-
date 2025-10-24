@@ -75,9 +75,8 @@
     "yaps": {
       "$yapId": {
         // Can read if: you're the owner, you follow them, they follow you, they have a public account,
-        // OR this yap is a reply that's listed under a parent yap (threaded conversations)
-        // Simplified: if it's listed in yapReplies for ANY parent you can access, you can read it
-        ".read": "auth != null && (data.child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(data.child('uid').val()).exists() || root.child('followers').child(auth.uid).child(data.child('uid').val()).exists() || root.child('users').child(data.child('uid').val()).child('privacy').val() === 'public' || data.child('replyTo').exists())",
+        // OR this is a reply and you can read the parent yap (allows threaded conversation access)
+        ".read": "auth != null && (data.child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(data.child('uid').val()).exists() || root.child('followers').child(auth.uid).child(data.child('uid').val()).exists() || root.child('users').child(data.child('uid').val()).child('privacy').val() === 'public' || (data.child('replyTo').exists() && (root.child('yaps').child(data.child('replyTo').val()).child('uid').val() === auth.uid || root.child('following').child(auth.uid).child(root.child('yaps').child(data.child('replyTo').val()).child('uid').val()).exists() || root.child('followers').child(auth.uid).child(root.child('yaps').child(data.child('replyTo').val()).child('uid').val()).exists() || root.child('users').child(root.child('yaps').child(data.child('replyTo').val()).child('uid').val()).child('privacy').val() === 'public')))",
         ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid)",
         ".validate": "newData.hasChildren(['timestamp', 'uid', 'username']) && (newData.hasChild('text') || newData.hasChild('media'))",
         
