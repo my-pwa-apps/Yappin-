@@ -315,14 +315,21 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 if (repliesCount > 0) {
                     // Create or update the view replies button
                     let viewRepliesBtn = yapElement.querySelector('.view-replies-btn');
+                    const repliesContainer = yapElement.querySelector('.replies-container');
+                    
                     if (!viewRepliesBtn) {
                         viewRepliesBtn = document.createElement('button');
                         viewRepliesBtn.className = 'view-replies-btn';
                         viewRepliesBtn.dataset.yapId = yapData.id;
                         
                         // Insert before replies container
-                        const repliesContainer = yapElement.querySelector('.replies-container');
                         repliesContainer.parentNode.insertBefore(viewRepliesBtn, repliesContainer);
+                        
+                        // Add click event listener to newly created button
+                        viewRepliesBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            toggleReplies(yapData.id, repliesContainer, viewRepliesBtn);
+                        });
                     }
                     
                     viewRepliesBtn.innerHTML = `
