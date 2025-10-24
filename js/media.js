@@ -6,8 +6,9 @@
 import { showSnackbar } from './ui.js';
 
 // Constants
-const TENOR_API_KEY = 'AIzaSyAGFTZhpzxHPJkjFEEb8pC3cWq4lWxKXDM';
-const TENOR_API_URL = 'https://tenor.googleapis.com/v2';
+// Using Giphy API (more reliable than Tenor)
+const GIPHY_API_KEY = 'nA6Ou7qNMHAhVYE8Ao3xjXHPQTjCkLuP'; // Public demo key
+const GIPHY_API_URL = 'https://api.giphy.com/v1/gifs';
 const MAX_IMAGES = 4;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const DRAFTS_STORAGE_KEY = 'yappin_drafts';
@@ -467,7 +468,7 @@ export function loadTrendingGifs() {
     
     gifResults.innerHTML = '<div class="loading-text">Loading trending GIFs...</div>';
     
-    fetch(`${TENOR_API_URL}/featured?key=${TENOR_API_KEY}&contentfilter=medium&limit=20`)
+    fetch(`${GIPHY_API_URL}/trending?api_key=${GIPHY_API_KEY}&limit=20&rating=g`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -475,7 +476,7 @@ export function loadTrendingGifs() {
             return response.json();
         })
         .then(data => {
-            displayGifs(data.results);
+            displayGifs(data.data);
         })
         .catch(error => {
             console.error('[Media] Failed to load GIFs:', error);
@@ -492,7 +493,7 @@ export function searchGifs(query) {
     
     gifResults.innerHTML = '<div class="loading-text">Searching...</div>';
     
-    fetch(`${TENOR_API_URL}/search?q=${encodeURIComponent(query)}&key=${TENOR_API_KEY}&contentfilter=medium&limit=20`)
+    fetch(`${GIPHY_API_URL}/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=20&rating=g`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -500,7 +501,7 @@ export function searchGifs(query) {
             return response.json();
         })
         .then(data => {
-            displayGifs(data.results);
+            displayGifs(data.data);
         })
         .catch(error => {
             console.error('[Media] Failed to search GIFs:', error);
@@ -509,7 +510,7 @@ export function searchGifs(query) {
 }
 
 /**
- * Display GIFs in grid
+ * Display GIFs in grid (Giphy format)
  */
 function displayGifs(gifs) {
     const gifResults = document.getElementById('gifResults');
@@ -527,14 +528,16 @@ function displayGifs(gifs) {
         gifElement.className = 'gif-item';
         
         const img = document.createElement('img');
-        img.src = gif.media_formats.tinygif.url;
-        img.alt = gif.content_description || 'GIF';
+        // Giphy API format: images.fixed_width_small.url for preview
+        img.src = gif.images.fixed_width_small.url;
+        img.alt = gif.title || 'GIF';
         img.loading = 'lazy';
         
         gifElement.appendChild(img);
         
         gifElement.addEventListener('click', () => {
-            selectGif(gif.media_formats.gif.url);
+            // Use original GIF URL for full quality
+            selectGif(gif.images.original.url);
         });
         
         gifResults.appendChild(gifElement);
