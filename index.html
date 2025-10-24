@@ -139,12 +139,6 @@
                     <div class="compose-yap" id="composeYapArea">
                         <textarea id="yapText" placeholder="Keep yappin' man!"></textarea>
                         <div id="imagePreviewContainer" class="image-preview-container hidden"></div>
-                        <div class="compose-privacy-options">
-                            <label class="privacy-toggle">
-                                <input type="checkbox" id="allowReyapCheckbox" checked>
-                                <span><i class="fas fa-retweet"></i> Allow others to reyap this post</span>
-                            </label>
-                        </div>
                         <div class="compose-actions">
                             <div class="attach-options">
                                 <label for="imageInput" class="visually-hidden">Attach images</label>
@@ -153,6 +147,10 @@
                                 <button class="icon-btn" id="gifBtn" aria-label="Add GIF" title="Add GIF" data-tooltip="Add GIF"><span class="gif-text">GIF</span></button>
                                 <button class="icon-btn" id="stickerBtn" aria-label="Add sticker" title="Add sticker" data-tooltip="Add sticker"><i class="fas fa-note-sticky"></i></button>
                                 <button class="icon-btn" id="emojiBtn" aria-label="Add emoji" title="Add emoji" data-tooltip="Add emoji"><i class="far fa-smile"></i></button>
+                                <button class="icon-btn reyap-toggle-btn" id="reyapToggleBtn" aria-label="Toggle reyap permission" title="Allow others to reyap" data-tooltip="Allow reyap">
+                                    <i class="fas fa-retweet"></i>
+                                </button>
+                                <input type="checkbox" id="allowReyapCheckbox" checked class="hidden-input">
                             </div>
                             <button id="postYapBtn" class="btn primary-btn">Yap</button>
                         </div>
@@ -204,12 +202,6 @@
                     <div class="modal-body">
                         <textarea id="modalYapText" placeholder="Keep yappin' man!"></textarea>
                         <div id="modalImagePreviewContainer" class="image-preview-container hidden"></div>
-                        <div class="compose-privacy-options">
-                            <label class="privacy-toggle">
-                                <input type="checkbox" id="modalAllowReyapCheckbox" checked>
-                                <span><i class="fas fa-retweet"></i> Allow others to reyap this post</span>
-                            </label>
-                        </div>
                         <div class="compose-actions">
                             <div class="attach-options">
                                 <label for="modalImageInput" class="visually-hidden">Attach images</label>
@@ -218,6 +210,10 @@
                                 <button class="icon-btn" id="modalGifBtn" aria-label="Add GIF" title="Add GIF"><span class="gif-text">GIF</span></button>
                                 <button class="icon-btn" id="modalStickerBtn" aria-label="Add sticker" title="Add sticker"><i class="fas fa-note-sticky"></i></button>
                                 <button class="icon-btn" id="modalEmojiBtn" aria-label="Add emoji" title="Add emoji"><i class="far fa-smile"></i></button>
+                                <button class="icon-btn reyap-toggle-btn" id="modalReyapToggleBtn" aria-label="Toggle reyap permission" title="Allow others to reyap" data-tooltip="Allow reyap">
+                                    <i class="fas fa-retweet"></i>
+                                </button>
+                                <input type="checkbox" id="modalAllowReyapCheckbox" checked class="hidden-input">
                             </div>
                             <button id="modalPostYapBtn" class="btn primary-btn">Yap</button>
                         </div>

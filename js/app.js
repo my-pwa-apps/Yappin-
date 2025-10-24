@@ -48,6 +48,12 @@ const attachImageBtn = document.getElementById('attachImageBtn');
 const emojiBtn = document.getElementById('emojiBtn');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 
+// Reyap toggle elements
+const reyapToggleBtn = document.getElementById('reyapToggleBtn');
+const allowReyapCheckbox = document.getElementById('allowReyapCheckbox');
+const modalReyapToggleBtn = document.getElementById('modalReyapToggleBtn');
+const modalAllowReyapCheckbox = document.getElementById('modalAllowReyapCheckbox');
+
 // Constants
 const MAX_YAP_LENGTH = 280;
 const DRAFTS_STORAGE_KEY = 'yappin_drafts';
@@ -115,6 +121,51 @@ if (modalStickerBtn) {
 
 if (modalEmojiBtn) {
     modalEmojiBtn.addEventListener('click', toggleEmojiPicker);
+}
+
+// Reyap toggle functionality
+if (reyapToggleBtn && allowReyapCheckbox) {
+    // Set initial state
+    if (allowReyapCheckbox.checked) {
+        reyapToggleBtn.classList.add('active');
+    }
+    
+    reyapToggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        allowReyapCheckbox.checked = !allowReyapCheckbox.checked;
+        reyapToggleBtn.classList.toggle('active', allowReyapCheckbox.checked);
+        
+        // Update tooltip text
+        if (allowReyapCheckbox.checked) {
+            reyapToggleBtn.setAttribute('title', 'Allow others to reyap');
+            reyapToggleBtn.setAttribute('data-tooltip', 'Allow reyap');
+        } else {
+            reyapToggleBtn.setAttribute('title', 'Reyaps disabled');
+            reyapToggleBtn.setAttribute('data-tooltip', 'Reyaps disabled');
+        }
+    });
+}
+
+if (modalReyapToggleBtn && modalAllowReyapCheckbox) {
+    // Set initial state
+    if (modalAllowReyapCheckbox.checked) {
+        modalReyapToggleBtn.classList.add('active');
+    }
+    
+    modalReyapToggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modalAllowReyapCheckbox.checked = !modalAllowReyapCheckbox.checked;
+        modalReyapToggleBtn.classList.toggle('active', modalAllowReyapCheckbox.checked);
+        
+        // Update tooltip text
+        if (modalAllowReyapCheckbox.checked) {
+            modalReyapToggleBtn.setAttribute('title', 'Allow others to reyap');
+            modalReyapToggleBtn.setAttribute('data-tooltip', 'Allow reyap');
+        } else {
+            modalReyapToggleBtn.setAttribute('title', 'Reyaps disabled');
+            modalReyapToggleBtn.setAttribute('data-tooltip', 'Reyaps disabled');
+        }
+    });
 }
 
 // Note: Search functionality is set up in DOMContentLoaded event listener below
