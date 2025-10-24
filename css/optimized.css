@@ -1978,21 +1978,22 @@ body.dark-mode .delete-yap:hover {
 
 /* Emoji Picker */
 .emoji-picker {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 8px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 12px;
-  box-shadow: var(--shadow-lg);
-  z-index: 1000;
-  max-width: 300px;
+  padding: 20px;
+  box-shadow: var(--shadow-xl);
+  z-index: 2000;
+  width: 90vw;
+  max-width: 420px;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
-  max-height: 200px;
+  gap: 8px;
+  max-height: 60vh;
   overflow-y: auto;
 }
 
@@ -2003,11 +2004,15 @@ body.dark-mode .delete-yap:hover {
 .emoji-btn-item {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 32px;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 8px;
   transition: var(--transition-fast);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .emoji-btn-item:hover {

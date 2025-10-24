@@ -388,16 +388,7 @@ function createEmojiPicker() {
         console.error('[Media] Could not find .compose-actions element to insert emoji picker');
     }
     
-    // Close picker when clicking outside
-    document.addEventListener('click', (e) => {
-        if (emojiPickerElement && 
-            !emojiPickerElement.contains(e.target)) {
-            const emojiBtn = document.getElementById('emojiBtn');
-            if (!emojiBtn || !emojiBtn.contains(e.target)) {
-                emojiPickerElement.classList.add('hidden');
-            }
-        }
-    });
+    // Click outside handler is now in initializeMedia()
 }
 
 /**
@@ -719,6 +710,45 @@ export function initializeMedia() {
     
     // Load draft on page load
     loadDraft();
+    
+    // Add click handlers to close pickers when clicking backdrop
+    document.addEventListener('click', (e) => {
+        const gifPicker = document.getElementById('gifPicker');
+        const stickerPicker = document.getElementById('stickerPicker');
+        
+        // Close GIF picker if clicking outside
+        if (gifPicker && !gifPicker.classList.contains('hidden')) {
+            const gifBtn = document.getElementById('gifBtn');
+            const modalGifBtn = document.getElementById('modalGifBtn');
+            if (!gifPicker.contains(e.target) && 
+                e.target !== gifBtn && !gifBtn?.contains(e.target) &&
+                e.target !== modalGifBtn && !modalGifBtn?.contains(e.target)) {
+                closeGifPicker();
+            }
+        }
+        
+        // Close sticker picker if clicking outside
+        if (stickerPicker && !stickerPicker.classList.contains('hidden')) {
+            const stickerBtn = document.getElementById('stickerBtn');
+            const modalStickerBtn = document.getElementById('modalStickerBtn');
+            if (!stickerPicker.contains(e.target) && 
+                e.target !== stickerBtn && !stickerBtn?.contains(e.target) &&
+                e.target !== modalStickerBtn && !modalStickerBtn?.contains(e.target)) {
+                closeStickerPicker();
+            }
+        }
+        
+        // Close emoji picker if clicking outside (handled in createEmojiPicker, but add here too)
+        if (emojiPickerElement && !emojiPickerElement.classList.contains('hidden')) {
+            const emojiBtn = document.getElementById('emojiBtn');
+            const modalEmojiBtn = document.getElementById('modalEmojiBtn');
+            if (!emojiPickerElement.contains(e.target) && 
+                e.target !== emojiBtn && !emojiBtn?.contains(e.target) &&
+                e.target !== modalEmojiBtn && !modalEmojiBtn?.contains(e.target)) {
+                emojiPickerElement.classList.add('hidden');
+            }
+        }
+    });
     
     console.log('[Media] Module initialized');
 }

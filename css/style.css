@@ -2413,18 +2413,18 @@ body.dark-mode input:checked + .slider {
 
 .gif-picker,
 .sticker-picker {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 8px;
-    max-width: 350px;
-    width: 350px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    max-width: 500px;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
-    max-height: 400px;
+    box-shadow: var(--shadow-xl);
+    z-index: 2000;
+    max-height: 70vh;
     display: flex;
     flex-direction: column;
 }
@@ -2495,11 +2495,11 @@ body.dark-mode input:checked + .slider {
 
 #gifResults {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
     overflow-y: auto;
-    max-height: 320px;
-    padding: 12px;
+    max-height: calc(70vh - 140px);
+    padding: 16px;
 }
 
 .gif-item {
@@ -2537,11 +2537,11 @@ body.dark-mode input:checked + .slider {
 
 #stickerGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
     overflow-y: auto;
-    max-height: 360px;
-    padding: 12px;
+    max-height: calc(70vh - 100px);
+    padding: 16px;
 }
 
 .sticker-item {
@@ -2549,13 +2549,13 @@ body.dark-mode input:checked + .slider {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
+    font-size: 36px;
     cursor: pointer;
     border: 2px solid transparent;
     border-radius: 8px;
     background: transparent;
     transition: transform var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
-    padding: 0;
+    padding: 8px;
 }
 
 .sticker-item:hover {
@@ -3010,6 +3010,22 @@ body.dark-mode .group-member {
     font-size: 18px;
 }
 
+/* Backdrop for all pickers */
+.gif-picker:not(.hidden)::before,
+.sticker-picker:not(.hidden)::before,
+.emoji-picker:not(.hidden)::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: -1;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .gif-picker,
@@ -3041,12 +3057,14 @@ body.dark-mode .group-member {
     }
     
     .emoji-picker {
-        /* Position above the buttons instead of below to avoid falling offscreen */
-        top: auto !important;
-        bottom: 100% !important;
-        margin-top: 0 !important;
-        margin-bottom: 8px !important;
-        max-width: 280px;
+        /* Center on screen on mobile */
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 90vw !important;
+        max-width: 90vw !important;
+        max-height: 60vh !important;
     }
     
     #gifResults {
@@ -3063,18 +3081,7 @@ body.dark-mode .group-member {
         font-size: 28px;
     }
     
-    /* Add backdrop for pickers on mobile */
-    .gif-picker:not(.hidden)::before,
-    .sticker-picker:not(.hidden)::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: -1;
-    }
+    /* Backdrop already defined globally above */
 }
 
 /* Dark mode overrides */
