@@ -572,7 +572,7 @@ function selectGif(gifUrl) {
     selectedGifUrl = gifUrl;
     renderImagePreviews();
     closeGifPicker();
-    showSnackbar('GIF added!', 'success');
+    // GIF preview appears - no notification needed
 }
 
 /**

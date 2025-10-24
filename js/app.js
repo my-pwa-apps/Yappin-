@@ -385,7 +385,7 @@ async function closeModal() {
         );
         if (saveDraftConfirm) {
             saveDraft(modalYapText.value);
-            showSnackbar('Draft saved!', 'success');
+            // Draft saved silently - no notification needed
         }
     }
     
@@ -676,7 +676,7 @@ function createYap(textarea) {
                     toggleModal(createYapModal, false);
                 }
             }
-            showSnackbar('Yap posted successfully!', 'success');
+            // Yap appears in feed automatically - no notification needed
             
             // The real-time listener in timeline.js will automatically add the new yap
             // No need to manually insert it here to avoid duplication
@@ -969,7 +969,7 @@ function toggleReyap(yapId) {
                     updates[`userYaps/${currentUid}/${yapId}`] = null;
                     
                     return database.ref().update(updates).then(() => {
-                        showSnackbar('Reyap removed', 'success');
+                        // Button state changes - no notification needed
                         
                         // Reload timeline to reflect changes
                         if (typeof loadTimeline === 'function') {
@@ -1020,7 +1020,7 @@ function toggleReyap(yapId) {
                             notifyReyap(yapId, yapData.uid, currentUid);
                         }
                         
-                        showSnackbar('Reyapped successfully!', 'success');
+                        // Button state changes - no notification needed
                         
                         // Reload timeline to reflect changes
                         if (typeof loadTimeline === 'function') {
@@ -1087,7 +1087,7 @@ function toggleBookmark(yapId, buttonElement) {
         buttonElement.classList.remove('bookmarked');
         buttonElement.querySelector('i').classList.replace('fas', 'far');
         
-        showSnackbar('Removed from bookmarks');
+        // Icon changes - no notification needed
     } else {
         // Add to bookmarks
         bookmarks.push(yapId);
@@ -1097,7 +1097,7 @@ function toggleBookmark(yapId, buttonElement) {
         buttonElement.classList.add('bookmarked');
         buttonElement.querySelector('i').classList.replace('far', 'fas');
         
-        showSnackbar('Added to bookmarks', 'success');
+        // Icon changes - no notification needed
     }
     
     // Also save to Firebase for sync across devices
@@ -1160,7 +1160,7 @@ function displaySearchResults(results) {
     if (results.length === 0) {
         showSnackbar('No results found', 'default', 2000);
     } else {
-        showSnackbar(`Found ${results.length} results`, 'success', 2000);
+        // Results are visible - no notification needed
         
         // TODO: Update UI with results
         // This would be implemented based on the app's UI design

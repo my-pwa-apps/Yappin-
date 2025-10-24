@@ -135,7 +135,7 @@ async function joinGroup(groupId) {
     
     await database.ref().update(updates);
     
-    showSnackbar(window.t ? window.t('success') : 'Joined group successfully!', 'success');
+    // Group appears in user's list - no notification needed
 }
 
 /**
@@ -187,7 +187,7 @@ async function leaveGroup(groupId) {
     
     await database.ref().update(updates);
     
-    showSnackbar(window.t ? window.t('success') : 'Left group successfully!', 'success');
+    // Group removed from user's list - no notification needed
 }
 
 /**
@@ -421,7 +421,7 @@ async function postGroupYap(groupId, yapData) {
     // Send notification to group members (except poster)
     notifyGroupMembers(groupId, auth.currentUser.uid, yapId, 'new_yap');
     
-    showSnackbar(window.t ? window.t('success') : 'Posted to group!', 'success');
+    // Post appears in group feed - no notification needed
     return yapId;
 }
 
