@@ -634,13 +634,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Function to setup all DM media buttons - now using shared media.js
 function setupDmMediaButtons() {
+    const messageInput = document.getElementById('messageInput');
+    
+    // Helper to set active textarea for DMs
+    const setDmActive = () => {
+        if (window.setActiveTextarea && messageInput) {
+            window.setActiveTextarea(messageInput);
+        }
+    };
+    
     // Setup GIF button - use shared function
     const dmGifBtn = document.getElementById('dmGifBtn');
     if (dmGifBtn && window.toggleGifPicker) {
         dmGifBtn.replaceWith(dmGifBtn.cloneNode(true));
         const newDmGifBtn = document.getElementById('dmGifBtn');
         if (newDmGifBtn) {
-            newDmGifBtn.addEventListener('click', () => window.toggleGifPicker());
+            newDmGifBtn.addEventListener('click', () => {
+                setDmActive();
+                window.toggleGifPicker();
+            });
         }
     }
     
@@ -650,7 +662,10 @@ function setupDmMediaButtons() {
         dmStickerBtn.replaceWith(dmStickerBtn.cloneNode(true));
         const newDmStickerBtn = document.getElementById('dmStickerBtn');
         if (newDmStickerBtn) {
-            newDmStickerBtn.addEventListener('click', () => window.toggleStickerPicker());
+            newDmStickerBtn.addEventListener('click', () => {
+                setDmActive();
+                window.toggleStickerPicker();
+            });
         }
     }
     
@@ -660,7 +675,10 @@ function setupDmMediaButtons() {
         dmEmojiBtn.replaceWith(dmEmojiBtn.cloneNode(true));
         const newDmEmojiBtn = document.getElementById('dmEmojiBtn');
         if (newDmEmojiBtn) {
-            newDmEmojiBtn.addEventListener('click', () => window.toggleEmojiPicker());
+            newDmEmojiBtn.addEventListener('click', () => {
+                setDmActive();
+                window.toggleEmojiPicker();
+            });
         }
     }
     
@@ -673,6 +691,7 @@ function setupDmMediaButtons() {
         const newDmAttachImageBtn = document.getElementById('dmAttachImageBtn');
         if (newDmAttachImageBtn) {
             newDmAttachImageBtn.addEventListener('click', () => {
+                setDmActive();
                 dmImageInput.click();
             });
         }
@@ -681,7 +700,10 @@ function setupDmMediaButtons() {
         dmImageInput.replaceWith(dmImageInput.cloneNode(true));
         const newDmImageInput = document.getElementById('dmImageInput');
         if (newDmImageInput) {
-            newDmImageInput.addEventListener('change', (e) => window.handleImageSelect(e));
+            newDmImageInput.addEventListener('change', (e) => {
+                setDmActive();
+                window.handleImageSelect(e);
+            });
         }
     }
 }

@@ -465,44 +465,52 @@ function setupGroupCompose(groupId) {
     previewContainer.innerHTML = '';
     previewContainer.classList.add('hidden');
     
-    // Attach image button
-    if (attachBtn && imageInput) {
-        attachBtn.onclick = () => imageInput.click();
-        imageInput.onchange = () => {
-            const files = Array.from(imageInput.files);
-            if (files.length > 0) {
-                previewContainer.innerHTML = files.map((file, index) => {
-                    const url = URL.createObjectURL(file);
-                    return `
-                        <div class="image-preview-item">
-                            <img src="${url}" alt="Preview">
-                            <button class="remove-image-btn" onclick="removeGroupImage(${index})">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    `;
-                }).join('');
-                previewContainer.classList.remove('hidden');
-            }
-        };
-    }
+    // Set active textarea when any media button is clicked
+    const setGroupTextareaActive = () => {
+        if (window.setActiveTextarea) {
+            window.setActiveTextarea(textarea);
+        }
+    };
     
     // GIF button - use shared media.js function
     const gifBtn = document.getElementById('groupGifBtn');
     if (gifBtn && window.toggleGifPicker) {
-        gifBtn.onclick = () => window.toggleGifPicker();
+        gifBtn.onclick = () => {
+            setGroupTextareaActive();
+            window.toggleGifPicker();
+        };
     }
     
     // Sticker button - use shared media.js function
     const stickerBtn = document.getElementById('groupStickerBtn');
     if (stickerBtn && window.toggleStickerPicker) {
-        stickerBtn.onclick = () => window.toggleStickerPicker();
+        stickerBtn.onclick = () => {
+            setGroupTextareaActive();
+            window.toggleStickerPicker();
+        };
     }
     
     // Emoji button - use shared media.js function  
     const emojiBtn = document.getElementById('groupEmojiBtn');
     if (emojiBtn && window.toggleEmojiPicker) {
-        emojiBtn.onclick = () => window.toggleEmojiPicker();
+        emojiBtn.onclick = () => {
+            setGroupTextareaActive();
+            window.toggleEmojiPicker();
+        };
+    }
+    
+    // Image attachment button - reuse existing imageInput variable
+    if (attachBtn && imageInput) {
+        attachBtn.onclick = () => {
+            setGroupTextareaActive();
+            imageInput.click();
+        };
+        if (window.handleImageSelect) {
+            imageInput.addEventListener('change', (e) => {
+                setGroupTextareaActive();
+                window.handleImageSelect(e);
+            });
+        }
     }
     
     // Post button

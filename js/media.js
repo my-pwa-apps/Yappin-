@@ -26,6 +26,42 @@ const DRAFTS_STORAGE_KEY = 'yappin_drafts';
 let selectedImages = [];
 let selectedGifUrl = null;
 let emojiPickerElement = null;
+let activeTextarea = null; // Track which textarea is active for inserting content
+
+/**
+ * Set the active textarea for media insertion
+ * @param {HTMLTextAreaElement} textarea - The textarea to set as active
+ */
+function setActiveTextarea(textarea) {
+    activeTextarea = textarea;
+}
+
+/**
+ * Get the active textarea (either explicitly set, focused, or default)
+ * @returns {HTMLTextAreaElement|null}
+ */
+function getActiveTextarea() {
+    // If explicitly set, use that
+    if (activeTextarea) return activeTextarea;
+    
+    // Check for focused textarea
+    const focused = document.activeElement;
+    if (focused && focused.tagName === 'TEXTAREA') return focused;
+    
+    // Default to main compose areas
+    const yapText = document.getElementById('yapText');
+    const modalYapText = document.getElementById('modalYapText');
+    const groupYapText = document.getElementById('groupYapText');
+    const messageInput = document.getElementById('messageInput');
+    
+    // Return first visible textarea
+    if (yapText && !yapText.closest('.hidden')) return yapText;
+    if (modalYapText && !modalYapText.closest('.hidden')) return modalYapText;
+    if (groupYapText && !groupYapText.closest('.hidden')) return groupYapText;
+    if (messageInput && !messageInput.closest('.hidden')) return messageInput;
+    
+    return null;
+}
 
 // Common emojis for picker
 const commonEmojis = [
@@ -402,9 +438,7 @@ function createEmojiPicker() {
  * Insert emoji at cursor position
  */
 function insertEmoji(emoji) {
-    const yapText = document.getElementById('yapText');
-    const modalYapText = document.getElementById('modalYapText');
-    const textarea = yapText && !yapText.closest('.hidden') ? yapText : modalYapText;
+    const textarea = getActiveTextarea();
     
     if (!textarea) return;
     
@@ -670,33 +704,33 @@ function loadStickers() {
  * Insert sticker at cursor position
  */
 function insertSticker(sticker) {
-    const yapText = document.getElementById('yapText');
-    const modalYapText = document.getElementById('modalYapText');
-    const activeTextarea = yapText && !yapText.closest('.hidden') ? yapText : modalYapText;
+    const textarea = getActiveTextarea();
     
-    if (activeTextarea) {
-        const start = activeTextarea.selectionStart;
-        const end = activeTextarea.selectionEnd;
-        const text = activeTextarea.value;
+    if (textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
         
         // Insert sticker at cursor position with spaces
         const before = text.substring(0, start);
         const after = text.substring(end);
-        activeTextarea.value = before + ` ${sticker} ` + after;
+        textarea.value = before + ` ${sticker} ` + after;
         
         // Update cursor position
         const newPosition = start + sticker.length + 2;
-        activeTextarea.selectionStart = newPosition;
-        activeTextarea.selectionEnd = newPosition;
-        activeTextarea.focus();
+        textarea.selectionStart = newPosition;
+        textarea.selectionEnd = newPosition;
+        textarea.focus();
         
-        // Update character count
+        // Update character count if function exists
         if (typeof window.updateCharacterCount === 'function') {
+            const yapText = document.getElementById('yapText');
+            const modalYapText = document.getElementById('modalYapText');
             const characterCount = document.getElementById('characterCount');
             const modalCharacterCount = document.getElementById('modalCharacterCount');
-            const countElement = activeTextarea === yapText ? characterCount : modalCharacterCount;
+            const countElement = textarea === yapText ? characterCount : modalCharacterCount;
             if (countElement) {
-                window.updateCharacterCount(activeTextarea, countElement);
+                window.updateCharacterCount(textarea, countElement);
             }
         }
     }
@@ -774,6 +808,8 @@ window.getMediaAttachments = getMediaAttachments;
 window.renderImagePreviews = renderImagePreviews;
 window.toggleEmojiPicker = toggleEmojiPicker;
 window.insertEmoji = insertEmoji;
+window.setActiveTextarea = setActiveTextarea;
+window.getActiveTextarea = getActiveTextarea;
 window.toggleGifPicker = toggleGifPicker;
 window.closeGifPicker = closeGifPicker;
 window.loadTrendingGifs = loadTrendingGifs;
