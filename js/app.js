@@ -57,11 +57,7 @@ const modalAllowReyapCheckbox = document.getElementById('modalAllowReyapCheckbox
 // Constants
 const MAX_YAP_LENGTH = 280;
 const DRAFTS_STORAGE_KEY = 'yappin_drafts';
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
-const MAX_IMAGES = 4;
-
-// Image attachments storage
-let selectedImages = [];
+// Image attachments now managed by media.js
 
 // Event Listeners
 
@@ -433,102 +429,8 @@ function saveDraft(content) {
 
 // ========================================
 // IMAGE ATTACHMENTS & PASTE
+// Note: Now handled by media.js - these are just forwarding functions
 // ========================================
-
-// Handle image selection from file input
-function handleImageSelect(event) {
-    const files = Array.from(event.target.files);
-    addImagesToYap(files);
-}
-
-// Handle paste events (including images)
-function handlePaste(event) {
-    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
-    
-    for (let item of items) {
-        if (item.type.indexOf('image') !== -1) {
-            event.preventDefault();
-            const file = item.getAsFile();
-            addImagesToYap([file]);
-        }
-    }
-}
-
-// Add images to yap
-function addImagesToYap(files) {
-    for (let file of files) {
-        // Check if we've reached the limit
-        if (selectedImages.length >= MAX_IMAGES) {
-            showSnackbar(`Maximum ${MAX_IMAGES} images allowed`, 'error');
-            break;
-        }
-        
-        // Check file size
-        if (file.size > MAX_IMAGE_SIZE) {
-            showSnackbar(`Image too large. Max size: 5MB`, 'error');
-            continue;
-        }
-        
-        // Check if it's an image
-        if (!file.type.startsWith('image/')) {
-            showSnackbar('Only images are allowed', 'error');
-            continue;
-        }
-        
-        // Create preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            selectedImages.push({
-                file: file,
-                dataUrl: e.target.result
-            });
-            renderImagePreviews();
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-// Render image previews
-function renderImagePreviews() {
-    if (!imagePreviewContainer) return;
-    
-    if (selectedImages.length === 0) {
-        imagePreviewContainer.classList.add('hidden');
-        imagePreviewContainer.innerHTML = '';
-        return;
-    }
-    
-    imagePreviewContainer.classList.remove('hidden');
-    imagePreviewContainer.innerHTML = '';
-    
-    selectedImages.forEach((image, index) => {
-        const preview = document.createElement('div');
-        preview.className = 'image-preview';
-        preview.innerHTML = `
-            <img src="${image.dataUrl}" alt="Preview ${index + 1}">
-            <button class="image-preview-remove" onclick="removeImage(${index})" aria-label="Remove image">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        imagePreviewContainer.appendChild(preview);
-    });
-}
-
-// Remove image from selection
-window.removeImage = function(index) {
-    selectedImages.splice(index, 1);
-    renderImagePreviews();
-    // Clear file input
-    if (imageInput) imageInput.value = '';
-};
-
-// Clear all images
-function clearImages() {
-    selectedImages = [];
-    selectedGifUrl = null;
-    renderImagePreviews();
-    if (imageInput) imageInput.value = '';
-}
 
 // ========================================
 // EMOJI PICKER
@@ -695,7 +597,8 @@ function createYap(textarea) {
             }
             // Handle media uploads first if any
             if (mediaFiles && mediaFiles.length > 0) {
-                return uploadMediaFiles(mediaFiles).then(mediaUrls => {
+                const uploadFn = window.uploadMediaFiles || console.error.bind(console, 'uploadMediaFiles not found');
+                return uploadFn(mediaFiles).then(mediaUrls => {
                     return { userData, mediaUrls };
                 });
             }
@@ -817,13 +720,14 @@ function createYap(textarea) {
         })
         .then(({ yapId, yapData, replyToId }) => {
             // Clear draft FIRST to prevent it from being reloaded
-            clearDraft();
+            if (window.clearDraft) window.clearDraft();
+            else clearDraft();
             
             // Clear text area
             textarea.value = '';
             
-            // Clear images
-            clearImages();
+            // Clear images using media.js function
+            if (window.clearImages) window.clearImages();
             
             // Clear reply context using ui-utils
             if (window.uiUtils && window.uiUtils.clearReplyContext) {
@@ -948,80 +852,7 @@ function updateParentYapReplyUI(parentYapId) {
 }
 
 // Convert images to base64 (no Firebase Storage needed)
-function uploadMediaFiles(mediaItems) {
-    const promises = [];
-    
-    for (let i = 0; i < mediaItems.length; i++) {
-        const item = mediaItems[i];
-        
-        // If it's a GIF URL, just return it as-is
-        if (item.type === 'gif') {
-            promises.push(Promise.resolve({ type: 'gif', url: item.url }));
-            continue;
-        }
-        
-        // Otherwise it's an image file - convert to base64
-        const file = item.file || item;
-        promises.push(new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                // Compress large images
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    // Max dimensions to keep database size reasonable
-                    const maxSize = 1200;
-                    if (width > height && width > maxSize) {
-                        height = (height * maxSize) / width;
-                        width = maxSize;
-                    } else if (height > maxSize) {
-                        width = (width * maxSize) / height;
-                        height = maxSize;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Convert to base64 with compression (0.8 quality)
-                    const base64 = canvas.toDataURL('image/jpeg', 0.8);
-                    resolve({ type: 'image', url: base64 });
-                };
-                
-                img.onerror = () => reject(new Error('Failed to load image'));
-                img.src = e.target.result;
-            };
-            
-            reader.onerror = () => reject(new Error('Failed to read file'));
-            reader.readAsDataURL(file);
-        }));
-    }
-    
-    return Promise.all(promises);
-}
-
-// Get attached media files and GIFs
-function getMediaAttachments() {
-    const attachments = [];
-    
-    // Add image files
-    selectedImages.forEach(img => {
-        attachments.push({ type: 'image', file: img.file });
-    });
-    
-    // Add GIF if selected
-    if (selectedGifUrl) {
-        attachments.push({ type: 'gif', url: selectedGifUrl });
-    }
-    
-    return attachments;
-}
+// uploadMediaFiles and getMediaAttachments now provided by media.js
 
 // Extract @mentions from content
 function extractMentions(content) {
@@ -2058,7 +1889,7 @@ window.showConfirmModal = function(title, message, confirmText = 'Confirm', canc
 // Keeping these variable declarations for backward compatibility but functionality is in media.js
 // DO NOT add duplicate event handlers here - they will conflict with media.js
 
-let selectedGifUrl = null; // Legacy - media.js has its own state
+// selectedGifUrl now managed by media.js
 let selectedStickerUrl = null; // Legacy - media.js has its own state
 
 // Legacy GIF Picker elements - media.js handles these now
@@ -2096,17 +1927,7 @@ const stickerGrid = document.getElementById('stickerGrid');
 // - loadStickers()
 // - insertSticker()
 
-// Update createYap to handle GIFs
-function getMediaAttachments() {
-    const attachments = [...selectedImages];
-    
-    // Add GIF if selected
-    if (selectedGifUrl) {
-        attachments.push({ type: 'gif', url: selectedGifUrl });
-    }
-    
-    return attachments;
-}
+// Media attachments now handled by media.js - getMediaAttachments() is global
 
 // Mobile floating compose button functionality
 function initFloatingComposeButton() {

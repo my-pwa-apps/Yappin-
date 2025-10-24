@@ -3,7 +3,8 @@
  * Handles GIF picker, sticker picker, emoji picker, image uploads, and draft management
  */
 
-import { showSnackbar } from './ui.js';
+// Use global showSnackbar function (from ui-utils.js or ui.js)
+const showSnackbar = window.showSnackbar || console.log;
 
 // Constants
 // Using Giphy API (more reliable than Tenor)
@@ -76,7 +77,7 @@ const stickers = [
 /**
  * Save draft to localStorage
  */
-export function saveDraft(content) {
+function saveDraft(content) {
     if (content && content.trim()) {
         localStorage.setItem(DRAFTS_STORAGE_KEY, content);
     }
@@ -85,7 +86,7 @@ export function saveDraft(content) {
 /**
  * Load draft from localStorage
  */
-export function loadDraft() {
+function loadDraft() {
     const draft = localStorage.getItem(DRAFTS_STORAGE_KEY);
     if (draft) {
         const yapText = document.getElementById('yapText');
@@ -107,7 +108,7 @@ export function loadDraft() {
 /**
  * Clear draft from localStorage
  */
-export function clearDraft() {
+function clearDraft() {
     localStorage.removeItem(DRAFTS_STORAGE_KEY);
 }
 
@@ -118,7 +119,7 @@ export function clearDraft() {
 /**
  * Handle image selection from file input
  */
-export function handleImageSelect(event) {
+function handleImageSelect(event) {
     const files = Array.from(event.target.files);
     addImagesToYap(files);
 }
@@ -126,7 +127,7 @@ export function handleImageSelect(event) {
 /**
  * Handle paste events (including images)
  */
-export function handlePaste(event) {
+function handlePaste(event) {
     const items = (event.clipboardData || event.originalEvent.clipboardData).items;
     
     for (let item of items) {
@@ -177,7 +178,7 @@ function addImagesToYap(files) {
 /**
  * Render image previews
  */
-export function renderImagePreviews() {
+function renderImagePreviews() {
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     if (!imagePreviewContainer) return;
     
@@ -228,7 +229,7 @@ export function renderImagePreviews() {
 /**
  * Remove image from selection
  */
-export function removeImage(index) {
+function removeImage(index) {
     selectedImages.splice(index, 1);
     renderImagePreviews();
     
@@ -240,7 +241,7 @@ export function removeImage(index) {
 /**
  * Remove GIF
  */
-export function removeGif() {
+function removeGif() {
     selectedGifUrl = null;
     renderImagePreviews();
 }
@@ -248,7 +249,7 @@ export function removeGif() {
 /**
  * Clear all images and GIFs
  */
-export function clearImages() {
+function clearImages() {
     selectedImages = [];
     selectedGifUrl = null;
     renderImagePreviews();
@@ -260,7 +261,7 @@ export function clearImages() {
 /**
  * Upload media files (convert to base64)
  */
-export function uploadMediaFiles(mediaItems) {
+function uploadMediaFiles(mediaItems) {
     const promises = [];
     
     for (let i = 0; i < mediaItems.length; i++) {
@@ -321,7 +322,7 @@ export function uploadMediaFiles(mediaItems) {
 /**
  * Get attached media files and GIFs
  */
-export function getMediaAttachments() {
+function getMediaAttachments() {
     const attachments = [];
     
     // Add image files
@@ -344,7 +345,7 @@ export function getMediaAttachments() {
 /**
  * Toggle emoji picker
  */
-export function toggleEmojiPicker() {
+function toggleEmojiPicker() {
     console.log('[Media] toggleEmojiPicker called');
     if (!emojiPickerElement) {
         console.log('[Media] Creating emoji picker...');
@@ -394,7 +395,7 @@ function createEmojiPicker() {
 /**
  * Insert emoji at cursor position
  */
-export function insertEmoji(emoji) {
+function insertEmoji(emoji) {
     const yapText = document.getElementById('yapText');
     const modalYapText = document.getElementById('modalYapText');
     const textarea = yapText && !yapText.closest('.hidden') ? yapText : modalYapText;
@@ -432,7 +433,7 @@ export function insertEmoji(emoji) {
 /**
  * Toggle GIF picker
  */
-export function toggleGifPicker() {
+function toggleGifPicker() {
     const gifPicker = document.getElementById('gifPicker');
     if (!gifPicker) return;
     
@@ -455,7 +456,7 @@ export function toggleGifPicker() {
 /**
  * Close GIF picker
  */
-export function closeGifPicker() {
+function closeGifPicker() {
     const gifPicker = document.getElementById('gifPicker');
     if (gifPicker) gifPicker.classList.add('hidden');
 }
@@ -463,7 +464,7 @@ export function closeGifPicker() {
 /**
  * Load trending GIFs
  */
-export function loadTrendingGifs() {
+function loadTrendingGifs() {
     const gifResults = document.getElementById('gifResults');
     if (!gifResults) return;
     
@@ -495,7 +496,7 @@ export function loadTrendingGifs() {
 /**
  * Search GIFs
  */
-export function searchGifs(query) {
+function searchGifs(query) {
     const gifResults = document.getElementById('gifResults');
     if (!query || !gifResults) return;
     
@@ -571,7 +572,7 @@ function selectGif(gifUrl) {
 /**
  * Initialize GIF search with debounce
  */
-export function initializeGifSearch() {
+function initializeGifSearch() {
     const gifSearch = document.getElementById('gifSearch');
     if (!gifSearch) return;
     
@@ -598,7 +599,7 @@ export function initializeGifSearch() {
 /**
  * Toggle sticker picker
  */
-export function toggleStickerPicker() {
+function toggleStickerPicker() {
     console.log('[Media] toggleStickerPicker called');
     const stickerPicker = document.getElementById('stickerPicker');
     if (!stickerPicker) {
@@ -625,7 +626,7 @@ export function toggleStickerPicker() {
 /**
  * Close sticker picker
  */
-export function closeStickerPicker() {
+function closeStickerPicker() {
     const stickerPicker = document.getElementById('stickerPicker');
     if (stickerPicker) stickerPicker.classList.add('hidden');
 }
@@ -662,7 +663,7 @@ function loadStickers() {
 /**
  * Insert sticker at cursor position
  */
-export function insertSticker(sticker) {
+function insertSticker(sticker) {
     const yapText = document.getElementById('yapText');
     const modalYapText = document.getElementById('modalYapText');
     const activeTextarea = yapText && !yapText.closest('.hidden') ? yapText : modalYapText;
@@ -704,7 +705,7 @@ export function insertSticker(sticker) {
 /**
  * Initialize media module
  */
-export function initializeMedia() {
+function initializeMedia() {
     // Initialize GIF search
     initializeGifSearch();
     
