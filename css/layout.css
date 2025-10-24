@@ -13,43 +13,9 @@
    MAIN APP LAYOUT
    ======================================== */
 
-.app-container {
-    display: flex;
-    max-width: var(--container-max-width);
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-/* Sidebar (desktop only) */
-.sidebar {
-    position: sticky;
-    top: 0;
-    width: var(--sidebar-width);
-    height: 100vh;
-    padding: 20px;
-    flex-shrink: 0;
-    overflow-y: auto;
-}
-
-/* Main content area */
-.main-content {
-    flex: 1;
-    min-width: 0; /* Prevents flex overflow */
-    max-width: 600px;
-    border-left: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
-}
-
-/* Right sidebar (widgets area) */
-.right-sidebar {
-    width: 350px;
-    padding: 20px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    flex-shrink: 0;
-}
+/* NOTE: App container layout is defined in style.css
+   This file provides additional layout utilities and responsive helpers
+   without overriding existing structure */
 
 /* ========================================
    CONTAINERS & WRAPPERS
@@ -74,221 +40,29 @@
    HEADER
    ======================================== */
 
-header {
-    position: sticky;
-    top: 0;
-    z-index: var(--z-sticky);
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
-    background-color: rgba(255, 255, 255, 0.9);
-    transition: background-color var(--transition-normal);
-}
-
-body.dark-mode header {
-    background-color: rgba(30, 41, 59, 0.8);
-}
-
-header h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-primary);
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+/* NOTE: Header styles are defined in style.css
+   This section is for future header enhancements only */
 
 /* ========================================
    MOBILE NAVIGATION
    ======================================== */
 
-.mobile-nav {
-    display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--card-bg);
-    border-top: 1px solid var(--border-color);
-    padding: 10px 0;
-    z-index: var(--z-fixed);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.mobile-nav nav {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-.mobile-nav a {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px;
-    color: var(--text-secondary);
-    transition: color var(--transition-fast);
-}
-
-.mobile-nav a:hover,
-.mobile-nav a.active {
-    color: var(--primary-color);
-}
-
-.mobile-nav i {
-    font-size: 1.5rem;
-    margin-bottom: 4px;
-}
-
-.mobile-nav span {
-    font-size: 0.75rem;
-}
+/* NOTE: Mobile navigation styles are defined in style.css
+   This section is for future mobile nav enhancements only */
 
 /* ========================================
    FLOATING COMPOSE BUTTON (MOBILE)
    ======================================== */
 
-.mobile-compose-btn {
-    display: none;
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    box-shadow: var(--shadow-lg);
-    cursor: pointer;
-    z-index: var(--z-fixed);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.mobile-compose-btn:hover {
-    transform: scale(1.1);
-    box-shadow: var(--shadow-xl);
-}
-
-.mobile-compose-btn i {
-    font-size: 1.5rem;
-}
+/* NOTE: Mobile compose button styles are defined in style.css
+   This section is for future enhancements only */
 
 /* ========================================
    RESPONSIVE LAYOUT
    ======================================== */
 
-/* Tablet (1200px and below) */
-@media (max-width: 1200px) {
-    .right-sidebar {
-        display: none;
-    }
-    
-    .main-content {
-        max-width: 100%;
-    }
-}
-
-/* Tablet (992px and below) */
-@media (max-width: 992px) {
-    .app-container {
-        padding: 0 10px;
-    }
-    
-    .sidebar {
-        width: 200px;
-        padding: 15px;
-    }
-}
-
-/* Mobile (768px and below) */
-@media (max-width: 768px) {
-    .app-container {
-        padding: 0;
-    }
-    
-    /* Hide desktop sidebar */
-    .sidebar {
-        display: none;
-    }
-    
-    /* Show mobile navigation */
-    .mobile-nav {
-        display: block;
-    }
-    
-    /* Show floating compose button */
-    .mobile-compose-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    /* Full width main content */
-    .main-content {
-        border-left: none;
-        border-right: none;
-        padding-bottom: 70px; /* Space for mobile nav */
-    }
-    
-    header {
-        padding: 12px 15px;
-    }
-    
-    header h1 {
-        font-size: 1.25rem;
-    }
-    
-    .container {
-        padding: 0 var(--space-md);
-    }
-}
-
-/* Small mobile (480px and below) */
-@media (max-width: 480px) {
-    .app-container {
-        padding: 0;
-    }
-    
-    .main-content {
-        padding-bottom: 65px;
-    }
-    
-    .mobile-nav {
-        padding: 8px 0;
-    }
-    
-    .mobile-nav i {
-        font-size: 1.25rem;
-    }
-    
-    .mobile-compose-btn {
-        width: 50px;
-        height: 50px;
-        bottom: 75px;
-        right: 15px;
-    }
-    
-    .mobile-compose-btn i {
-        font-size: 1.25rem;
-    }
-}
-
-/* Desktop larger than 1300px */
-@media (min-width: 1301px) {
-    .app-container {
-        padding: 0 40px;
-    }
-}
+/* NOTE: Main responsive layout is handled in style.css
+   This file provides supplementary responsive utilities only */
 
 /* ========================================
    GRID SYSTEM
