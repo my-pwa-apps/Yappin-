@@ -356,10 +356,10 @@ async function postGroupYap(groupId, yapData) {
         throw new Error('Must be a member to post in this group');
     }
     
-    const { content, mediaFiles } = yapData;
+    const { content, mediaFiles, mediaUrls: providedMediaUrls } = yapData;
     
     // Validate content
-    if (!content && (!mediaFiles || mediaFiles.length === 0)) {
+    if (!content && (!mediaFiles || mediaFiles.length === 0) && (!providedMediaUrls || providedMediaUrls.length === 0)) {
         throw new Error('Please add text or images to your yap');
     }
     
@@ -367,9 +367,13 @@ async function postGroupYap(groupId, yapData) {
         throw new Error('Yap text must be 280 characters or less');
     }
     
-    // Upload media if provided
+    // Handle media - either use provided URLs or upload files
     let mediaUrls = [];
-    if (mediaFiles && mediaFiles.length > 0) {
+    if (providedMediaUrls && providedMediaUrls.length > 0) {
+        // Media already uploaded (from media.js)
+        mediaUrls = providedMediaUrls;
+    } else if (mediaFiles && mediaFiles.length > 0) {
+        // Upload files directly (legacy path)
         const uploadPromises = mediaFiles.map(file => {
             const timestamp = Date.now();
             const fileName = `group_yap_${timestamp}_${file.name}`;

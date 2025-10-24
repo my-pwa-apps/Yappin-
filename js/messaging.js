@@ -330,29 +330,20 @@ window.sendMessage = function() {
     if (!messageInput) return;
 
     const text = messageInput.value.trim();
-    const hasAttachments = dmSelectedImages.length > 0 || dmSelectedGifUrl;
+    
+    // Check for attachments using shared media.js function
+    const mediaAttachments = window.getMediaAttachments ? window.getMediaAttachments() : [];
+    const hasAttachments = mediaAttachments.length > 0;
     
     if (!text && !hasAttachments) return;
 
     const user = auth.currentUser;
     if (!user || !currentConversationId || !currentOtherUserId) return;
 
-    // Handle media uploads first if any
+    // Handle media uploads first if any - use shared media.js functions
     let mediaPromise = Promise.resolve([]);
-    if (hasAttachments) {
-        const mediaItems = [];
-        
-        // Add images
-        dmSelectedImages.forEach(img => {
-            mediaItems.push({ type: 'image', file: img.file });
-        });
-        
-        // Add GIF
-        if (dmSelectedGifUrl) {
-            mediaItems.push({ type: 'gif', url: dmSelectedGifUrl });
-        }
-        
-        mediaPromise = uploadDmMediaFiles(mediaItems);
+    if (hasAttachments && window.uploadMediaFiles) {
+        mediaPromise = window.uploadMediaFiles(mediaAttachments);
     }
 
     mediaPromise.then(mediaUrls => {
@@ -405,11 +396,9 @@ window.sendMessage = function() {
 
         return database.ref().update(updates);
     }).then(() => {
-        // Clear input and attachments immediately
+        // Clear input and attachments immediately - use shared function
         messageInput.value = '';
-        dmSelectedImages = [];
-        dmSelectedGifUrl = null;
-        renderDmImagePreviews();
+        if (window.clearImages) window.clearImages();
         
         // Clear file input
         const dmImageInput = document.getElementById('dmImageInput');
@@ -632,12 +621,8 @@ auth.onAuthStateChanged((user) => {
 });
 
 // ========================================
-// DM ATTACHMENTS - IMAGES, GIFS, STICKERS, EMOJIS
+// DM ATTACHMENTS - NOW USING SHARED MEDIA.JS FUNCTIONS
 // ========================================
-
-let dmSelectedImages = [];
-let dmSelectedGifUrl = null;
-let dmEmojiPickerElement = null;
 
 // DM Image Attachments
 document.addEventListener('DOMContentLoaded', () => {
@@ -647,44 +632,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
 });
 
-// Function to setup all DM media buttons (can be called multiple times)
+// Function to setup all DM media buttons - now using shared media.js
 function setupDmMediaButtons() {
-    // Setup GIF button
+    // Setup GIF button - use shared function
     const dmGifBtn = document.getElementById('dmGifBtn');
-    if (dmGifBtn) {
-        // Remove old listener if exists
+    if (dmGifBtn && window.toggleGifPicker) {
         dmGifBtn.replaceWith(dmGifBtn.cloneNode(true));
         const newDmGifBtn = document.getElementById('dmGifBtn');
         if (newDmGifBtn) {
-            newDmGifBtn.addEventListener('click', toggleDmGifPicker);
+            newDmGifBtn.addEventListener('click', () => window.toggleGifPicker());
         }
     }
     
-    // Setup Sticker button
+    // Setup Sticker button - use shared function
     const dmStickerBtn = document.getElementById('dmStickerBtn');
-    if (dmStickerBtn) {
+    if (dmStickerBtn && window.toggleStickerPicker) {
         dmStickerBtn.replaceWith(dmStickerBtn.cloneNode(true));
         const newDmStickerBtn = document.getElementById('dmStickerBtn');
         if (newDmStickerBtn) {
-            newDmStickerBtn.addEventListener('click', toggleDmStickerPicker);
+            newDmStickerBtn.addEventListener('click', () => window.toggleStickerPicker());
         }
     }
     
-    // Setup Emoji button
+    // Setup Emoji button - use shared function
     const dmEmojiBtn = document.getElementById('dmEmojiBtn');
-    if (dmEmojiBtn) {
+    if (dmEmojiBtn && window.toggleEmojiPicker) {
         dmEmojiBtn.replaceWith(dmEmojiBtn.cloneNode(true));
         const newDmEmojiBtn = document.getElementById('dmEmojiBtn');
         if (newDmEmojiBtn) {
-            newDmEmojiBtn.addEventListener('click', toggleDmEmojiPicker);
+            newDmEmojiBtn.addEventListener('click', () => window.toggleEmojiPicker());
         }
     }
     
-    // Setup Attachment button
+    // Setup Attachment button - use shared function
     const dmAttachImageBtn = document.getElementById('dmAttachImageBtn');
     const dmImageInput = document.getElementById('dmImageInput');
     
-    if (dmAttachImageBtn && dmImageInput) {
+    if (dmAttachImageBtn && dmImageInput && window.handleImageSelect) {
         dmAttachImageBtn.replaceWith(dmAttachImageBtn.cloneNode(true));
         const newDmAttachImageBtn = document.getElementById('dmAttachImageBtn');
         if (newDmAttachImageBtn) {
@@ -693,443 +677,16 @@ function setupDmMediaButtons() {
             });
         }
         
-        // Re-attach change listener to image input
+        // Re-attach change listener to image input - use shared function
         dmImageInput.replaceWith(dmImageInput.cloneNode(true));
         const newDmImageInput = document.getElementById('dmImageInput');
         if (newDmImageInput) {
-            newDmImageInput.addEventListener('change', handleDmImageSelect);
+            newDmImageInput.addEventListener('change', (e) => window.handleImageSelect(e));
         }
     }
 }
 
 function setupDmAttachments() {
     setupDmMediaButtons();
-    
-    // Setup GIF search (this persists in the modal, so only setup once)
-    const dmGifSearch = document.getElementById('dmGifSearch');
-    if (dmGifSearch && !dmGifSearch.hasAttribute('data-listener-attached')) {
-        dmGifSearch.setAttribute('data-listener-attached', 'true');
-        let searchTimeout;
-        dmGifSearch.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
-            
-            if (query.length < 2) {
-                loadDmTrendingGifs();
-                return;
-            }
-            
-            searchTimeout = setTimeout(() => {
-                searchDmGifs(query);
-            }, 500);
-        });
-    }
-}
-
-function handleDmImageSelect(e) {
-    console.log('[DM] Image select triggered', e.target.files);
-    
-    if (!e.target.files || e.target.files.length === 0) {
-        console.log('[DM] No files selected');
-        return;
-    }
-    
-    const files = Array.from(e.target.files);
-    console.log('[DM] Files to process:', files.length);
-    
-    files.forEach(file => {
-        if (file.type.startsWith('image/')) {
-            console.log('[DM] Adding image:', file.name);
-            dmSelectedImages.push({ file });
-        }
-    });
-    
-    console.log('[DM] Total selected images:', dmSelectedImages.length);
-    renderDmImagePreviews();
-}
-
-function renderDmImagePreviews() {
-    const container = document.getElementById('dmImagePreviewContainer');
-    if (!container) {
-        console.log('[DM] Preview container not found');
-        return;
-    }
-    
-    console.log('[DM] Rendering previews for', dmSelectedImages.length, 'images');
-    
-    if (dmSelectedImages.length === 0 && !dmSelectedGifUrl) {
-        container.classList.add('hidden');
-        return;
-    }
-    
-    container.classList.remove('hidden');
-    container.innerHTML = '';
-    
-    // Show regular images
-    dmSelectedImages.forEach((img, index) => {
-        const preview = document.createElement('div');
-        preview.className = 'image-preview';
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            preview.innerHTML = `
-                <img src="${e.target.result}" alt="Preview">
-                <button class="remove-image" onclick="removeDmImage(${index})" aria-label="Remove image">×</button>
-            `;
-            console.log('[DM] Preview rendered for image', index);
-        };
-        reader.onerror = (error) => {
-            console.error('[DM] Error reading file:', error);
-        };
-        reader.readAsDataURL(img.file);
-        
-        container.appendChild(preview);
-    });
-    
-    // Show GIF if selected
-    if (dmSelectedGifUrl) {
-        const preview = document.createElement('div');
-        preview.className = 'image-preview';
-        preview.innerHTML = `
-            <img src="${dmSelectedGifUrl}" alt="Selected GIF">
-            <button class="remove-image" onclick="removeDmGif()" aria-label="Remove GIF">×</button>
-        `;
-        container.appendChild(preview);
-    }
-}
-
-window.removeDmImage = function(index) {
-    dmSelectedImages.splice(index, 1);
-    renderDmImagePreviews();
-};
-
-window.removeDmGif = function() {
-    dmSelectedGifUrl = null;
-    renderDmImagePreviews();
-};
-
-// DM GIF Picker
-function toggleDmGifPicker() {
-    const picker = document.getElementById('dmGifPicker');
-    if (!picker) return;
-    
-    const isHidden = picker.classList.contains('hidden');
-    
-    // Close other pickers
-    closeDmStickerPicker();
-    if (dmEmojiPickerElement) dmEmojiPickerElement.classList.add('hidden');
-    
-    if (isHidden) {
-        picker.classList.remove('hidden');
-        loadDmTrendingGifs();
-        const search = document.getElementById('dmGifSearch');
-        if (search) search.focus();
-    } else {
-        picker.classList.add('hidden');
-    }
-}
-
-window.closeDmGifPicker = function() {
-    const picker = document.getElementById('dmGifPicker');
-    if (picker) picker.classList.add('hidden');
-};
-
-function loadDmTrendingGifs() {
-    const results = document.getElementById('dmGifResults');
-    if (!results) return;
-    
-    results.innerHTML = '<div class="loading-text">Loading trending GIFs...</div>';
-    
-    const TENOR_API_KEY = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ';
-    const TENOR_API_URL = 'https://tenor.googleapis.com/v2';
-    
-    fetch(`${TENOR_API_URL}/featured?key=${TENOR_API_KEY}&client_key=yappin&limit=20`)
-        .then(response => response.json())
-        .then(data => {
-            displayDmGifs(data.results);
-        })
-        .catch(error => {
-            (window.PerformanceUtils?.Logger || console).error('Failed to load GIFs:', error);
-            results.innerHTML = '<div class="error-text">Failed to load GIFs</div>';
-        });
-}
-
-function searchDmGifs(query) {
-    const results = document.getElementById('dmGifResults');
-    if (!query || !results) return;
-    
-    results.innerHTML = '<div class="loading-text">Searching...</div>';
-    
-    const TENOR_API_KEY = 'AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ';
-    const TENOR_API_URL = 'https://tenor.googleapis.com/v2';
-    
-    fetch(`${TENOR_API_URL}/search?q=${encodeURIComponent(query)}&key=${TENOR_API_KEY}&client_key=yappin&limit=20`)
-        .then(response => response.json())
-        .then(data => {
-            displayDmGifs(data.results);
-        })
-        .catch(error => {
-            (window.PerformanceUtils?.Logger || console).error('Failed to search GIFs:', error);
-            results.innerHTML = '<div class="error-text">Search failed</div>';
-        });
-}
-
-function displayDmGifs(gifs) {
-    const results = document.getElementById('dmGifResults');
-    if (!results) return;
-    
-    if (!gifs || gifs.length === 0) {
-        results.innerHTML = '<div class="no-results">No GIFs found</div>';
-        return;
-    }
-    
-    results.innerHTML = '';
-    
-    gifs.forEach(gif => {
-        const gifElement = document.createElement('div');
-        gifElement.className = 'gif-item';
-        
-        const img = document.createElement('img');
-        img.src = gif.media_formats.tinygif.url;
-        img.alt = gif.content_description || 'GIF';
-        img.loading = 'lazy';
-        
-        gifElement.appendChild(img);
-        
-        gifElement.addEventListener('click', () => {
-            selectDmGif(gif.media_formats.gif.url);
-        });
-        
-        results.appendChild(gifElement);
-    });
-}
-
-function selectDmGif(gifUrl) {
-    dmSelectedGifUrl = gifUrl;
-    renderDmImagePreviews();
-    closeDmGifPicker();
-    showSnackbar('GIF added!', 'success');
-}
-
-// DM Sticker Picker
-function toggleDmStickerPicker() {
-    const picker = document.getElementById('dmStickerPicker');
-    if (!picker) return;
-    
-    const isHidden = picker.classList.contains('hidden');
-    
-    // Close other pickers
-    closeDmGifPicker();
-    if (dmEmojiPickerElement) dmEmojiPickerElement.classList.add('hidden');
-    
-    if (isHidden) {
-        picker.classList.remove('hidden');
-        loadDmStickers();
-    } else {
-        picker.classList.add('hidden');
-    }
-}
-
-window.closeDmStickerPicker = function() {
-    const picker = document.getElementById('dmStickerPicker');
-    if (picker) picker.classList.add('hidden');
-};
-
-function loadDmStickers() {
-    const grid = document.getElementById('dmStickerGrid');
-    if (!grid) return;
-    
-    const stickers = [
-        '🎉', '🎊', '🎈', '🎁', '🏆', '🥇', '🌟', '⭐',
-        '✨', '💫', '💥', '💢', '💦', '💨', '🔥', '⚡',
-        '🌈', '☀️', '🌙', '⛅', '☁️', '🌊', '❄️', '⛄',
-        '🎵', '🎶', '🎤', '🎧', '🎸', '🎹', '🎺', '🎻',
-        '🍕', '🍔', '🍟', '🌭', '🍿', '🧈', '🍞', '🥐',
-        '🎂', '🍰', '🧁', '🍪', '🍩', '🍫', '🍬', '🍭',
-        '☕', '🍵', '🥤', '🧃', '🧋', '🍷', '🍺', '🍻',
-        '⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🥏',
-        '🎮', '🕹️', '👾', '🎯', '🎲', '🎰', '🎳', '🎪',
-        '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑',
-        '✈️', '🚀', '🛸', '🚁', '⛵', '🚤', '🛥️', '⛴️',
-        '🏠', '🏡', '🏢', '🏣', '🏤', '🏥', '🏦', '🏨',
-        '💕', '💞', '💓', '💗', '💖', '💘', '💝', '❤️',
-        '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎',
-        '👍', '👎', '👊', '✊', '🤝', '👏', '🙌', '🙏',
-        '💪', '🦾', '🤳', '✍️', '🤙', '🤘', '🤟', '✌️'
-    ];
-    
-    grid.innerHTML = '';
-    
-    stickers.forEach(sticker => {
-        const stickerElement = document.createElement('button');
-        stickerElement.className = 'sticker-item';
-        stickerElement.textContent = sticker;
-        stickerElement.title = `Add ${sticker} sticker`;
-        
-        stickerElement.addEventListener('click', () => {
-            insertDmSticker(sticker);
-        });
-        
-        grid.appendChild(stickerElement);
-    });
-}
-
-function insertDmSticker(sticker) {
-    const messageInput = document.getElementById('messageInput');
-    
-    if (messageInput) {
-        const start = messageInput.selectionStart;
-        const end = messageInput.selectionEnd;
-        const text = messageInput.value;
-        
-        messageInput.value = text.substring(0, start) + ` ${sticker} ` + text.substring(end);
-        
-        const newPosition = start + sticker.length + 2;
-        messageInput.selectionStart = newPosition;
-        messageInput.selectionEnd = newPosition;
-        messageInput.focus();
-    }
-    
-    closeDmStickerPicker();
-}
-
-// DM Emoji Picker
-function toggleDmEmojiPicker() {
-    if (!dmEmojiPickerElement) {
-        createDmEmojiPicker();
-    }
-    
-    if (dmEmojiPickerElement.classList.contains('hidden')) {
-        // Close other pickers
-        closeDmGifPicker();
-        closeDmStickerPicker();
-        
-        dmEmojiPickerElement.classList.remove('hidden');
-    } else {
-        dmEmojiPickerElement.classList.add('hidden');
-    }
-}
-
-function createDmEmojiPicker() {
-    const commonEmojis = [
-        '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂',
-        '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩',
-        '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜',
-        '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐',
-        '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬',
-        '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒',
-        '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵',
-        '🤯', '🤠', '🥳', '🥸', '😎', '🤓', '🧐', '😕',
-        '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺',
-        '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱',
-        '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤',
-        '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩',
-        '🤡', '👹', '👺', '👻', '👽', '👾', '🤖', '😺',
-        '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾',
-        '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
-        '🤎', '💔', '❤️‍🔥', '❤️‍🩹', '💕', '💞', '💓', '💗',
-        '💘', '💝', '💖', '💌', '💟', '❣️', '💬', '💭',
-        '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏',
-        '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆',
-        '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛',
-        '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✍️'
-    ];
-    
-    dmEmojiPickerElement = document.createElement('div');
-    dmEmojiPickerElement.className = 'emoji-picker hidden';
-    
-    commonEmojis.forEach(emoji => {
-        const btn = document.createElement('button');
-        btn.className = 'emoji-btn-item';
-        btn.textContent = emoji;
-        btn.onclick = () => insertDmEmoji(emoji);
-        dmEmojiPickerElement.appendChild(btn);
-    });
-    
-    const inputWrapper = document.querySelector('.conversation-input-wrapper');
-    if (inputWrapper) {
-        inputWrapper.appendChild(dmEmojiPickerElement);
-    }
-    
-    // Close picker when clicking outside
-    document.addEventListener('click', (e) => {
-        const dmEmojiBtn = document.getElementById('dmEmojiBtn');
-        if (dmEmojiPickerElement && 
-            !dmEmojiPickerElement.contains(e.target) && 
-            dmEmojiBtn && !dmEmojiBtn.contains(e.target)) {
-            dmEmojiPickerElement.classList.add('hidden');
-        }
-    });
-}
-
-function insertDmEmoji(emoji) {
-    const messageInput = document.getElementById('messageInput');
-    if (!messageInput) return;
-    
-    const start = messageInput.selectionStart;
-    const end = messageInput.selectionEnd;
-    const text = messageInput.value;
-    
-    messageInput.value = text.substring(0, start) + emoji + text.substring(end);
-    messageInput.selectionStart = messageInput.selectionEnd = start + emoji.length;
-    messageInput.focus();
-}
-
-// Upload media files for DMs
-function uploadDmMediaFiles(mediaItems) {
-    const promises = [];
-    
-    for (let i = 0; i < mediaItems.length; i++) {
-        const item = mediaItems[i];
-        
-        // If it's a GIF URL, just return it as-is
-        if (item.type === 'gif') {
-            promises.push(Promise.resolve({ type: 'gif', url: item.url }));
-            continue;
-        }
-        
-        // Otherwise it's an image file - convert to base64
-        const file = item.file || item;
-        promises.push(new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                // Compress large images
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    // Max dimensions to keep database size reasonable
-                    const maxSize = 1200;
-                    if (width > height && width > maxSize) {
-                        height = (height * maxSize) / width;
-                        width = maxSize;
-                    } else if (height > maxSize) {
-                        width = (width * maxSize) / height;
-                        height = maxSize;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Convert to base64 with compression (0.8 quality)
-                    const base64 = canvas.toDataURL('image/jpeg', 0.8);
-                    resolve({ type: 'image', url: base64 });
-                };
-                
-                img.onerror = () => reject(new Error('Failed to load image'));
-                img.src = e.target.result;
-            };
-            
-            reader.onerror = () => reject(new Error('Failed to read file'));
-            reader.readAsDataURL(file);
-        }));
-    }
-    
-    return Promise.all(promises);
+    // All media functionality now handled by shared media.js
 }

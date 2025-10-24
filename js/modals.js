@@ -487,12 +487,32 @@ function setupGroupCompose(groupId) {
         };
     }
     
+    // GIF button - use shared media.js function
+    const gifBtn = document.getElementById('groupGifBtn');
+    if (gifBtn && window.toggleGifPicker) {
+        gifBtn.onclick = () => window.toggleGifPicker();
+    }
+    
+    // Sticker button - use shared media.js function
+    const stickerBtn = document.getElementById('groupStickerBtn');
+    if (stickerBtn && window.toggleStickerPicker) {
+        stickerBtn.onclick = () => window.toggleStickerPicker();
+    }
+    
+    // Emoji button - use shared media.js function  
+    const emojiBtn = document.getElementById('groupEmojiBtn');
+    if (emojiBtn && window.toggleEmojiPicker) {
+        emojiBtn.onclick = () => window.toggleEmojiPicker();
+    }
+    
     // Post button
     postBtn.onclick = async () => {
         const content = textarea.value.trim();
-        const files = imageInput ? Array.from(imageInput.files) : [];
         
-        if (!content && files.length === 0) {
+        // Get media attachments from shared media.js
+        const mediaAttachments = window.getMediaAttachments ? window.getMediaAttachments() : [];
+        
+        if (!content && mediaAttachments.length === 0) {
             showSnackbar('Please add text or images', 'error');
             return;
         }
@@ -501,14 +521,26 @@ function setupGroupCompose(groupId) {
         postBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
         
         try {
+            // Upload media using shared function
+            let mediaUrls = [];
+            if (mediaAttachments.length > 0 && window.uploadMediaFiles) {
+                mediaUrls = await window.uploadMediaFiles(mediaAttachments);
+            }
+            
+            // Convert media URLs to format expected by postGroupYap
+            const mediaFiles = mediaUrls.map(item => ({
+                url: item.url,
+                type: item.type
+            }));
+            
             await window.postGroupYap(groupId, {
                 content,
-                mediaFiles: files
+                mediaUrls: mediaFiles
             });
             
-            // Clear form
+            // Clear form using shared function
             textarea.value = '';
-            if (imageInput) imageInput.value = '';
+            if (window.clearImages) window.clearImages();
             previewContainer.innerHTML = '';
             previewContainer.classList.add('hidden');
             
