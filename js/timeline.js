@@ -304,14 +304,43 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
                 <i class="far fa-envelope"></i>
             </button>
         </div>
-        ${(yapData.replies && yapData.replies > 0) ? `
-            <button class="view-replies-btn" data-yap-id="${yapData.id}">
-                <i class="fas fa-chevron-down"></i>
-                <span>View ${yapData.replies} ${yapData.replies === 1 ? 'reply' : 'replies'}</span>
-            </button>
-        ` : ''}
         <div class="replies-container hidden" data-yap-id="${yapData.id}"></div>
     `;
+    
+    // Check if there are actual replies in yapReplies, even if count is 0
+    if (yapData.id) {
+        database.ref(`yapReplies/${yapData.id}`).once('value').then(repliesSnap => {
+            if (repliesSnap.exists()) {
+                const repliesCount = Object.keys(repliesSnap.val()).length;
+                if (repliesCount > 0) {
+                    // Create or update the view replies button
+                    let viewRepliesBtn = yapElement.querySelector('.view-replies-btn');
+                    if (!viewRepliesBtn) {
+                        viewRepliesBtn = document.createElement('button');
+                        viewRepliesBtn.className = 'view-replies-btn';
+                        viewRepliesBtn.dataset.yapId = yapData.id;
+                        
+                        // Insert before replies container
+                        const repliesContainer = yapElement.querySelector('.replies-container');
+                        repliesContainer.parentNode.insertBefore(viewRepliesBtn, repliesContainer);
+                    }
+                    
+                    viewRepliesBtn.innerHTML = `
+                        <i class="fas fa-chevron-down"></i>
+                        <span>View ${repliesCount} ${repliesCount === 1 ? 'reply' : 'replies'}</span>
+                    `;
+                    
+                    // Update reply count in the button
+                    const replyBtn = yapElement.querySelector('.action-btn.reply span');
+                    if (replyBtn && parseInt(replyBtn.textContent) !== repliesCount) {
+                        replyBtn.textContent = repliesCount;
+                    }
+                }
+            }
+        }).catch(err => {
+            (window.PerformanceUtils?.Logger || console).warn('Could not check replies for yap:', yapData.id, err);
+        });
+    }
     
     // Add event listeners
     const likeBtn = yapElement.querySelector('.action-btn.like');
