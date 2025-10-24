@@ -7,7 +7,9 @@ import { showSnackbar } from './ui.js';
 
 // Constants
 // Using Giphy API (more reliable than Tenor)
-const GIPHY_API_KEY = 'nA6Ou7qNMHAhVYE8Ao3xjXHPQTjCkLuP'; // Public demo key
+// IMPORTANT: Get your own API key from https://developers.giphy.com/
+// The demo key below may not work - replace with your own key
+const GIPHY_API_KEY = 'BfNVgtI5RMprH8EY4usImIZzbOQxYrWI'; // Replace with your Giphy API key
 const GIPHY_API_URL = 'https://api.giphy.com/v1/gifs';
 const MAX_IMAGES = 4;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -343,16 +345,20 @@ export function getMediaAttachments() {
  * Toggle emoji picker
  */
 export function toggleEmojiPicker() {
+    console.log('[Media] toggleEmojiPicker called');
     if (!emojiPickerElement) {
+        console.log('[Media] Creating emoji picker...');
         createEmojiPicker();
     }
     
-    if (emojiPickerElement.classList.contains('hidden')) {
+    if (emojiPickerElement && emojiPickerElement.classList.contains('hidden')) {
+        console.log('[Media] Opening emoji picker');
         emojiPickerElement.classList.remove('hidden');
         // Close other pickers
         closeGifPicker();
         closeStickerPicker();
-    } else {
+    } else if (emojiPickerElement) {
+        console.log('[Media] Closing emoji picker');
         emojiPickerElement.classList.add('hidden');
     }
 }
@@ -361,6 +367,7 @@ export function toggleEmojiPicker() {
  * Create emoji picker
  */
 function createEmojiPicker() {
+    console.log('[Media] createEmojiPicker called, creating', commonEmojis.length, 'emoji buttons');
     emojiPickerElement = document.createElement('div');
     emojiPickerElement.className = 'emoji-picker hidden';
     
@@ -376,6 +383,9 @@ function createEmojiPicker() {
     const composeActions = document.querySelector('.compose-actions');
     if (composeActions) {
         composeActions.parentElement.insertBefore(emojiPickerElement, composeActions);
+        console.log('[Media] Emoji picker created and inserted into DOM');
+    } else {
+        console.error('[Media] Could not find .compose-actions element to insert emoji picker');
     }
     
     // Close picker when clicking outside
@@ -466,6 +476,13 @@ export function loadTrendingGifs() {
     const gifResults = document.getElementById('gifResults');
     if (!gifResults) return;
     
+    // Check if API key is configured
+    if (GIPHY_API_KEY === 'YOUR_GIPHY_API_KEY_HERE') {
+        gifResults.innerHTML = '<div class="error-text" style="text-align: center; padding: 20px;"><div>⚠️ Giphy API key not configured</div><small style="display: block; margin-top: 10px;">Get a free key at <a href="https://developers.giphy.com/" target="_blank" style="color: var(--primary-color);">developers.giphy.com</a></small></div>';
+        console.warn('[Media] Giphy API key not configured. Please update GIPHY_API_KEY in media.js');
+        return;
+    }
+    
     gifResults.innerHTML = '<div class="loading-text">Loading trending GIFs...</div>';
     
     fetch(`${GIPHY_API_URL}/trending?api_key=${GIPHY_API_KEY}&limit=20&rating=g`)
@@ -480,7 +497,7 @@ export function loadTrendingGifs() {
         })
         .catch(error => {
             console.error('[Media] Failed to load GIFs:', error);
-            gifResults.innerHTML = '<div class="error-text">Failed to load GIFs. Please try again.</div>';
+            gifResults.innerHTML = '<div class="error-text">Failed to load GIFs. Please try again.<br><small>' + error.message + '</small></div>';
         });
 }
 
@@ -490,6 +507,12 @@ export function loadTrendingGifs() {
 export function searchGifs(query) {
     const gifResults = document.getElementById('gifResults');
     if (!query || !gifResults) return;
+    
+    // Check if API key is configured
+    if (GIPHY_API_KEY === 'YOUR_GIPHY_API_KEY_HERE') {
+        gifResults.innerHTML = '<div class="error-text" style="text-align: center; padding: 20px;"><div>⚠️ Giphy API key not configured</div><small style="display: block; margin-top: 10px;">Get a free key at <a href="https://developers.giphy.com/" target="_blank" style="color: var(--primary-color);">developers.giphy.com</a></small></div>';
+        return;
+    }
     
     gifResults.innerHTML = '<div class="loading-text">Searching...</div>';
     
@@ -505,7 +528,7 @@ export function searchGifs(query) {
         })
         .catch(error => {
             console.error('[Media] Failed to search GIFs:', error);
-            gifResults.innerHTML = '<div class="error-text">Search failed. Please try again.</div>';
+            gifResults.innerHTML = '<div class="error-text">Search failed. Please try again.<br><small>' + error.message + '</small></div>';
         });
 }
 
@@ -585,10 +608,15 @@ export function initializeGifSearch() {
  * Toggle sticker picker
  */
 export function toggleStickerPicker() {
+    console.log('[Media] toggleStickerPicker called');
     const stickerPicker = document.getElementById('stickerPicker');
-    if (!stickerPicker) return;
+    if (!stickerPicker) {
+        console.error('[Media] Sticker picker element not found');
+        return;
+    }
     
     const isHidden = stickerPicker.classList.contains('hidden');
+    console.log('[Media] Sticker picker hidden:', isHidden);
     
     // Close other pickers
     closeGifPicker();
@@ -596,6 +624,7 @@ export function toggleStickerPicker() {
     
     if (isHidden) {
         stickerPicker.classList.remove('hidden');
+        console.log('[Media] Opening sticker picker, loading stickers...');
         loadStickers();
     } else {
         stickerPicker.classList.add('hidden');
@@ -614,9 +643,14 @@ export function closeStickerPicker() {
  * Load stickers
  */
 function loadStickers() {
+    console.log('[Media] loadStickers called');
     const stickerGrid = document.getElementById('stickerGrid');
-    if (!stickerGrid) return;
+    if (!stickerGrid) {
+        console.error('[Media] Sticker grid element not found');
+        return;
+    }
     
+    console.log('[Media] Loading', stickers.length, 'stickers');
     stickerGrid.innerHTML = '';
     
     stickers.forEach(sticker => {
@@ -631,6 +665,7 @@ function loadStickers() {
         
         stickerGrid.appendChild(stickerElement);
     });
+    console.log('[Media] Stickers loaded into grid');
 }
 
 /**
