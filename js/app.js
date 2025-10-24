@@ -433,97 +433,9 @@ function saveDraft(content) {
 // ========================================
 
 // ========================================
-// EMOJI PICKER
+// EMOJI PICKER - NOW USING SHARED MEDIA.JS
 // ========================================
-
-const commonEmojis = [
-    '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂',
-    '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩',
-    '😘', '😗', '😚', '😙', '🥲', '😋', '😛', '😜',
-    '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐',
-    '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬',
-    '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒',
-    '🤕', '🤢', '🤮', '🤧', '🥵', '🥶', '🥴', '😵',
-    '🤯', '🤠', '🥳', '🥸', '😎', '🤓', '🧐', '😕',
-    '😟', '🙁', '☹️', '😮', '😯', '😲', '😳', '🥺',
-    '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱',
-    '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤',
-    '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩',
-    '🤡', '👹', '👺', '👻', '👽', '👾', '🤖', '😺',
-    '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾',
-    '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍',
-    '🤎', '💔', '❤️‍🔥', '❤️‍🩹', '💕', '💞', '💓', '💗',
-    '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️',
-    '👍', '👎', '👊', '✊', '🤛', '🤜', '🤞', '✌️',
-    '🤟', '🤘', '👌', '🤏', '👈', '👉', '👆', '👇',
-    '☝️', '👋', '🤚', '🖐️', '✋', '🖖', '👏', '🙌',
-    '🎉', '🎊', '🎈', '🎁', '🏆', '🥇', '🥈', '🥉',
-    '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉',
-    '🔥', '⭐', '🌟', '✨', '💫', '💥', '💢', '💦',
-    '💨', '🌈', '☀️', '🌙', '⚡', '☁️', '🌊', '🎵',
-    '🎶', '🎤', '🎧', '📱', '💻', '⌚', '📷', '🎮'
-];
-
-let emojiPickerElement = null;
-
-function toggleEmojiPicker() {
-    if (!emojiPickerElement) {
-        createEmojiPicker();
-    }
-    
-    if (emojiPickerElement.classList.contains('hidden')) {
-        emojiPickerElement.classList.remove('hidden');
-    } else {
-        emojiPickerElement.classList.add('hidden');
-    }
-}
-
-function createEmojiPicker() {
-    emojiPickerElement = document.createElement('div');
-    emojiPickerElement.className = 'emoji-picker hidden';
-    
-    commonEmojis.forEach(emoji => {
-        const btn = document.createElement('button');
-        btn.className = 'emoji-btn-item';
-        btn.textContent = emoji;
-        btn.onclick = () => insertEmoji(emoji);
-        emojiPickerElement.appendChild(btn);
-    });
-    
-    // Insert after compose actions
-    const composeActions = document.querySelector('.compose-actions');
-    if (composeActions) {
-        composeActions.parentElement.insertBefore(emojiPickerElement, composeActions);
-    }
-    
-    // Close picker when clicking outside
-    document.addEventListener('click', (e) => {
-        if (emojiPickerElement && 
-            !emojiPickerElement.contains(e.target) && 
-            !emojiBtn.contains(e.target)) {
-            emojiPickerElement.classList.add('hidden');
-        }
-    });
-}
-
-function insertEmoji(emoji) {
-    const textarea = yapText;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = textarea.value;
-    
-    textarea.value = text.substring(0, start) + emoji + text.substring(end);
-    textarea.selectionStart = textarea.selectionEnd = start + emoji.length;
-    textarea.focus();
-    
-    // Update character count
-    updateCharacterCount(textarea, characterCount);
-    
-    // Hide picker
-    if (emojiPickerElement) {
-        emojiPickerElement.classList.add('hidden');
-    }
-}
+// All emoji functionality moved to media.js
 
 // Load draft from localStorage
 function loadDraft() {

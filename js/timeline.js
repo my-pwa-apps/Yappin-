@@ -188,7 +188,7 @@ function createYapElement(yapData, isLiked = false, isReyapped = false) {
     // Defensive: fallback for missing data and escape HTML
     const username = (yapData.username || 'anonymous').replace(/[<>"']/g, '');
     const content = yapData.text || yapData.content || '';  // Support both 'text' (new) and 'content' (legacy)
-    const formattedTime = yapData.timestamp ? formatRelativeTime(yapData.timestamp) : '';
+    const formattedTime = yapData.timestamp ? (window.formatRelativeTime ? window.formatRelativeTime(yapData.timestamp) : new Date(yapData.timestamp).toLocaleString()) : '';
     const isOwnYap = auth.currentUser && yapData.uid === auth.currentUser.uid;
     
     // Fetch fresh user data for displayName and photoURL if we have a uid
