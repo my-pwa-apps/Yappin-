@@ -160,24 +160,6 @@
                             </div>
                             <button id="postYapBtn" class="btn primary-btn">Yap</button>
                         </div>
-                        
-                        <!-- GIF Picker -->
-                        <div id="gifPicker" class="gif-picker hidden">
-                            <div class="gif-picker-header">
-                                <input type="text" id="gifSearch" placeholder="Search GIFs..." class="input-field">
-                                <button class="close-btn" onclick="closeGifPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
-                            </div>
-                            <div id="gifResults" class="gif-results"></div>
-                        </div>
-                        
-                        <!-- Sticker Picker -->
-                        <div id="stickerPicker" class="sticker-picker hidden">
-                            <div class="sticker-picker-header">
-                                <h3>Stickers</h3>
-                                <button class="close-btn" onclick="closeStickerPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
-                            </div>
-                            <div id="stickerGrid" class="sticker-grid"></div>
-                        </div>
                     </div>
                     
                     <div class="yaps-container" id="yapsContainer">
@@ -196,6 +178,25 @@
                         <!-- Suggested users will be loaded here dynamically -->
                     </div>
                 </aside>
+            </div>
+
+            <!-- Global Media Pickers (used by timeline, modal, groups, DMs) -->
+            <!-- GIF Picker -->
+            <div id="gifPicker" class="gif-picker hidden">
+                <div class="gif-picker-header">
+                    <input type="text" id="gifSearch" placeholder="Search GIFs..." class="input-field">
+                    <button class="close-btn" onclick="closeGifPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="gifResults" class="gif-results"></div>
+            </div>
+            
+            <!-- Sticker Picker -->
+            <div id="stickerPicker" class="sticker-picker hidden">
+                <div class="sticker-picker-header">
+                    <h3>Stickers</h3>
+                    <button class="close-btn" onclick="closeStickerPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="stickerGrid" class="sticker-grid"></div>
             </div>
 
             <!-- Create Yap Modal -->
