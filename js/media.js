@@ -220,17 +220,37 @@ function addImagesToYap(files) {
 }
 
 /**
- * Render image previews
+ * Render image previews in the correct container based on active context
  */
 function renderImagePreviews() {
-    // Check for timeline container first, then DM container, then group container
-    let imagePreviewContainer = document.getElementById('imagePreviewContainer');
-    if (!imagePreviewContainer) {
-        imagePreviewContainer = document.getElementById('dmImagePreviewContainer');
+    // Determine which container to use based on active textarea
+    let imagePreviewContainer = null;
+    const activeTextarea = getActiveTextarea();
+    
+    if (activeTextarea) {
+        const textareaId = activeTextarea.id;
+        
+        // Map textarea IDs to their corresponding preview containers
+        if (textareaId === 'groupYapText') {
+            imagePreviewContainer = document.getElementById('groupImagePreviewContainer');
+        } else if (textareaId === 'messageInput') {
+            imagePreviewContainer = document.getElementById('dmImagePreviewContainer');
+        } else if (textareaId === 'yapText' || textareaId === 'modalYapText') {
+            imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        }
     }
+    
+    // Fallback: check all containers in order if no active textarea
     if (!imagePreviewContainer) {
-        imagePreviewContainer = document.getElementById('groupImagePreviewContainer');
+        imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        if (!imagePreviewContainer) {
+            imagePreviewContainer = document.getElementById('dmImagePreviewContainer');
+        }
+        if (!imagePreviewContainer) {
+            imagePreviewContainer = document.getElementById('groupImagePreviewContainer');
+        }
     }
+    
     if (!imagePreviewContainer) return;
     
     if (selectedImages.length === 0 && !selectedGifUrl) {

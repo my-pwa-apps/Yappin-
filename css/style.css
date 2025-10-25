@@ -390,7 +390,7 @@ main {
     width: 100%;
     box-sizing: border-box;
     height: calc(100vh - 70px); /* Full height minus header */
-    overflow: hidden; /* Prevent main container scrolling */
+    /* overflow: hidden removed - was preventing fixed position pickers from showing */
 }
 
 /* Auth Container */
