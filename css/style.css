@@ -2423,7 +2423,7 @@ body.dark-mode input:checked + .slider {
     width: 95vw;
     max-width: 700px;
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    border: 5px solid #ff0000 !important; /* DEBUGGING: Bright red border */
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-xl);
     z-index: 999999 !important; /* Extremely high to debug visibility */
