@@ -1987,7 +1987,7 @@ body.dark-mode .delete-yap:hover {
   border-radius: var(--radius-md);
   padding: 16px;
   box-shadow: var(--shadow-xl);
-  z-index: 10000 !important; /* Higher than modals to show on top */
+  z-index: 999999 !important; /* Extremely high to debug visibility */
   width: 85vw;
   max-width: 360px;
   display: grid;

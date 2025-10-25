@@ -2423,7 +2423,7 @@ body.dark-mode input:checked + .slider {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-xl);
-    z-index: 10000 !important; /* Higher than modals to show on top */
+    z-index: 999999 !important; /* Extremely high to debug visibility */
     max-height: 80vh;
     display: flex;
     flex-direction: column;
