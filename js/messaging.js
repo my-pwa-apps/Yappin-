@@ -635,9 +635,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Function to setup all DM media buttons - now using shared media.js
 function setupDmMediaButtons() {
     const messageInput = document.getElementById('messageInput');
+    console.log('[DM] Setting up media buttons, messageInput:', messageInput);
     
     // Helper to set active textarea for DMs
     const setDmActive = () => {
+        console.log('[DM] Setting active input:', messageInput);
         if (window.setActiveTextarea && messageInput) {
             window.setActiveTextarea(messageInput);
         }
@@ -645,11 +647,13 @@ function setupDmMediaButtons() {
     
     // Setup GIF button - use shared function
     const dmGifBtn = document.getElementById('dmGifBtn');
+    console.log('[DM] Setting up GIF button:', dmGifBtn, 'toggleGifPicker:', window.toggleGifPicker);
     if (dmGifBtn && window.toggleGifPicker) {
         dmGifBtn.replaceWith(dmGifBtn.cloneNode(true));
         const newDmGifBtn = document.getElementById('dmGifBtn');
         if (newDmGifBtn) {
             newDmGifBtn.addEventListener('click', () => {
+                console.log('[DM] GIF button clicked');
                 setDmActive();
                 window.toggleGifPicker();
             });
@@ -658,11 +662,13 @@ function setupDmMediaButtons() {
     
     // Setup Sticker button - use shared function
     const dmStickerBtn = document.getElementById('dmStickerBtn');
+    console.log('[DM] Setting up Sticker button:', dmStickerBtn);
     if (dmStickerBtn && window.toggleStickerPicker) {
         dmStickerBtn.replaceWith(dmStickerBtn.cloneNode(true));
         const newDmStickerBtn = document.getElementById('dmStickerBtn');
         if (newDmStickerBtn) {
             newDmStickerBtn.addEventListener('click', () => {
+                console.log('[DM] Sticker button clicked');
                 setDmActive();
                 window.toggleStickerPicker();
             });
@@ -671,11 +677,13 @@ function setupDmMediaButtons() {
     
     // Setup Emoji button - use shared function
     const dmEmojiBtn = document.getElementById('dmEmojiBtn');
+    console.log('[DM] Setting up Emoji button:', dmEmojiBtn);
     if (dmEmojiBtn && window.toggleEmojiPicker) {
         dmEmojiBtn.replaceWith(dmEmojiBtn.cloneNode(true));
         const newDmEmojiBtn = document.getElementById('dmEmojiBtn');
         if (newDmEmojiBtn) {
             newDmEmojiBtn.addEventListener('click', () => {
+                console.log('[DM] Emoji button clicked');
                 setDmActive();
                 window.toggleEmojiPicker();
             });

@@ -467,6 +467,7 @@ function setupGroupCompose(groupId) {
     
     // Set active textarea when any media button is clicked
     const setGroupTextareaActive = () => {
+        console.log('[Groups] Setting active textarea:', textarea);
         if (window.setActiveTextarea) {
             window.setActiveTextarea(textarea);
         }
@@ -474,8 +475,10 @@ function setupGroupCompose(groupId) {
     
     // GIF button - use shared media.js function
     const gifBtn = document.getElementById('groupGifBtn');
+    console.log('[Groups] Setting up GIF button:', gifBtn);
     if (gifBtn && window.toggleGifPicker) {
         gifBtn.onclick = () => {
+            console.log('[Groups] GIF button clicked');
             setGroupTextareaActive();
             window.toggleGifPicker();
         };
@@ -483,8 +486,10 @@ function setupGroupCompose(groupId) {
     
     // Sticker button - use shared media.js function
     const stickerBtn = document.getElementById('groupStickerBtn');
+    console.log('[Groups] Setting up Sticker button:', stickerBtn);
     if (stickerBtn && window.toggleStickerPicker) {
         stickerBtn.onclick = () => {
+            console.log('[Groups] Sticker button clicked');
             setGroupTextareaActive();
             window.toggleStickerPicker();
         };
@@ -492,8 +497,10 @@ function setupGroupCompose(groupId) {
     
     // Emoji button - use shared media.js function  
     const emojiBtn = document.getElementById('groupEmojiBtn');
+    console.log('[Groups] Setting up Emoji button:', emojiBtn);
     if (emojiBtn && window.toggleEmojiPicker) {
         emojiBtn.onclick = () => {
+            console.log('[Groups] Emoji button clicked');
             setGroupTextareaActive();
             window.toggleEmojiPicker();
         };
