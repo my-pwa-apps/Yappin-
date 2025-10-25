@@ -3419,6 +3419,7 @@ body.dark-mode select {
 }
 
 /* Override fixed positioning for pickers within DM area */
+/* REMOVED: DM-specific picker positioning - pickers are now global and use fixed positioning
 .conversation-input-wrapper .gif-picker,
 .conversation-input-wrapper .sticker-picker,
 .conversation-input-wrapper .emoji-picker {
@@ -3433,8 +3434,9 @@ body.dark-mode select {
     max-width: 100% !important;
     max-height: min(60vh, 400px) !important;
 }
+*/
 
-/* Mobile optimizations for DM pickers */
+/* Mobile optimizations for DM pickers - REMOVED, pickers are now global
 @media (max-width: 768px) {
     .conversation-input-wrapper .gif-picker,
     .conversation-input-wrapper .sticker-picker,
@@ -3447,8 +3449,9 @@ body.dark-mode select {
         max-height: calc(50vh - 100px) !important;
     }
 }
+*/
 
-/* Very small screens */
+/* Very small screens - REMOVED, pickers are now global
 @media (max-width: 480px) {
     .conversation-input-wrapper .gif-picker,
     .conversation-input-wrapper .sticker-picker,
@@ -3461,5 +3464,6 @@ body.dark-mode select {
         max-height: calc(40vh - 80px) !important;
     }
 }
+*/
 
 
