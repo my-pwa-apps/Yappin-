@@ -223,7 +223,14 @@ function addImagesToYap(files) {
  * Render image previews
  */
 function renderImagePreviews() {
-    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    // Check for timeline container first, then DM container, then group container
+    let imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    if (!imagePreviewContainer) {
+        imagePreviewContainer = document.getElementById('dmImagePreviewContainer');
+    }
+    if (!imagePreviewContainer) {
+        imagePreviewContainer = document.getElementById('groupImagePreviewContainer');
+    }
     if (!imagePreviewContainer) return;
     
     if (selectedImages.length === 0 && !selectedGifUrl) {
@@ -492,6 +499,17 @@ function toggleGifPicker() {
     if (isHidden) {
         gifPicker.classList.remove('hidden');
         console.log('[Media] GIF picker opened, classes:', gifPicker.className);
+        const computedStyle = window.getComputedStyle(gifPicker);
+        console.log('[Media] GIF picker computed styles:', {
+            display: computedStyle.display,
+            visibility: computedStyle.visibility,
+            opacity: computedStyle.opacity,
+            zIndex: computedStyle.zIndex,
+            position: computedStyle.position,
+            top: computedStyle.top,
+            left: computedStyle.left,
+            transform: computedStyle.transform
+        });
         loadTrendingGifs();
         const gifSearch = document.getElementById('gifSearch');
         if (gifSearch) gifSearch.focus();
