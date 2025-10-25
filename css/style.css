@@ -1305,11 +1305,13 @@ body.dark-mode .replies-container .yap-item {
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    pointer-events: none; /* Allow clicks to pass through to pickers with higher z-index */
 }
 
 .modal.show {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto; /* Re-enable pointer events when modal is visible */
 }
 
 .modal-content {
@@ -1317,6 +1319,7 @@ body.dark-mode .replies-container .yap-item {
     max-width: 800px;
     max-height: 90vh;
     background-color: #fff;
+    pointer-events: auto; /* Ensure modal content captures clicks */
     border-radius: var(--border-radius-lg);
     overflow: hidden;
     transform: translateY(20px);
@@ -2505,6 +2508,7 @@ body.dark-mode input:checked + .slider {
     gap: 16px;
     overflow-y: auto;
     max-height: calc(80vh - 140px);
+    min-height: 400px; /* Ensure picker is visible while GIFs load */
     padding: 20px;
 }
 
@@ -2547,6 +2551,7 @@ body.dark-mode input:checked + .slider {
     gap: 12px;
     overflow-y: auto;
     max-height: calc(80vh - 100px);
+    min-height: 400px; /* Ensure picker is visible while stickers load */
     padding: 20px;
 }
 
