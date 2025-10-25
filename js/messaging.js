@@ -112,10 +112,8 @@ function displayConversations(conversations) {
     const conversationsList = document.getElementById('conversationsList');
     updateConversationsList(conversationsList, conversations);
     
-    // Setup DM attachments after conversation view is created
-    setTimeout(() => {
-        setupDmMediaButtons();
-    }, 100);
+    // Media buttons will be set up when a conversation is opened
+    // See setupDmMediaButtons() in openConversation()
 }
 
 // Helper function to update conversations list
@@ -624,13 +622,8 @@ auth.onAuthStateChanged((user) => {
 // DM ATTACHMENTS - NOW USING SHARED MEDIA.JS FUNCTIONS
 // ========================================
 
-// DM Image Attachments
-document.addEventListener('DOMContentLoaded', () => {
-    // Setup after a small delay to ensure modal is loaded
-    setTimeout(() => {
-        setupDmAttachments();
-    }, 500);
-});
+// DM Image Attachments - Media buttons are set up when a conversation is opened
+// See setupDmMediaButtons() called in openConversation()
 
 // Function to setup all DM media buttons - now using shared media.js
 function setupDmMediaButtons() {
@@ -714,9 +707,4 @@ function setupDmMediaButtons() {
             });
         }
     }
-}
-
-function setupDmAttachments() {
-    setupDmMediaButtons();
-    // All media functionality now handled by shared media.js
 }
