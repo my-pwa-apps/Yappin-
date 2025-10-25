@@ -1305,13 +1305,13 @@ body.dark-mode .replies-container .yap-item {
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-normal), visibility var(--transition-normal);
-    pointer-events: none; /* Allow clicks to pass through to pickers with higher z-index */
+    pointer-events: none; /* Always let clicks pass through - only modal-content should capture them */
 }
 
 .modal.show {
     opacity: 1;
     visibility: visible;
-    pointer-events: auto; /* Re-enable pointer events when modal is visible */
+    /* Keep pointer-events: none so clicks pass through backdrop to pickers */
 }
 
 .modal-content {
