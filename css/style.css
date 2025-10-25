@@ -3021,7 +3021,7 @@ body.dark-mode .group-member {
     font-size: 18px;
 }
 
-/* Backdrop for pickers */
+/* Backdrop for pickers - DISABLED for debugging
 .gif-picker:not(.hidden)::before,
 .sticker-picker:not(.hidden)::before,
 .emoji-picker:not(.hidden)::before {
@@ -3032,10 +3032,11 @@ body.dark-mode .group-member {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 999998; /* Just below picker but above modals */
+    z-index: 999998;
     -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
 }
+*/
 
 /* Responsive adjustments for different screen sizes */
 
