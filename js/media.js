@@ -520,6 +520,7 @@ function toggleGifPicker() {
         gifPicker.classList.remove('hidden');
         console.log('[Media] GIF picker opened, classes:', gifPicker.className);
         const computedStyle = window.getComputedStyle(gifPicker);
+        const rect = gifPicker.getBoundingClientRect();
         console.log('[Media] GIF picker computed styles:', {
             display: computedStyle.display,
             visibility: computedStyle.visibility,
@@ -528,7 +529,23 @@ function toggleGifPicker() {
             position: computedStyle.position,
             top: computedStyle.top,
             left: computedStyle.left,
-            transform: computedStyle.transform
+            transform: computedStyle.transform,
+            width: computedStyle.width,
+            height: computedStyle.height
+        });
+        console.log('[Media] GIF picker dimensions:', {
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            left: rect.left,
+            bottom: rect.bottom,
+            right: rect.right
+        });
+        console.log('[Media] Viewport:', {
+            width: window.innerWidth,
+            height: window.innerHeight
         });
         loadTrendingGifs();
         const gifSearch = document.getElementById('gifSearch');
