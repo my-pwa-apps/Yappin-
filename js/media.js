@@ -519,6 +519,10 @@ function toggleGifPicker() {
     if (isHidden) {
         gifPicker.classList.remove('hidden');
         console.log('[Media] GIF picker opened, classes:', gifPicker.className);
+        
+        // DEBUGGING: Alert to confirm picker is visible
+        alert('GIF Picker should be visible now! Check if you see a red bordered box centered on screen.');
+        
         const computedStyle = window.getComputedStyle(gifPicker);
         const rect = gifPicker.getBoundingClientRect();
         console.log('[Media] GIF picker computed styles:', {
