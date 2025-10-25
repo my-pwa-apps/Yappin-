@@ -496,6 +496,39 @@ function insertEmoji(emoji) {
 }
 
 // ========================================
+// MEDIA PICKER OVERLAY HELPERS
+// ========================================
+
+function isMediaPickerVisible(element) {
+    return Boolean(element && !element.classList.contains('hidden'));
+}
+
+function showMediaPickerOverlay() {
+    const overlay = document.getElementById('mediaPickerOverlay');
+    if (!overlay) {
+        console.warn('[Media] mediaPickerOverlay element not found');
+        return;
+    }
+
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+}
+
+function hideMediaPickerOverlayIfInactive() {
+    const overlay = document.getElementById('mediaPickerOverlay');
+    if (!overlay) return;
+
+    const gifPicker = document.getElementById('gifPicker');
+    const stickerPicker = document.getElementById('stickerPicker');
+    const anyVisible = isMediaPickerVisible(gifPicker) || isMediaPickerVisible(stickerPicker);
+
+    if (!anyVisible) {
+        overlay.classList.add('hidden');
+        overlay.setAttribute('aria-hidden', 'true');
+    }
+}
+
+// ========================================
 // GIF PICKER
 // ========================================
 
@@ -517,6 +550,7 @@ function toggleGifPicker() {
     if (emojiPickerElement) emojiPickerElement.classList.add('hidden');
     
     if (isHidden) {
+        showMediaPickerOverlay();
         gifPicker.classList.remove('hidden');
         console.log('[Media] GIF picker opened, classes:', gifPicker.className);
         console.log('[Media] GIF picker parent:', gifPicker.parentElement);
@@ -560,6 +594,7 @@ function toggleGifPicker() {
     } else {
         gifPicker.classList.add('hidden');
         console.log('[Media] GIF picker closed');
+        hideMediaPickerOverlayIfInactive();
     }
 }
 
@@ -568,7 +603,10 @@ function toggleGifPicker() {
  */
 function closeGifPicker() {
     const gifPicker = document.getElementById('gifPicker');
-    if (gifPicker) gifPicker.classList.add('hidden');
+    if (gifPicker) {
+        gifPicker.classList.add('hidden');
+        hideMediaPickerOverlayIfInactive();
+    }
 }
 
 /**
@@ -725,11 +763,13 @@ function toggleStickerPicker() {
     if (emojiPickerElement) emojiPickerElement.classList.add('hidden');
     
     if (isHidden) {
+        showMediaPickerOverlay();
         stickerPicker.classList.remove('hidden');
         console.log('[Media] Opening sticker picker, loading stickers...');
         loadStickers();
     } else {
         stickerPicker.classList.add('hidden');
+        hideMediaPickerOverlayIfInactive();
     }
 }
 
@@ -738,7 +778,10 @@ function toggleStickerPicker() {
  */
 function closeStickerPicker() {
     const stickerPicker = document.getElementById('stickerPicker');
-    if (stickerPicker) stickerPicker.classList.add('hidden');
+    if (stickerPicker) {
+        stickerPicker.classList.add('hidden');
+        hideMediaPickerOverlayIfInactive();
+    }
 }
 
 /**
@@ -821,6 +864,17 @@ function initializeMedia() {
     
     // Load draft on page load
     loadDraft();
+
+    const mediaOverlay = document.getElementById('mediaPickerOverlay');
+    if (mediaOverlay) {
+        mediaOverlay.addEventListener('click', (event) => {
+            if (event.target === mediaOverlay) {
+                event.stopPropagation();
+                closeGifPicker();
+                closeStickerPicker();
+            }
+        });
+    }
     
     // Add click handlers to close pickers when clicking backdrop
     document.addEventListener('click', (e) => {

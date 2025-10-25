@@ -757,6 +757,27 @@
     <script type="module" src="./js/modals.js"></script>
     <script type="module" src="./js/profile.js"></script>
     <script type="module" src="./js/settings.js"></script>
+    <!-- Global Media Picker Overlay -->
+    <div id="mediaPickerOverlay" class="media-picker-overlay hidden" aria-hidden="true" aria-modal="true" role="dialog">
+        <!-- GIF Picker -->
+        <div id="gifPicker" class="gif-picker hidden">
+            <div class="gif-picker-header">
+                <input type="text" id="gifSearch" placeholder="Search GIFs..." class="input-field">
+                <button class="close-btn" onclick="closeGifPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="gifResults" class="gif-results"></div>
+        </div>
+        
+        <!-- Sticker Picker -->
+        <div id="stickerPicker" class="sticker-picker hidden">
+            <div class="sticker-picker-header">
+                <h3>Stickers</h3>
+                <button class="close-btn" onclick="closeStickerPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="stickerGrid" class="sticker-grid"></div>
+        </div>
+    </div>
+
     <script src="./js/media.js"></script> <!-- Load media.js before app.js -->
     <script type="module" src="./js/invites.js"></script>
     <script type="module" src="./js/event-handlers.js"></script>
@@ -768,24 +789,5 @@
     <script src="./js/notifications.js"></script>
     <script src="./js/auth.js"></script> <!-- Load auth.js last so all functions are available -->
     <script src="./js/pwa-init.js"></script>
-
-    <!-- Global Media Pickers (used by timeline, modal, groups, DMs) - Must be last for z-index -->
-    <!-- GIF Picker -->
-    <div id="gifPicker" class="gif-picker hidden">
-        <div class="gif-picker-header">
-            <input type="text" id="gifSearch" placeholder="Search GIFs..." class="input-field">
-            <button class="close-btn" onclick="closeGifPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="gifResults" class="gif-results"></div>
-    </div>
-    
-    <!-- Sticker Picker -->
-    <div id="stickerPicker" class="sticker-picker hidden">
-        <div class="sticker-picker-header">
-            <h3>Stickers</h3>
-            <button class="close-btn" onclick="closeStickerPicker()" aria-label="Close" title="Close"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="stickerGrid" class="sticker-grid"></div>
-    </div>
 </body>
 </html>

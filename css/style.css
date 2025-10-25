@@ -2414,33 +2414,46 @@ body.dark-mode input:checked + .slider {
    GIF & STICKER PICKERS
    ======================================== */
 
+.media-picker-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 4000;
+}
+
+body.dark-mode .media-picker-overlay {
+    background: rgba(15, 23, 42, 0.75);
+}
+
 .gif-picker,
 .sticker-picker {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 95vw;
-    max-width: 700px;
-    background: rgba(255, 0, 0, 0.5); /* DEBUG background */
-    border: 4px solid #00ff00; /* DEBUG border */
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-xl);
-    z-index: 2147483647 !important; /* DEBUG max z-index */
-    max-height: 80vh;
+    position: relative;
+    width: min(680px, 100%);
+    max-height: min(80vh, 640px);
+    background: var(--bg-primary, #fff);
+    color: var(--text-primary);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    z-index: 1;
+}
+
+body.dark-mode .gif-picker,
+body.dark-mode .sticker-picker {
+    background: var(--bg-secondary, #111827);
+    border-color: rgba(148, 163, 184, 0.3);
 }
 
 .gif-picker.hidden,
 .sticker-picker.hidden {
     display: none !important;
-}
-
-/* Ensure pickers are visible when not hidden */
-.gif-picker:not(.hidden),
-.sticker-picker:not(.hidden) {
-    display: flex !important;
 }
 
 /* GIF Picker Styles */
@@ -3019,13 +3032,6 @@ body.dark-mode .group-member {
 #gifBtn i,
 #stickerBtn i {
     font-size: 18px;
-}
-
-/* Backdrop for pickers disabled during debugging */
-.gif-picker:not(.hidden)::before,
-.sticker-picker:not(.hidden)::before,
-.emoji-picker:not(.hidden)::before {
-    content: none;
 }
 
 /* Responsive adjustments for different screen sizes */
