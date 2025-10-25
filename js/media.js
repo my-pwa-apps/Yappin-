@@ -519,6 +519,8 @@ function toggleGifPicker() {
     if (isHidden) {
         gifPicker.classList.remove('hidden');
         console.log('[Media] GIF picker opened, classes:', gifPicker.className);
+        console.log('[Media] GIF picker parent:', gifPicker.parentElement);
+        console.log('[Media] GIF picker parent computed display:', window.getComputedStyle(gifPicker.parentElement).display);
         const computedStyle = window.getComputedStyle(gifPicker);
         const rect = gifPicker.getBoundingClientRect();
         console.log('[Media] GIF picker computed styles:', {
@@ -547,6 +549,11 @@ function toggleGifPicker() {
             width: window.innerWidth,
             height: window.innerHeight
         });
+        
+        // Check if picker is actually visible in DOM
+        console.log('[Media] Picker offsetParent:', gifPicker.offsetParent);
+        console.log('[Media] Picker is connected to DOM:', gifPicker.isConnected);
+        
         loadTrendingGifs();
         const gifSearch = document.getElementById('gifSearch');
         if (gifSearch) gifSearch.focus();

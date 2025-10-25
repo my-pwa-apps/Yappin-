@@ -2423,10 +2423,10 @@ body.dark-mode input:checked + .slider {
     width: 95vw;
     max-width: 700px;
     background: var(--card-bg);
-    border: 5px solid #ff0000 !important; /* DEBUGGING: Bright red border */
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-xl);
-    z-index: 999999 !important; /* Extremely high to debug visibility */
+    z-index: 999999 !important;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
@@ -3021,7 +3021,7 @@ body.dark-mode .group-member {
     font-size: 18px;
 }
 
-/* Backdrop for pickers - DISABLED for debugging
+/* Backdrop for pickers */
 .gif-picker:not(.hidden)::before,
 .sticker-picker:not(.hidden)::before,
 .emoji-picker:not(.hidden)::before {
@@ -3031,12 +3031,9 @@ body.dark-mode .group-member {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 999998;
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999998; /* Just below picker but above everything else */
 }
-*/
 
 /* Responsive adjustments for different screen sizes */
 
