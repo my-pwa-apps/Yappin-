@@ -512,6 +512,7 @@ function showMediaPickerOverlay() {
 
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('media-picker-open');
 }
 
 function hideMediaPickerOverlayIfInactive() {
@@ -525,6 +526,7 @@ function hideMediaPickerOverlayIfInactive() {
     if (!anyVisible) {
         overlay.classList.add('hidden');
         overlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('media-picker-open');
     }
 }
 

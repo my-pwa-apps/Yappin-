@@ -2425,6 +2425,14 @@ body.dark-mode input:checked + .slider {
     z-index: 4000;
 }
 
+body.media-picker-open {
+    overflow: hidden;
+}
+
+.media-picker-overlay.hidden {
+    display: none !important;
+}
+
 body.dark-mode .media-picker-overlay {
     background: rgba(15, 23, 42, 0.75);
 }
@@ -2517,11 +2525,11 @@ body.dark-mode .sticker-picker {
 
 #gifResults {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 16px;
     overflow-y: auto;
     max-height: calc(80vh - 140px);
-    min-height: 400px; /* Ensure picker is visible while GIFs load */
+    min-height: clamp(220px, 60vh, 400px);
     padding: 20px;
 }
 
@@ -3078,11 +3086,16 @@ body.dark-mode .group-member {
 
 /* Mobile landscape and smaller tablets (768px and below) */
 @media (max-width: 768px) {
+    .media-picker-overlay {
+        padding: 16px;
+        align-items: flex-end;
+    }
+
     .gif-picker,
     .sticker-picker {
         width: 92vw !important;
         max-width: 92vw !important;
-        max-height: 70vh !important;
+        max-height: calc(100vh - 80px) !important;
     }
     
     .emoji-picker {
@@ -3092,17 +3105,17 @@ body.dark-mode .group-member {
     }
     
     #gifResults {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 12px;
         padding: 16px;
-        max-height: calc(70vh - 120px);
+        max-height: calc(100vh - 200px);
     }
     
     #stickerGrid {
         grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
         gap: 10px;
         padding: 16px;
-        max-height: calc(70vh - 100px);
+        max-height: calc(100vh - 200px);
     }
     
     .sticker-item {
@@ -3118,11 +3131,16 @@ body.dark-mode .group-member {
 
 /* Mobile portrait (480px and below) */
 @media (max-width: 480px) {
+    .media-picker-overlay {
+        padding: 10px;
+        align-items: flex-end;
+    }
+
     .gif-picker,
     .sticker-picker {
         width: 95vw !important;
         max-width: 95vw !important;
-        max-height: 75vh !important;
+        max-height: calc(100vh - 60px) !important;
     }
     
     .emoji-picker {
@@ -3132,17 +3150,17 @@ body.dark-mode .group-member {
     }
     
     #gifResults {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         gap: 10px;
         padding: 12px;
-        max-height: calc(75vh - 110px);
+        max-height: calc(100vh - 180px);
     }
     
     #stickerGrid {
         grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
         gap: 8px;
         padding: 12px;
-        max-height: calc(75vh - 90px);
+        max-height: calc(100vh - 180px);
     }
     
     .sticker-item {
