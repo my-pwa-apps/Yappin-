@@ -304,8 +304,8 @@
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
         "$conversationId": {
-          ".write": "auth != null && auth.uid === $uid",
-          ".validate": "newData.hasChildren(['otherUserId', 'lastMessage', 'lastMessageTime'])"
+          ".write": "auth != null && ($conversationId.contains(auth.uid))",
+          ".validate": "newData.hasChildren(['otherUserId', 'lastMessageTime'])"
         }
       }
     },
@@ -316,16 +316,48 @@
         ".read": "auth != null && ($conversationId.contains(auth.uid))",
         "$messageId": {
           ".write": "auth != null && ($conversationId.contains(auth.uid))",
-          ".validate": "newData.hasChildren(['senderId', 'receiverId', 'timestamp']) && (newData.hasChild('text') || newData.hasChild('media'))",
+          ".validate": "newData.hasChildren(['senderId', 'timestamp']) && (newData.hasChild('text') || newData.hasChild('media'))",
           
           "text": {
-            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 2000"
           },
           
           "media": {
             ".validate": "newData.isString() || (newData.hasChildren() && newData.val() !== null)"
+          },
+          
+          "expiresAt": {
+            ".validate": "newData.isNumber() && newData.val() > now"
+          },
+          
+          "reactions": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid",
+              ".validate": "newData.isString() && newData.val().length <= 10"
+            }
           }
         }
+      }
+    },
+    
+    // Typing Indicators: Ephemeral - participants only
+    "typing": {
+      "$conversationId": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    },
+    
+    // Online Presence
+    "presence": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['online', 'lastSeen'])",
+        "online": { ".validate": "newData.isBoolean()" },
+        "lastSeen": { ".validate": "newData.val() === now || newData.isNumber()" }
       }
     },
     
@@ -372,6 +404,12 @@
         },
         "memberCount": {
           ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "lastActivity": {
+          ".validate": "newData.isNumber()"
+        },
+        "inviteCode": {
+          ".validate": "newData.isString() && newData.val().length >= 6 && newData.val().length <= 20"
         }
       }
     },
@@ -421,8 +459,33 @@
         ".read": "auth != null && (root.child('groupMembers').child($groupId).child(auth.uid).child('role').val() === 'admin')",
         "$uid": {
           ".write": "auth != null && (auth.uid === $uid || root.child('groupMembers').child($groupId).child(auth.uid).child('role').val() === 'admin')",
-          ".validate": "newData.hasChildren(['requestedAt', 'username', 'displayName'])"
+          ".validate": "newData.hasChildren(['requestedAt', 'username'])"
         }
+      }
+    },
+    
+    // Group Real-Time Messages: Chat messages within groups
+    "groupMessages": {
+      "$groupId": {
+        ".read": "auth != null && root.child('groupMembers').child($groupId).child(auth.uid).exists()",
+        "$messageId": {
+          ".write": "auth != null && root.child('groupMembers').child($groupId).child(auth.uid).exists()",
+          ".validate": "newData.hasChildren(['senderId', 'senderName', 'timestamp']) && (newData.hasChild('text') || newData.hasChild('media'))",
+          "text": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 2000"
+          },
+          "expiresAt": {
+            ".validate": "newData.isNumber() && newData.val() > now"
+          }
+        }
+      }
+    },
+    
+    // Group Invite Codes: Maps short codes to group IDs
+    "groupInviteCodes": {
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null"
       }
     }
   }

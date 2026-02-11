@@ -301,21 +301,6 @@
             </div>
 
             <!-- Settings Modal -->
-            <div id="followingModal" class="modal hidden">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Following</h2>
-                        <button class="close-btn" onclick="closeFollowingModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="followingList">
-                            <!-- Following will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Modal -->
             <!-- Profile Modal (unified with Settings) -->
             <!-- Settings Modal with Tabs -->
             <div id="settingsModal" class="modal hidden">
@@ -523,16 +508,19 @@
 
             <!-- Messages Modal -->
             <div id="messagesModal" class="modal hidden">
-                <div class="modal-content">
+                <div class="modal-content messages-modal-content">
                     <div class="modal-header">
-                        <h2>Messages</h2>
+                        <h2><i class="fas fa-shield-alt"></i> Messages</h2>
                         <button class="close-btn" onclick="closeMessagesModal()" aria-label="Close modal"><i class="fas fa-times"></i></button>
                     </div>
-                    <div class="modal-body modal-body-padding">
+                    <div class="modal-body">
                         <div class="messages-empty-state">
-                            <i class="fas fa-envelope messages-empty-icon"></i>
-                            <h3>Direct Messages Coming Soon!</h3>
-                            <p class="messages-empty-subtitle">We're working on bringing you private messaging. Stay tuned!</p>
+                            <i class="fas fa-comments messages-empty-icon"></i>
+                            <h3>Secure Messaging</h3>
+                            <p class="messages-empty-subtitle">Start a conversation with someone you mutually follow.</p>
+                            <button class="btn primary-btn" onclick="showSearch()" style="margin-top:12px">
+                                <i class="fas fa-search"></i> Find People
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -564,7 +552,7 @@
                         
                         <div id="discoverGroupsTab" class="groups-tab-content hidden">
                             <div class="form-group" style="margin-bottom: 16px;">
-                                <input type="text" id="groupSearchInput" class="input-field" placeholder="Search groups by name or topic..." onkeyup="searchGroups(this.value)">
+                                <input type="text" id="groupSearchInput" class="input-field" placeholder="Search groups by name or topic..." onkeyup="searchGroupsUI(this.value)">
                             </div>
                             <div id="discoverGroupsContainer" class="groups-container">
                                 <div class="loading-state">
@@ -657,6 +645,16 @@
                                     <i class="fas fa-clock"></i> <span data-i18n="pendingRequest">Request Pending</span>
                                 </button>
                             </div>
+
+                            <!-- Invite Code Section (Members Only) -->
+                            <div id="groupInviteSection" class="group-invite-section hidden">
+                                <h3><i class="fas fa-link"></i> Invite Link</h3>
+                                <div class="invite-code-display">
+                                    <code id="groupInviteCode"></code>
+                                    <button class="btn icon-btn" id="copyInviteCodeBtn" title="Copy invite code" onclick="copyGroupInviteCode()"><i class="fas fa-copy"></i></button>
+                                </div>
+                                <p class="input-hint">Share this code to invite others to the group.</p>
+                            </div>
                             
                             <!-- Group Yap Compose Section (Members Only) -->
                             <div id="groupComposeSection" class="group-compose-section hidden">
@@ -677,6 +675,21 @@
                                 </div>
                             </div>
                             
+                            <!-- Group Chat Section (Members Only) -->
+                            <div id="groupChatSection" class="group-chat-section hidden">
+                                <h3><i class="fas fa-comments"></i> Group Chat</h3>
+                                <div id="groupChatContainer" class="group-chat-container">
+                                    <div class="loading-state">
+                                        <i class="fas fa-spinner fa-spin"></i> <span data-i18n="loading">Loading...</span>
+                                    </div>
+                                </div>
+                                <div class="group-chat-input-wrapper">
+                                    <button class="icon-btn group-disappearing-btn" id="groupDisappearingBtn" aria-label="Disappearing messages" title="Disappearing messages" onclick="event.stopPropagation(); toggleGroupDisappearingPicker(this)"><i class="far fa-clock"></i></button>
+                                    <input type="text" id="groupChatInput" placeholder="Message the group..." class="input-field" autocomplete="off">
+                                    <button class="btn btn-primary send-btn" id="sendGroupChatBtn" aria-label="Send"><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+
                             <!-- Group Yaps Timeline -->
                             <div id="groupYapsSection" class="group-yaps-section hidden">
                                 <h3 data-i18n="yaps">Group Yaps</h3>

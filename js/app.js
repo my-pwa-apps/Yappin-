@@ -1715,19 +1715,7 @@ window.unfollowFromSearch = async function(targetUserId) {
 };
 
 // Messages Modal
-window.showMessages = function() {
-    const messagesModal = document.getElementById('messagesModal');
-    if (!messagesModal) return;
-    
-    // Check if messaging module is loaded
-    if (typeof loadConversations === 'function') {
-        toggleModal(messagesModal, true);
-        loadConversations();
-    } else {
-        // Messaging feature not yet implemented
-        showSnackbar('Direct messages coming soon!', 'default', 3000);
-    }
-};
+// showMessages is defined in modals.js (ES module) and exported to window.showMessages
 
 window.closeMessagesModal = function() {
     const messagesModal = document.getElementById('messagesModal');
@@ -1735,8 +1723,8 @@ window.closeMessagesModal = function() {
     toggleModal(messagesModal, false);
     
     // Close any open conversation
-    if (typeof closeConversation === 'function') {
-        closeConversation();
+    if (typeof window.closeConversation === 'function') {
+        window.closeConversation();
     }
 };
 

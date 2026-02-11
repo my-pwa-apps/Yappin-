@@ -362,14 +362,50 @@ window.viewGroup = async function(groupId) {
         // Show/hide compose section (members only)
         const composeSection = document.getElementById('groupComposeSection');
         const yapsSection = document.getElementById('groupYapsSection');
+        const chatSection = document.getElementById('groupChatSection');
+        const inviteSection = document.getElementById('groupInviteSection');
         if (isMember) {
             composeSection.classList.remove('hidden');
             yapsSection.classList.remove('hidden');
             setupGroupCompose(groupId);
             loadGroupYapsDisplay(groupId);
+            
+            // Show group chat
+            if (chatSection) {
+                chatSection.classList.remove('hidden');
+                const chatContainer = document.getElementById('groupChatContainer');
+                if (chatContainer && typeof window.loadGroupChat === 'function') {
+                    window.loadGroupChat(groupId, chatContainer);
+                }
+                // Setup chat input
+                const chatInput = document.getElementById('groupChatInput');
+                const sendBtn = document.getElementById('sendGroupChatBtn');
+                if (chatInput) {
+                    chatInput.onkeypress = (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            sendGroupChatMessage(groupId, chatInput);
+                        }
+                    };
+                }
+                if (sendBtn) {
+                    sendBtn.onclick = () => sendGroupChatMessage(groupId, chatInput);
+                }
+            }
+            
+            // Show invite code
+            if (inviteSection && group.inviteCode) {
+                inviteSection.classList.remove('hidden');
+                const codeEl = document.getElementById('groupInviteCode');
+                if (codeEl) codeEl.textContent = group.inviteCode;
+            } else if (inviteSection) {
+                inviteSection.classList.add('hidden');
+            }
         } else {
             composeSection.classList.add('hidden');
             yapsSection.classList.add('hidden');
+            if (chatSection) chatSection.classList.add('hidden');
+            if (inviteSection) inviteSection.classList.add('hidden');
         }
         
         // Show/hide join requests section (admins only)
@@ -417,6 +453,31 @@ async function loadGroupMembersDisplay(groupId) {
         container.innerHTML = '<p>Error loading members</p>';
     }
 }
+
+async function sendGroupChatMessage(groupId, inputEl) {
+    if (!inputEl) return;
+    const text = inputEl.value.trim();
+    if (!text) return;
+    try {
+        await window.sendGroupMessage(groupId, text);
+        inputEl.value = '';
+        inputEl.focus();
+    } catch (error) {
+        showSnackbar(error.message || 'Failed to send message', 'error');
+    }
+}
+
+window.copyGroupInviteCode = function() {
+    const codeEl = document.getElementById('groupInviteCode');
+    if (!codeEl) return;
+    const code = codeEl.textContent;
+    if (window.utils?.copyToClipboard) {
+        window.utils.copyToClipboard(code);
+    } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(code);
+    }
+    showSnackbar('Invite code copied!', 'success');
+};
 
 window.handleJoinGroup = async function(groupId) {
     try {
@@ -666,15 +727,17 @@ window.rejectRequest = async function(groupId, userId) {
     }
 };
 
-// Search groups
-window.searchGroups = async function(query) {
+// Search groups UI wrapper – capture the original from groups.js to avoid recursion
+const _searchGroupsOriginal = window.searchGroups;
+window.searchGroupsUI = async function(query) {
     const container = document.getElementById('discoverGroupsContainer');
     if (!container) return;
     
     container.innerHTML = '<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
     
     try {
-        const groups = await window.searchGroups(query);
+        const searchFn = _searchGroupsOriginal || window.searchGroups;
+        const groups = await searchFn(query);
         
         if (groups.length === 0) {
             container.innerHTML = '<div class="empty-state"><p>No groups found</p></div>';
@@ -727,6 +790,10 @@ window.removeGroupImage = function(index) {
 export function closeViewGroupModal() {
     const viewGroupModal = document.getElementById('viewGroupModal');
     if (viewGroupModal) toggleModal(viewGroupModal, false);
+    // Clean up group chat listener
+    if (typeof window.cleanupGroupChat === 'function') {
+        window.cleanupGroupChat();
+    }
 }
 
 // Setup groups tabs
