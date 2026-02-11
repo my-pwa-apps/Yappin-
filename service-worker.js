@@ -11,10 +11,14 @@ const STATIC_ASSETS = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
   // CSS files
-  `${BASE_PATH}/css/style.css`,
-  `${BASE_PATH}/css/optimized.css`,
-  `${BASE_PATH}/css/enhancements.css`,
-  `${BASE_PATH}/css/material-design.css`,
+  `${BASE_PATH}/css/core.css?v=${CACHE_VERSION}`,
+  `${BASE_PATH}/css/layout.css?v=${CACHE_VERSION}`,
+  `${BASE_PATH}/css/components.css?v=${CACHE_VERSION}`,
+  `${BASE_PATH}/css/style.css?v=${CACHE_VERSION}`,
+  `${BASE_PATH}/css/optimized.css?v=${CACHE_VERSION}`,
+  `${BASE_PATH}/css/utilities.css?v=${CACHE_VERSION}`,
+  `${BASE_PATH}/css/enhancements.css?v=${CACHE_VERSION}`,
+  `${BASE_PATH}/css/material-design.css?v=${CACHE_VERSION}`,
   // JavaScript modules
   `${BASE_PATH}/js/performance.js?v=${CACHE_VERSION}`,
   `${BASE_PATH}/js/firebase-config.js?v=${CACHE_VERSION}`,
