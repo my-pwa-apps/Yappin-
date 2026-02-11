@@ -500,6 +500,7 @@ function showMediaPickerOverlay() {
     if (!overlay) return;
 
     overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('media-picker-open');
 }
@@ -508,6 +509,7 @@ function hideMediaPickerOverlay() {
     const overlay = document.getElementById('mediaPickerOverlay');
     if (overlay) {
         overlay.classList.add('hidden');
+        overlay.style.display = 'none';
         overlay.setAttribute('aria-hidden', 'true');
     }
     document.body.classList.remove('media-picker-open');
@@ -810,6 +812,17 @@ function initializeMedia() {
             }
         });
     }
+
+    // Escape key closes any open picker and overlay
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const overlay = document.getElementById('mediaPickerOverlay');
+            if (overlay && !overlay.classList.contains('hidden')) {
+                closeGifPicker();
+                closeStickerPicker();
+            }
+        }
+    });
     
     // Add click handlers to close pickers when clicking backdrop
     document.addEventListener('click', (e) => {
