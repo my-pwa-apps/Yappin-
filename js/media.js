@@ -417,7 +417,6 @@ function getMediaAttachments() {
  * Toggle emoji picker
  */
 function toggleEmojiPicker() {
-function toggleEmojiPicker() {
     if (!emojiPickerElement) {
         createEmojiPicker();
     }
