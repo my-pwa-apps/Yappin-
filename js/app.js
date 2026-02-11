@@ -97,6 +97,7 @@ if (emojiBtn) {
 const mainGifBtn = document.getElementById('gifBtn');
 if (mainGifBtn) {
     mainGifBtn.addEventListener('click', () => {
+        if (window.setActiveTextarea) window.setActiveTextarea(document.getElementById('yapText'));
         if (window.toggleGifPicker) window.toggleGifPicker();
     });
 }
@@ -105,6 +106,7 @@ if (mainGifBtn) {
 const mainStickerBtn = document.getElementById('stickerBtn');
 if (mainStickerBtn) {
     mainStickerBtn.addEventListener('click', () => {
+        if (window.setActiveTextarea) window.setActiveTextarea(document.getElementById('yapText'));
         if (window.toggleStickerPicker) window.toggleStickerPicker();
     });
 }
@@ -123,6 +125,7 @@ if (modalAttachImageBtn && modalImageInput) {
 
 if (modalGifBtn) {
     modalGifBtn.addEventListener('click', () => {
+        if (window.setActiveTextarea) window.setActiveTextarea(document.getElementById('modalYapText'));
         if (window.toggleGifPicker) window.toggleGifPicker();
         else toggleGifPicker();
     });
@@ -130,6 +133,7 @@ if (modalGifBtn) {
 
 if (modalStickerBtn) {
     modalStickerBtn.addEventListener('click', () => {
+        if (window.setActiveTextarea) window.setActiveTextarea(document.getElementById('modalYapText'));
         if (window.toggleStickerPicker) window.toggleStickerPicker();
         else toggleStickerPicker();
     });

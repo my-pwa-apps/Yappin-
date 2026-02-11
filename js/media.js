@@ -653,9 +653,11 @@ function displayGifs(gifs) {
  */
 function selectGif(gifUrl) {
     selectedGifUrl = gifUrl;
-    renderImagePreviews();
-    closeGifPicker();
-    // GIF preview appears - no notification needed
+    try {
+        renderImagePreviews();
+    } finally {
+        closeGifPicker();
+    }
 }
 
 /**
@@ -748,38 +750,40 @@ function loadStickers() {
  * Insert sticker at cursor position
  */
 function insertSticker(sticker) {
-    const textarea = getActiveTextarea();
-    
-    if (textarea) {
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
+    try {
+        const textarea = getActiveTextarea();
         
-        // Insert sticker at cursor position with spaces
-        const before = text.substring(0, start);
-        const after = text.substring(end);
-        textarea.value = before + ` ${sticker} ` + after;
-        
-        // Update cursor position
-        const newPosition = start + sticker.length + 2;
-        textarea.selectionStart = newPosition;
-        textarea.selectionEnd = newPosition;
-        textarea.focus();
-        
-        // Update character count if function exists
-        if (typeof window.updateCharacterCount === 'function') {
-            const yapText = document.getElementById('yapText');
-            const modalYapText = document.getElementById('modalYapText');
-            const characterCount = document.getElementById('characterCount');
-            const modalCharacterCount = document.getElementById('modalCharacterCount');
-            const countElement = textarea === yapText ? characterCount : modalCharacterCount;
-            if (countElement) {
-                window.updateCharacterCount(textarea, countElement);
+        if (textarea) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            
+            // Insert sticker at cursor position with spaces
+            const before = text.substring(0, start);
+            const after = text.substring(end);
+            textarea.value = before + ` ${sticker} ` + after;
+            
+            // Update cursor position
+            const newPosition = start + sticker.length + 2;
+            textarea.selectionStart = newPosition;
+            textarea.selectionEnd = newPosition;
+            textarea.focus();
+            
+            // Update character count if function exists
+            if (typeof window.updateCharacterCount === 'function') {
+                const yapText = document.getElementById('yapText');
+                const modalYapText = document.getElementById('modalYapText');
+                const characterCount = document.getElementById('characterCount');
+                const modalCharacterCount = document.getElementById('modalCharacterCount');
+                const countElement = textarea === yapText ? characterCount : modalCharacterCount;
+                if (countElement) {
+                    window.updateCharacterCount(textarea, countElement);
+                }
             }
         }
+    } finally {
+        closeStickerPicker();
     }
-    
-    closeStickerPicker();
 }
 
 // ========================================
