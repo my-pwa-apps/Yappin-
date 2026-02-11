@@ -15,7 +15,7 @@ let typingListener = null;
 let presenceListener = null;
 let typingTimeout = null;
 let lastRenderedMessageKey = null;
-let isLoadingMore = false;
+let isLoadingMoreMessages = false;
 let disappearingTimer = 0; // 0 = off, value in ms
 let expiryCleanupInterval = null;
 const MESSAGE_PAGE_SIZE = 40;
@@ -433,19 +433,19 @@ function loadMessages(conversationId) {
 
     // Infinite scroll for older messages
     const throttledScroll = window.utils?.throttle
-        ? window.utils.throttle(() => { if (container.scrollTop < 80 && !isLoadingMore) loadOlderMessages(conversationId, container); }, 500)
+        ? window.utils.throttle(() => { if (container.scrollTop < 80 && !isLoadingMoreMessages) loadOlderMessages(conversationId, container); }, 500)
         : () => {};
     container.addEventListener('scroll', throttledScroll);
 }
 
 async function loadOlderMessages(conversationId, container) {
-    if (isLoadingMore) return;
+    if (isLoadingMoreMessages) return;
     const firstMsg = container.querySelector('.message-bubble');
     if (!firstMsg) return;
     const firstKey = firstMsg.dataset.msgKey;
     if (!firstKey) return;
 
-    isLoadingMore = true;
+    isLoadingMoreMessages = true;
     try {
         const snap = await database.ref(`messages/${conversationId}`).orderByKey().endBefore(firstKey).limitToLast(MESSAGE_PAGE_SIZE).once('value');
         if (snap.exists()) {
@@ -456,7 +456,7 @@ async function loadOlderMessages(conversationId, container) {
             container.scrollTop = container.scrollHeight - prevHeight;
         }
     } catch { /* ignore scroll errors */ }
-    isLoadingMore = false;
+    isLoadingMoreMessages = false;
 }
 
 function scrollToBottom(el) {

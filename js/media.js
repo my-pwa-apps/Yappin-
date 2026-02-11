@@ -417,20 +417,17 @@ function getMediaAttachments() {
  * Toggle emoji picker
  */
 function toggleEmojiPicker() {
-    console.log('[Media] toggleEmojiPicker called');
+function toggleEmojiPicker() {
     if (!emojiPickerElement) {
-        console.log('[Media] Creating emoji picker...');
         createEmojiPicker();
     }
     
     if (emojiPickerElement && emojiPickerElement.classList.contains('hidden')) {
-        console.log('[Media] Opening emoji picker');
         emojiPickerElement.classList.remove('hidden');
         // Close other pickers
         closeGifPicker();
         closeStickerPicker();
     } else if (emojiPickerElement) {
-        console.log('[Media] Closing emoji picker');
         emojiPickerElement.classList.add('hidden');
     }
 }
@@ -439,7 +436,6 @@ function toggleEmojiPicker() {
  * Create emoji picker
  */
 function createEmojiPicker() {
-    console.log('[Media] createEmojiPicker called, creating', commonEmojis.length, 'emoji buttons');
     emojiPickerElement = document.createElement('div');
     emojiPickerElement.className = 'emoji-picker hidden';
     
@@ -455,9 +451,6 @@ function createEmojiPicker() {
     const composeActions = document.querySelector('.compose-actions');
     if (composeActions) {
         composeActions.parentElement.insertBefore(emojiPickerElement, composeActions);
-        console.log('[Media] Emoji picker created and inserted into DOM');
-    } else {
-        console.error('[Media] Could not find .compose-actions element to insert emoji picker');
     }
     
     // Click outside handler is now in initializeMedia()
@@ -505,29 +498,20 @@ function isMediaPickerVisible(element) {
 
 function showMediaPickerOverlay() {
     const overlay = document.getElementById('mediaPickerOverlay');
-    if (!overlay) {
-        console.warn('[Media] mediaPickerOverlay element not found');
-        return;
-    }
+    if (!overlay) return;
 
     overlay.classList.remove('hidden');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('media-picker-open');
 }
 
-function hideMediaPickerOverlayIfInactive() {
+function hideMediaPickerOverlay() {
     const overlay = document.getElementById('mediaPickerOverlay');
-    if (!overlay) return;
-
-    const gifPicker = document.getElementById('gifPicker');
-    const stickerPicker = document.getElementById('stickerPicker');
-    const anyVisible = isMediaPickerVisible(gifPicker) || isMediaPickerVisible(stickerPicker);
-
-    if (!anyVisible) {
+    if (overlay) {
         overlay.classList.add('hidden');
         overlay.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('media-picker-open');
     }
+    document.body.classList.remove('media-picker-open');
 }
 
 // ========================================
@@ -539,13 +523,9 @@ function hideMediaPickerOverlayIfInactive() {
  */
 function toggleGifPicker() {
     const gifPicker = document.getElementById('gifPicker');
-    if (!gifPicker) {
-        console.error('[Media] GIF picker element not found');
-        return;
-    }
+    if (!gifPicker) return;
     
     const isHidden = gifPicker.classList.contains('hidden');
-    console.log('[Media] Toggle GIF picker - currently hidden:', isHidden);
     
     // Close other pickers
     closeStickerPicker();
@@ -554,49 +534,11 @@ function toggleGifPicker() {
     if (isHidden) {
         showMediaPickerOverlay();
         gifPicker.classList.remove('hidden');
-        console.log('[Media] GIF picker opened, classes:', gifPicker.className);
-        console.log('[Media] GIF picker parent:', gifPicker.parentElement);
-        console.log('[Media] GIF picker parent computed display:', window.getComputedStyle(gifPicker.parentElement).display);
-        const computedStyle = window.getComputedStyle(gifPicker);
-        const rect = gifPicker.getBoundingClientRect();
-        console.log('[Media] GIF picker computed styles:', {
-            display: computedStyle.display,
-            visibility: computedStyle.visibility,
-            opacity: computedStyle.opacity,
-            zIndex: computedStyle.zIndex,
-            position: computedStyle.position,
-            top: computedStyle.top,
-            left: computedStyle.left,
-            transform: computedStyle.transform,
-            width: computedStyle.width,
-            height: computedStyle.height
-        });
-        console.log('[Media] GIF picker dimensions:', {
-            x: rect.x,
-            y: rect.y,
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            left: rect.left,
-            bottom: rect.bottom,
-            right: rect.right
-        });
-        console.log('[Media] Viewport:', {
-            width: window.innerWidth,
-            height: window.innerHeight
-        });
-        
-        // Check if picker is actually visible in DOM
-        console.log('[Media] Picker offsetParent:', gifPicker.offsetParent);
-        console.log('[Media] Picker is connected to DOM:', gifPicker.isConnected);
-        
         loadTrendingGifs();
         const gifSearch = document.getElementById('gifSearch');
         if (gifSearch) gifSearch.focus();
     } else {
-        gifPicker.classList.add('hidden');
-        console.log('[Media] GIF picker closed');
-        hideMediaPickerOverlayIfInactive();
+        closeGifPicker();
     }
 }
 
@@ -605,10 +547,8 @@ function toggleGifPicker() {
  */
 function closeGifPicker() {
     const gifPicker = document.getElementById('gifPicker');
-    if (gifPicker) {
-        gifPicker.classList.add('hidden');
-        hideMediaPickerOverlayIfInactive();
-    }
+    if (gifPicker) gifPicker.classList.add('hidden');
+    hideMediaPickerOverlay();
 }
 
 /**
@@ -750,15 +690,10 @@ function initializeGifSearch() {
  * Toggle sticker picker
  */
 function toggleStickerPicker() {
-    console.log('[Media] toggleStickerPicker called');
     const stickerPicker = document.getElementById('stickerPicker');
-    if (!stickerPicker) {
-        console.error('[Media] Sticker picker element not found');
-        return;
-    }
+    if (!stickerPicker) return;
     
     const isHidden = stickerPicker.classList.contains('hidden');
-    console.log('[Media] Sticker picker hidden:', isHidden);
     
     // Close other pickers
     closeGifPicker();
@@ -767,11 +702,9 @@ function toggleStickerPicker() {
     if (isHidden) {
         showMediaPickerOverlay();
         stickerPicker.classList.remove('hidden');
-        console.log('[Media] Opening sticker picker, loading stickers...');
         loadStickers();
     } else {
-        stickerPicker.classList.add('hidden');
-        hideMediaPickerOverlayIfInactive();
+        closeStickerPicker();
     }
 }
 
@@ -780,10 +713,8 @@ function toggleStickerPicker() {
  */
 function closeStickerPicker() {
     const stickerPicker = document.getElementById('stickerPicker');
-    if (stickerPicker) {
-        stickerPicker.classList.add('hidden');
-        hideMediaPickerOverlayIfInactive();
-    }
+    if (stickerPicker) stickerPicker.classList.add('hidden');
+    hideMediaPickerOverlay();
 }
 
 /**
@@ -812,7 +743,6 @@ function loadStickers() {
         
         stickerGrid.appendChild(stickerElement);
     });
-    console.log('[Media] Stickers loaded into grid');
 }
 
 /**
@@ -887,9 +817,11 @@ function initializeMedia() {
         if (gifPicker && !gifPicker.classList.contains('hidden')) {
             const gifBtn = document.getElementById('gifBtn');
             const modalGifBtn = document.getElementById('modalGifBtn');
+            const dmGifBtn = document.getElementById('dmGifBtn');
             if (!gifPicker.contains(e.target) && 
                 e.target !== gifBtn && !gifBtn?.contains(e.target) &&
-                e.target !== modalGifBtn && !modalGifBtn?.contains(e.target)) {
+                e.target !== modalGifBtn && !modalGifBtn?.contains(e.target) &&
+                e.target !== dmGifBtn && !dmGifBtn?.contains(e.target)) {
                 closeGifPicker();
             }
         }
@@ -898,9 +830,11 @@ function initializeMedia() {
         if (stickerPicker && !stickerPicker.classList.contains('hidden')) {
             const stickerBtn = document.getElementById('stickerBtn');
             const modalStickerBtn = document.getElementById('modalStickerBtn');
+            const dmStickerBtn = document.getElementById('dmStickerBtn');
             if (!stickerPicker.contains(e.target) && 
                 e.target !== stickerBtn && !stickerBtn?.contains(e.target) &&
-                e.target !== modalStickerBtn && !modalStickerBtn?.contains(e.target)) {
+                e.target !== modalStickerBtn && !modalStickerBtn?.contains(e.target) &&
+                e.target !== dmStickerBtn && !dmStickerBtn?.contains(e.target)) {
                 closeStickerPicker();
             }
         }

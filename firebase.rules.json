@@ -447,6 +447,7 @@
     "groupYaps": {
       "$groupId": {
         ".read": "auth != null && (root.child('groups').child($groupId).child('isPublic').val() === true || root.child('groupMembers').child($groupId).child(auth.uid).exists())",
+        ".indexOn": ["timestamp"],
         "$yapId": {
           ".write": "auth != null && root.child('groupMembers').child($groupId).child(auth.uid).exists()"
         }
