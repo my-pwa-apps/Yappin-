@@ -2,7 +2,7 @@
 
 // Detect base path from service worker location
 const BASE_PATH = self.location.pathname.substring(0, self.location.pathname.lastIndexOf('/'));
-const CACHE_VERSION = 'v101';
+const CACHE_VERSION = 'v102';
 const CACHE_NAME = `yappin-cache-${CACHE_VERSION}`;
 const OFFLINE_URL = `${BASE_PATH}/offline.html`;
 
@@ -156,7 +156,34 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // For static and dynamic assets, try cache first, then network
+  // For JS and CSS files, use network-first strategy so code updates apply immediately
+  const isCodeAsset = /\.(?:js|css)$/.test(requestURL.pathname);
+  if (isCodeAsset) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (shouldCacheResponse(response)) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request)
+            .then(cachedResponse => {
+              return cachedResponse || new Response('Network error', {
+                status: 408,
+                headers: { 'Content-Type': 'text/plain' }
+              });
+            });
+        })
+    );
+    return;
+  }
+
+  // For images and other static assets, try cache first, then network
   const isDynamicAsset = DYNAMIC_CACHE_URLS.some(pattern => pattern.test(requestURL.pathname));
   if (isDynamicAsset) {
     event.respondWith(
