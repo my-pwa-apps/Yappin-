@@ -498,8 +498,8 @@ function isMediaPickerVisible(element) {
 function showMediaPickerOverlay() {
     const overlay = document.getElementById('mediaPickerOverlay');
     if (!overlay) return;
-    // Use inline styles to guarantee visibility regardless of cached CSS
-    overlay.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(15,23,42,0.45);z-index:4000;';
+    overlay.classList.remove('hidden');
+    overlay.style.cssText = 'position:fixed;inset:0;display:flex!important;align-items:center;justify-content:center;padding:24px;background:rgba(15,23,42,0.45);z-index:4000;';
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
 }
@@ -507,8 +507,8 @@ function showMediaPickerOverlay() {
 function hideMediaPickerOverlay() {
     const overlay = document.getElementById('mediaPickerOverlay');
     if (overlay) {
-        // Nuclear: set display:none via inline style - overrides everything
-        overlay.style.cssText = 'display:none !important;';
+        overlay.classList.add('hidden');
+        overlay.style.cssText = 'display:none!important;';
         overlay.setAttribute('aria-hidden', 'true');
     }
     document.body.style.overflow = '';
