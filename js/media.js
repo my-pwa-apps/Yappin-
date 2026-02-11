@@ -802,11 +802,12 @@ function initializeMedia() {
     // Load draft on page load
     loadDraft();
 
+    // Overlay is pointer-events:none; backdrop click is handled by document click handler below
+    // Keep overlay click handler for direct clicks on the overlay element itself (fallback)
     const mediaOverlay = document.getElementById('mediaPickerOverlay');
     if (mediaOverlay) {
         mediaOverlay.addEventListener('click', (event) => {
             if (event.target === mediaOverlay) {
-                event.stopPropagation();
                 closeGifPicker();
                 closeStickerPicker();
             }

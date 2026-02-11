@@ -2421,19 +2421,29 @@ body.dark-mode input:checked + .slider {
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: rgba(15, 23, 42, 0.45);
+    background: transparent;
     z-index: 4000;
+    pointer-events: none;
 }
 
 body.media-picker-open {
     overflow: hidden;
 }
 
+body.media-picker-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 3999;
+    pointer-events: auto;
+}
+
 .media-picker-overlay.hidden {
     display: none !important;
 }
 
-body.dark-mode .media-picker-overlay {
+body.dark-mode.media-picker-open::before {
     background: rgba(15, 23, 42, 0.75);
 }
 
@@ -2451,6 +2461,7 @@ body.dark-mode .media-picker-overlay {
     flex-direction: column;
     overflow: hidden;
     z-index: 1;
+    pointer-events: auto;
 }
 
 body.dark-mode .gif-picker,
