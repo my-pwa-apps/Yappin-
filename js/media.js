@@ -498,20 +498,20 @@ function isMediaPickerVisible(element) {
 function showMediaPickerOverlay() {
     const overlay = document.getElementById('mediaPickerOverlay');
     if (!overlay) return;
-
-    overlay.classList.remove('hidden');
-    overlay.style.display = 'flex';
+    // Use inline styles to guarantee visibility regardless of cached CSS
+    overlay.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(15,23,42,0.45);z-index:4000;';
     overlay.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('media-picker-open');
+    document.body.style.overflow = 'hidden';
 }
 
 function hideMediaPickerOverlay() {
     const overlay = document.getElementById('mediaPickerOverlay');
     if (overlay) {
-        overlay.classList.add('hidden');
-        overlay.style.display = 'none';
+        // Nuclear: set display:none via inline style - overrides everything
+        overlay.style.cssText = 'display:none !important;';
         overlay.setAttribute('aria-hidden', 'true');
     }
+    document.body.style.overflow = '';
     document.body.classList.remove('media-picker-open');
 }
 
